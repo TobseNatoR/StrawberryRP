@@ -7,7 +7,6 @@ using System.Text;
 
 namespace Fahrzeug
 {
-    //Test iz da
 }
 
 

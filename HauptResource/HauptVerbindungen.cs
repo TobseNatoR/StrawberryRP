@@ -20,6 +20,10 @@ namespace Haupt
         [ServerEvent(Event.PlayerConnected)]
         public void OnPlayerConnected(Client player)
         {
+            if(player.SocialClubName != "Tobsen.rec")
+            {
+                NAPI.Player.KickPlayer(player, "Unser Server ist in Entwicklung!");
+            }
             Funktionen.LogEintrag(player, "Verbunden");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + player.SocialClubName + " hat sich mit dem Server verbunden. [" + DateTime.Now + "]", ConsoleColor.Red);
             player.SendChatMessage("~w~[~r~StrawberryRP~w~] Hallo " + player.SocialClubName + "!");

@@ -8,7 +8,6 @@ using System.Text;
 
 namespace Fahrzeug
 {
-    //Hallo Sir
     public class Fahrzeuge
     {
         public static void FahrzeugeSpawnen()
@@ -17,14 +16,10 @@ namespace Fahrzeug
             {
                 uint AutoCode = NAPI.Util.GetHashKey(Fahrzeuge.FahrzeugName);
                 Vehicle Auto = null;
-                if (Fahrzeuge.Id == 3)
-                {
-                    Auto = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), Fahrzeuge.FahrzeugRot, Fahrzeuge.FahrzeugFarbe1, Fahrzeuge.FahrzeugFarbe2, numberPlate: "Loriii <3");
-                }
-                else
-                {
-                    Auto = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), Fahrzeuge.FahrzeugRot, Fahrzeuge.FahrzeugFarbe1, Fahrzeuge.FahrzeugFarbe2, numberPlate: Fahrzeuge.FahrzeugBeschreibung);
-                }
+                Auto = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), Fahrzeuge.FahrzeugRot, Fahrzeuge.FahrzeugFarbe1, Fahrzeuge.FahrzeugFarbe2);
+                Auto.NumberPlate = Fahrzeuge.FahrzeugBeschreibung;
+                Auto.EngineStatus = false;
+
                 Auto.SetData("ID", Fahrzeuge.Id);
             }
         }

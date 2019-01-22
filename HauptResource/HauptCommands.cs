@@ -9,9 +9,7 @@ using System.IO;
 
 
 namespace Haupt
-{
-    //Hallo djdjdjdjdjdjdjd
-    
+{    
     public class Commands : Script
     {
         [Command("fahrzeugerstellen", "Nutze: /fahrzeugerstellen [Name] [Typ] [Farbe 1] [Farbe 2]")]

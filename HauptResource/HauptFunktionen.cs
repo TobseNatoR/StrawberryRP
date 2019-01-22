@@ -11,7 +11,8 @@ namespace Haupt
     public class Funktionen
     {
         //Globale Variablen
-        public const String Verbindung = "Server=localhost;Database=strawberryrp;Uid=root;Pwd=";
+        public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp; Uid=strawberryserver; Pwd=tUGFHQfy3NEChUtt";
+        //public const String Verbindung = "Server=localhost;Database=strawberryrp;Uid=root;Pwd=";
 
         public static void AllesStarten()
         {
