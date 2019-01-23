@@ -35,6 +35,10 @@ namespace Datenbank
         public string FahrzeugBeschreibung { get; set; }
         public string FahrzeugName { get; set; }
         public int FahrzeugTyp { get; set; }
+        public int FahrzeugFraktion { get; set; }
+        public int FahrzeugJob { get; set; }
+        public int FahrzeugSpieler { get; set; }
+        public int FahrzeugMietpreis { get; set; }
         public float FahrzeugX { get; set; }
         public float FahrzeugY { get; set; }
         public float FahrzeugZ { get; set; }

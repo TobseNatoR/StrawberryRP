@@ -9,7 +9,6 @@ namespace Login
 {
     public class Login
     {
-       
     }
 }
 
