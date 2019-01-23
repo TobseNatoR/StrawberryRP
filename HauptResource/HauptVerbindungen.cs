@@ -21,7 +21,7 @@ namespace Haupt
         public void OnPlayerConnected(Client player)
         {
             //Whitelist
-            if(player.SocialClubName != "Tobsen.rec")
+            if(player.SocialClubName != "Tobsen.rec" && player.SocialClubName != "EYESLOW_")
             {
                 NAPI.Player.KickPlayer(player, "Unser Server ist in Entwicklung!");
             }

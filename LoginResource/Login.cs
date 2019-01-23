@@ -57,6 +57,7 @@ namespace Login
                 {
                     //Passwortlänge prüfen
                     if(passwort.Length < 6) { NAPI.Notification.SendNotificationToPlayer(player, "~w~[~r~StrawberryRP~w~] Das Passwort sollte minimum 6 Zeichen haben!"); return;  }
+                    if (passwort.Contains(" ")) { NAPI.Notification.SendNotificationToPlayer(player, "~w~[~r~StrawberryRP~w~] Leerzeichen sind ungültig!"); return; }
 
                     var NeuerAccount = new Account
                     {
@@ -93,6 +94,7 @@ namespace Login
                 else
                 {
                     if (nickname.Length < 4) { NAPI.Notification.SendNotificationToPlayer(player, "~w~[~r~StrawberryRP~w~] Der Nickname sollte mindestens 4 Zeichen haben!"); return; }
+                    if(nickname.Contains(" ")) { NAPI.Notification.SendNotificationToPlayer(player, "~w~[~r~StrawberryRP~w~] Dieser Nickname ist nicht möglich!"); return; }
 
                     var Account = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == player.SocialClubName).FirstOrDefault();
                     Account.NickName = nickname; 

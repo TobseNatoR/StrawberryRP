@@ -11,8 +11,8 @@ namespace Haupt
     public class Funktionen
     {
         //Globale Variablen
-        //public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp; Uid=strawberryserver; Pwd=tUGFHQfy3NEChUtt";
-        public const String Verbindung = "Server=localhost;Database=strawberryrp;Uid=root;Pwd=";
+        //public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp_server; Uid=strawberryserver; Pwd=tUGFHQfy3NEChUtt";
+        public const String Verbindung = "Server=localhost; Database=strawberryrp_server; Uid=root;Pwd=";
         
         public enum AdminLevel : int
         {
@@ -46,10 +46,13 @@ namespace Haupt
             foreach (var Account in ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == player.SocialClubName).ToList())
             {
                 //Daten für den Spieler lokal setzen
+                
                 NAPI.Data.SetEntitySharedData(player, "Eingeloggt", 1);
                 NAPI.Data.SetEntitySharedData(player, "ID", Account.Id);
-                NAPI.Data.SetEntitySharedData(player, "Nickname", Account.NickName);
-                NAPI.Data.SetEntitySharedData(player, "AdminLevel", Account.AdminLevel);
+                player.SetData("Eingeloggt", 1);
+                player.SetData("ID", Account.Id);
+                player.SetData("Nickname", Account.NickName);
+                player.SetData("AdminLevel", Account.AdminLevel);
             }
         }
 
