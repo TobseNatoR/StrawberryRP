@@ -101,7 +101,7 @@ namespace Haupt
             Funktionen.LogEintrag(Player, Beschreibung + " Fahrzeug erstellt");
         }
 
-        [Command("/waffe")]
+        [Command("waffe")]
         public void Waffe(Client Player, string weaponName, int ammo)
         {
             //Benötigte Abfragen
@@ -121,7 +121,7 @@ namespace Haupt
             }
         }
 
-        [Command("/stats")]
+        [Command("stats")]
         public void Stats(Client Player)
         {
             //Benötigte Abfragen
@@ -130,7 +130,7 @@ namespace Haupt
             Player.SendChatMessage("[Stats für " + Player.Name + "]~n~Social-CLub: " + Player.GetData("SocialClub") + "~n~Nickname: " + Player.Name + "~n~Admin Level: " + Player.GetData("AdminLevel"));
         }
 
-        [Command("/parken", "Nutze /parken")]
+        [Command("parken", "Nutze /parken")]
         public void Parken(Client Player)
         {
             //Benötigte Abfragen
@@ -239,3 +239,5 @@ namespace Haupt
         }
     }
 }
+
+
