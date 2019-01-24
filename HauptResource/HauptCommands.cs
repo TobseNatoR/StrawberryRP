@@ -93,6 +93,7 @@ namespace Haupt
             Auto.SetData("TankInhalt", 60);
             Auto.SetData("Kilometerstand", 0);
 
+            //Mitteilung das das Fahrzeug noch zugewiesen werden muss
             if (Typ == 1) { Player.SendChatMessage("~w~[~r~StrawberryRP~w~] Das Fahrzeug muss nun noch einem Job zugewiesen werden."); }
             if (Typ == 3) { Player.SendChatMessage("~w~[~r~StrawberryRP~w~] Das Fahrzeug muss nun noch einer Fraktion zugewiesen werden."); }
             if (Typ == 4) { Player.SendChatMessage("~w~[~r~StrawberryRP~w~] Das Fahrzeug muss nun noch einem Besitzer zugewiesen werden."); }
