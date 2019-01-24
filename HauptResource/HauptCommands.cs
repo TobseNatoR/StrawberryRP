@@ -121,6 +121,15 @@ namespace Haupt
             }
         }
 
+        [Command("/stats")]
+        public void Stats(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~w~[~r~StrawberryRP~w~] Du musst dafür angemeldet sein!"); return; }
+
+            Player.SendChatMessage("[Stats für " + Player.Name + "]~n~Social-CLub: " + Player.GetData("SocialClub") + "~n~Nickname: " + Player.Name + "~n~Admin Level: " + Player.GetData("AdminLevel"));
+        }
+
         [Command("/parken", "Nutze /parken")]
         public void Parken(Client Player)
         {

@@ -51,7 +51,8 @@ namespace Haupt
                 NAPI.Data.SetEntitySharedData(player, "ID", Account.Id);
                 player.SetData("Eingeloggt", 1);
                 player.SetData("ID", Account.Id);
-                player.SetData("Nickname", Account.NickName);
+                player.SetData("NickName", Account.NickName);
+                player.SetData("SocialClub", Account.SocialClub);
                 player.SetData("AdminLevel", Account.AdminLevel);
             }
         }
