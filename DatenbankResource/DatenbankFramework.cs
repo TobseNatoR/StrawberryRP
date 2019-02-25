@@ -10,15 +10,22 @@ namespace Datenbank
 {
     public class DefaultDbContext : DbContext
     {
-        // Base constructor
+        //Basic Kontruktor
         public DefaultDbContext(DbContextOptions options) : base(options)
         {
 
         }
 
-        // Account model class created somewhere else
+        //Hier werden die Klassen den Tabellen zugewiesen.-
+        public DbSet<Server> srp_server { get; set; }
+        public DbSet<Whitelist> srp_whitelist { get; set; }
         public DbSet<Account> srp_accounts { get; set; }
         public DbSet<Auto> srp_fahrzeuge { get; set; }
+        public DbSet<Immobilien> srp_immobilien { get; set; }
+        public DbSet<Tankstelle> srp_tankstellen { get; set; }
+        public DbSet<TankstellenPunkt> srp_tankstellenpunkte { get; set; }
+        public DbSet<TankstellenInfo> srp_tankstelleninfo { get; set; }
+        public DbSet<Supermarkt> srp_supermärkte { get; set; }
         public DbSet<Log> srp_log { get; set; }
 
     }
@@ -32,13 +39,13 @@ namespace Datenbank
         {
             var builder = new DbContextOptionsBuilder<DefaultDbContext>();
 
-            // Load the connection string for the first time
+            //Connection String das erste mal laden
             if (string.IsNullOrEmpty(_connectionString))
             {
                 LoadConnectionString();
             }
 
-            // Use it to init the connection
+            //Connection einleiten
             builder.UseMySql(_connectionString, optionsBuilder => optionsBuilder.MigrationsAssembly(typeof(DefaultDbContext).GetTypeInfo().Assembly.GetName().Name));
 
             return new DefaultDbContext(builder.Options);
@@ -57,7 +64,7 @@ namespace Datenbank
 
         private static void LoadConnectionString()
         {
-            _connectionString = Funktionen.Verbindung;
+            _connectionString = Haupt.GlobaleSachen.Verbindung;
         }
 
     }

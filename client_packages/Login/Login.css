@@ -1,7 +1,7 @@
-﻿body {
-	background-color: rgba(128, 128, 128, 0.2);
+﻿body
+{
+	background: transparent;
 }
-
 .jumbotron {
     max-width: 40%;
     margin-left: 30%;

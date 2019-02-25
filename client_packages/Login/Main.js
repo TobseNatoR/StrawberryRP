@@ -1,6 +1,6 @@
 var loginBrowser;
 mp.events.add('browseroeffnen', () => {
-    loginBrowser = mp.browsers.new('package://Login/Login.html');
+    loginBrowser = mp.browsers.new('package://Login/login.html');
 	mp.gui.cursor.show(true, true);
 });
 

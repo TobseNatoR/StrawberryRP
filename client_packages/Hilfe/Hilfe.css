@@ -1,5 +1,18 @@
-﻿body {
-	background-color: rgba(128, 128, 128, 0.2);
+﻿body
+{
+	background: transparent;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #d9534f;
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
 }
 
 .jumbotron {
@@ -8,6 +21,8 @@
     margin-top: 10%;
     padding: 25px 20px 15px 20px;
     border: 2px solid black;
+    overflow: scroll;
+    /*height: 68%; */
 }
 
 h2 {

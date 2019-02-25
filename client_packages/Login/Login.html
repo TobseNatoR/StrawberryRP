@@ -1,21 +1,21 @@
 ﻿<!-- Erstellt von Toby Gallenkamp für StrawberryRP -->
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="Dependences/bootstrap-3.3.7/css/bootstrap.min.css">
-    <script src="Dependences/jquery-3.3.1.min.js"></script>
-    <script src="Dependences/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="Login.css" />
+    <link rel="stylesheet" href="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/css/bootstrap.min.css">
+    <script src="https://filebase.strawberry-rp.de/server/Dependences/jquery-3.3.1.min.js"></script>
+    <script src="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <link rel="stylesheet" href="login.css" />
     <meta charset="utf-8" />
 	<audio loop="loop" autoplay="autoplay" controls="controls">   
-		<source src="https://asv-dm-mu14-2019.de/musik/musik.mp3" />  
+		<source src="https://filebase.strawberry-rp.de/Login.mp3" />  
 	</audio> 
 </head>
 <body>
     <div class="jumbotron">
 		<center>
-		<img src="img/strawberry_vector.png" style="height: 12%; width: 15%;">
-        <h2>StrawberryRP</h2>
-        <p>Genieße deinen Aufenthalt!</p>
+            <img src="https://filebase.strawberry-rp.de/server/img/logo.png" class="img-responsive" style="height: 4%; width: 6%;">
+        <h4>StrawberryRP</h4>
 		</center>
         <hr />
         <ul class="nav nav-tabs nav-justified">
@@ -27,7 +27,7 @@
                 <form>
 					<center><br>Solltest du einen Account haben, kannst du dich hier anmelden.<br><p></center>
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        <span class="input-group-addon"><i class="fas fa-lock"></i></i></span>
                         <input id="loginpasswort" type="password" class="form-control" placeholder="Passwort">
                     </div>
                     <button id="loginbutton" type="button" class="btn btn-danger btn-block">Anmelden</button>
@@ -38,7 +38,7 @@
                 <form>
 					<center><br>Deinen Namen kannst du später von deinem Social-Club Namen in einen anderen Namen ändern.<br><p></center>
                     <div class="input-group">
-                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                        <span class="input-group-addon"><i class="fas fa-lock"></i></i></span>
                         <input id="registrierenpasswort" type="password" class="form-control" placeholder="Passwort">
                     </div>
                     <button id="registrierenbutton" type="button" class="btn btn-danger btn-block">Registrieren</button>
@@ -46,6 +46,6 @@
             </div>
         </div>
     </div>
-    <script src="Login.js" type="text/javascript"></script>
+    <script src="login.js" type="text/javascript"></script>
 </body>
 </html>

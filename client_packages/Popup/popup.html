@@ -1,31 +1,35 @@
-﻿<!-- Erstellt von Toby Gallenkamp für StrawberryRP -->
+<!-- Erstellt von Toby Gallenkamp für StrawberryRP -->
 <html lang="en">
 <head>
     <link rel="stylesheet" href="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/css/bootstrap.min.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://filebase.strawberry-rp.de/server/Dependences/jquery-3.3.1.min.js"></script>
     <script src="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="hilfe.css" />
+    <link rel="stylesheet" href="popup.css" />
     <meta charset="utf-8" />
 </head>
+
 <body>
     <div class="jumbotron">
 		<center>
-		<img src="https://filebase.strawberry-rp.de/server/img/logo.png" class="img-responsive" style="height: 4%; width: 6%;">
+        <img src="https://filebase.strawberry-rp.de/server/img/logo.png" class="img-responsive" style="height: 4%; width: 6%;">
         <h4>StrawberryRP</h4>
 		</center>
         <hr />
         <div class="tab-content">
             <div id="loginTab" class="tab-pane active">
                 <form>
-                    <div id="admin"></div>
-                    <b><u>Generelle Befehle</u></b><br>
-                    /stats, /autoid
-                    <button id="schliessen" type="button" class="btn btn-danger btn-block">Schließen</button>
+					<center>
+						<h4>
+							<div id="miettext"></div>
+						</h4>
+						<div class="btn-group" role="group" style="width: 90%;">
+							<button id="mieten" type="button" style="width: 60%;" class="btn btn-success btn-secondary">Ja</button>
+							<button id="nichtmieten" type="button" style="width: 40%;" class="btn btn-danger btn-secondary">Nein</button>
+						</div>
                 </form>
             </div>
         </div>
     </div>
-    <script src="hilfe.js" type="text/javascript"></script>
+    <script src="popup.js" type="text/javascript"></script>
 </body>
 </html>

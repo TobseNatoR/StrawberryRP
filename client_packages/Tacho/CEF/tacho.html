@@ -1,0 +1,168 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css\style.css">
+        <script src="js\gauge.js"></script>
+		
+		<script>
+		
+			function update(speed, rpm, gas, km, volumen)
+			{
+				updateSpeed(speed);
+				updateKM(km);
+				updateRpm(rpm);
+				updateGas(gas, volumen);
+			}
+			function updateSpeed(speed)
+			{
+				document.getElementById("tacho").dataset.value = speed;
+			}
+			function updateKM(km)
+			{	
+				var kilometerstandt = ( km )
+				document.getElementById("tacho").dataset.valueText =  kilometerstandt.toFixed(1) + " KM";	
+			}
+			function updateRpm(rpm)
+			{
+				document.getElementById("rpm").dataset.value = rpm;
+			}
+			function updateGas(gas, volumen)
+			{
+				document.getElementById("gas").dataset.value = gas;
+				document.getElementById("gas").dataset.maxValue = volumen;
+				
+				if(volumen <= 10)
+				{
+					document.getElementById("gas").dataset.highlights = '[ { "from": 0, "to": 2, "color": "rgba(255,0,0,.75)" } ]';
+				}
+				else
+				{
+					document.getElementById("gas").dataset.highlights = '[ { "from": 0, "to": 15, "color": "rgba(255,0,0,.75)" } ]';
+				}
+			}
+			function showSpeedo()
+			{
+				document.body.className = "";
+			}
+			function hideSpeedo()
+			{
+				document.body.className = "fade";
+			}
+			
+		</script>
+        <style>
+			.blinker_arrow
+			{
+				color: #FFF;
+			}
+		</style>
+	</head>
+	<body onload="hideSpeedo()">
+        <div class="w3-container" style="width:350px; position:fixed; bottom:20; right:10;">
+            <div class="w3-display-container" style="height:200px;">
+                <div class="w3-display-left" style="left:25;">
+                	<canvas id="tacho" data-type="radial-gauge"
+                        data-width="200"
+                        data-height="200"
+                        data-units="Km/h"
+                        data-title="false"
+                        data-value="0"
+                        data-min-value="0"
+                        data-max-value="280"
+                        data-major-ticks="0,20,40,60,80,100,120,140,160,180,200,220,240,260,280"
+                        data-minor-ticks="2"
+						data-highlights='[
+                            { "from": 260, "to": 280, "color": "rgba(255,0,0,.75)" }
+                        ]'
+                        data-stroke-ticks="false"
+                        data-highlights='[]'
+						data-border-shadow-width="0"
+						data-border-color="#000000"
+                        data-border-outer-width=2.5
+                        data-border-middle-width=2.5
+						data-color-border-outer="#ff0000"
+						data-color-border-outer-end="#ff0000"
+						
+                        data-animation="false"
+                        data-color-plate="#fff"
+                        data-color-major-ticks="#000000"
+                        data-color-minor-ticks="#000000"
+                        data-color-title="#000000"
+                        data-color-units="#000000"
+                        data-color-numbers="#000000"
+                        data-value-box="true"
+                        data-value-text="0.0 KM"
+                        data-font-value="Led"
+                ></canvas>
+				<img src="https://filebase.strawberry-rp.de/server/img/logo.png" style="height: 40%; width: 30%; margin-left: 19%; margin-top: -49%;">
+                </div>
+                <div class="w3-display-bottomright" style="z-index:-5; bottom: 115; right: 15;"> 
+                	<canvas id="gas" data-type="radial-gauge"
+                        data-width="100"
+                        data-height="100"
+                        data-start-angle="20"
+                        data-ticks-angle="140"
+                        data-title="false"
+                        data-value="0"
+                        data-min-value="0"
+                        data-max-value="50"
+                        data-major-ticks="R,1"
+						data-border-outer-width=1.8
+                        data-border-middle-width=1.8
+						data-color-border-outer="#ff0000"
+						data-color-border-outer-end="#ff0000"
+                        data-minor-ticks="6"
+                        data-stroke-ticks="false"
+                        data-value-box="false"
+                        data-animation="false"
+                        data-highlights='[
+                            { "from": 0, "to": 15, "color": "rgba(255,0,0,.75)" }
+                        ]'
+                        data-border-outer-width=1
+                        data-border-middle-width=1
+                        data-color-plate="#fff"
+                        data-color-major-ticks="#000000"
+                        data-color-minor-ticks="#000000"
+                        data-font-numbers-size="38"
+                        data-color-title="#000000"
+                        data-color-units="#000000"
+                        data-color-numbers="#000000"
+                	></canvas>
+					
+                </div>
+                <div class="w3-display-bottomright" style="z-index:-5;">
+                	<canvas id="rpm" data-type="radial-gauge"
+                        data-width="125"
+                        data-height="125"
+                        data-units="x 1000"
+                        data-title="false"
+                        data-value="0"
+                        data-min-value="0"
+                        data-max-value="1000"
+                        data-major-ticks="0,1,2,3,4,5,6,7,8,9,10"
+                        data-minor-ticks="1"
+                        data-stroke-ticks="false"
+                        data-value-box="false"
+                        data-animation="false"
+                        data-highlights='[
+                            { "from": 700, "to": 1000, "color": "rgba(255,0,0,.75)" }
+                        ]'
+                        data-border-outer-width=1.8
+                        data-border-middle-width=1.8
+						data-color-border-outer="#ff0000"
+						data-color-border-outer-end="#ff0000"
+                        data-font-numbers-size="32"
+                        data-color-plate="#fff"
+                        data-color-major-ticks="#000000"
+                        data-color-minor-ticks="#000000"
+                        data-color-title="#000000"
+                        data-color-units="#000000"
+                        data-color-numbers="#000000"
+                        data-font-value="Led"
+                	></canvas>
+					
+                </div>
+            </div>
+        </div>
+	</body>
+</html>

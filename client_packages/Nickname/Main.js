@@ -1,6 +1,6 @@
 var nickNameBrowser;
 mp.events.add('nicknamebrowseroeffnen', () => {
-    nickNameBrowser = mp.browsers.new('package://Nickname/Nickname.html');
+    nickNameBrowser = mp.browsers.new('package://Nickname/nickname.html');
 	mp.gui.cursor.show(true, true);
 });
 
