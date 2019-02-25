@@ -51,6 +51,7 @@ namespace Fahrzeug
         [ServerEvent(Event.PlayerEnterVehicle)]
         public void OnPlayerEnterVehicle(Client Player, Vehicle vehicle, sbyte seatID)
         {
+            //Mietfahrzeug
             if (TypBekommen(Player.Vehicle) == 2)
             {
                 if(NameBekommen(Player.Vehicle) == "faggio")
@@ -61,7 +62,22 @@ namespace Fahrzeug
                 //Chat weg
                 Player.TriggerEvent("Chathiden");
 
-                Player.TriggerEvent("rollermietenpopupoeffnen", Funktionen.GeldFormatieren(MietpreisBekommen(Player.Vehicle)));
+                if(Player.GetData("Verwaltungsmodus") == 0)
+                {
+                    Player.TriggerEvent("rollermietenpopupoeffnen", Funktionen.GeldFormatieren(MietpreisBekommen(Player.Vehicle)));
+                }
+            }
+            else if (TypBekommen(Player.Vehicle) == 2)
+            {
+                if (Player.GetData("KaufenTyp") == 5) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                Player.SetData("KaufenTyp", 5);
+                Player.SetData("KaufenId", IdBekommen(Player.Vehicle));
+                Player.SetData("KaufenPreis", autohaus.AutohausKaufpreis);
+
+                //Chat weg
+                Player.TriggerEvent("Chathiden");
+
+                Player.TriggerEvent("Kaufen", 3, GeldFormatieren(autohaus.AutohausKaufpreis));
             }
         }
 
@@ -149,6 +165,21 @@ namespace Fahrzeug
                 }
             }
             return Mietpreis;
+        }
+
+        public static int IdBekommen(Vehicle Auto)
+        {
+            //Benötigte Definitionen
+            int Id = 0;
+
+            foreach (AutoLokal auto in Funktionen.AutoListe)
+            {
+                if (Auto.GetData("Id") == auto.Id)
+                {
+                    Id = auto.Id;
+                }
+            }
+            return Id;
         }
 
         public static float XBekommen(Vehicle Auto)
@@ -245,6 +276,18 @@ namespace Fahrzeug
                 if (Auto.GetData("Id") == auto.Id)
                 {
                     auto.FahrzeugJob = Job;
+                    auto.FahrzeugGeändert = true;
+                }
+            }
+        }
+
+        public static void AutohausSetzen(Vehicle Auto, int Autohaus)
+        {
+            foreach (AutoLokal auto in Funktionen.AutoListe)
+            {
+                if (Auto.GetData("Id") == auto.Id)
+                {
+                    auto.FahrzeugAutohaus = Autohaus;
                     auto.FahrzeugGeändert = true;
                 }
             }

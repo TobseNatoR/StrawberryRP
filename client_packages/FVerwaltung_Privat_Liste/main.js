@@ -16,7 +16,7 @@ var inhalt4;
 var inhalt5;
 
 mp.events.add('Fahrzeugverwaltung_Privat_Liste', () => {
-    fahrzeugverwaltung = mp.browsers.new('package://FVerwaltung_Privat_Liste/fahrzeugverwaltung_privat.html');
+    fahrzeugverwaltung = mp.browsers.new('package://FVerwaltung_Privat_Liste/fahrzeugverwaltung_privat_liste.html');
 	mp.gui.cursor.show(true, true);
 });
 

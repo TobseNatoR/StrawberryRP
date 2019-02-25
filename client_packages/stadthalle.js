@@ -5,7 +5,7 @@ let Stadthalle = new TextMenuItem("Personalausweis beantragen (100$)", "beantrag
 
 Stadthalle.addOnClickEvent({
     trigger: data => {
-        mp.gui.chat.push("Click "+ data);
+        mp.events.callRemote('Personalausweis');
     }
 });
 menu.add(Stadthalle);

@@ -16,7 +16,7 @@ namespace Datenbank
 
         }
 
-        //Hier werden die Klassen den Tabellen zugewiesen.-
+        //Hier werden die Klassen den Tabellen zugewiesen.
         public DbSet<Server> srp_server { get; set; }
         public DbSet<Whitelist> srp_whitelist { get; set; }
         public DbSet<Account> srp_accounts { get; set; }
@@ -26,6 +26,8 @@ namespace Datenbank
         public DbSet<TankstellenPunkt> srp_tankstellenpunkte { get; set; }
         public DbSet<TankstellenInfo> srp_tankstelleninfo { get; set; }
         public DbSet<Supermarkt> srp_supermärkte { get; set; }
+        public DbSet<Autohaus> srp_autohäuser { get; set; }
+        public DbSet<Bot> srp_bots { get; set; }
         public DbSet<Log> srp_log { get; set; }
 
     }

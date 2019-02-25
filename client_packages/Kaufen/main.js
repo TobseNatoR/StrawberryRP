@@ -18,7 +18,12 @@ mp.events.add('Kaufen', (Typ, Preis) => {
 	{
 		kaufen.execute(`document.getElementById('kaufentext').innerHTML = '24/7 kaufen';`);﻿
 		kaufen.execute(`document.getElementById('text').innerHTML = 'Möchtest du den 24/7 für <b>${Preis}</b> kaufen?';`);﻿
-	}
+    }
+    else if (Typ == 4)
+    {
+        kaufen.execute(`document.getElementById('kaufentext').innerHTML = 'Autohaus kaufen';`);
+        kaufen.execute(`document.getElementById('text').innerHTML = 'Möchtest du das Autohaus für <b>${Preis}</b> kaufen?';`);
+    }
 	
 });
 

@@ -116,6 +116,7 @@ namespace Haupt
             if (Typ == 1) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Job zugewiesen werden."); }
             if (Typ == 3) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einer Fraktion zugewiesen werden."); }
             if (Typ == 4) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Besitzer zugewiesen werden."); }
+            if (Typ == 5) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Autohaus zugewiesen werden."); }
 
             Funktionen.LogEintrag(Player, Funktionen.FahrzeugTypNamen(Typ) + "(s) Fahrzeug erstellt");
         }
@@ -180,7 +181,7 @@ namespace Haupt
             ContextFactory.Instance.SaveChanges();
 
 
-            //Tanke zu der Lokalen Liste hinzufügen
+            //Immobilie zu der Lokalen Liste hinzufügen
             ImmobilienLokal haus = new ImmobilienLokal();
 
             haus.Id = ContextFactory.Instance.srp_immobilien.Max(x => x.Id);
@@ -212,7 +213,7 @@ namespace Haupt
             haus.ImmobilienBlip.Sprite = 40;
             haus.ImmobilienBlip.Color = 2;
 
-            //Tanke in der Liste Lokal speichern
+            //Immobilie in der Liste Lokal speichern
             Funktionen.ImmobilienListe.Add(haus);
 
             //Log Eintrag
@@ -269,11 +270,68 @@ namespace Haupt
             supermarkt.SupermarktBlip.Sprite = 590;
             supermarkt.SupermarktBlip.Color = 2;
 
-            //Tanke in der Liste Lokal speichern
+            //Supermarkt in der Liste Lokal speichern
             Funktionen.SupermarktListe.Add(supermarkt);
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Supermarkt erstellt");
+        }
+
+        [Command("aherstellen", "Nutze: /aherstellen [Beschreibung] [Kaufpreis]")]
+        public void AutohausErstellen(Client Player, String Beschreibung, long Kaufpreis)
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Ein neues Objekt erzeugen
+            var Autohaus = new Autohaus
+            {
+                AutohausBeschreibung = Beschreibung,
+                AutohausBesitzer = 0,
+                AutohausGeld = 0,
+                AutohausKaufpreis = Kaufpreis,
+                AutohausX = Player.Position.X,
+                AutohausY = Player.Position.Y,
+                AutohausZ = Player.Position.Z
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_autohäuser.Add(Autohaus);
+            ContextFactory.Instance.SaveChanges();
+
+
+            //Autohaus zu der Lokalen Liste hinzufügen
+            AutohausLokal autohaus = new AutohausLokal();
+
+            autohaus.Id = ContextFactory.Instance.srp_autohäuser.Max(x => x.Id);
+            autohaus.AutohausBeschreibung = Beschreibung;
+            autohaus.AutohausBesitzer = 0;
+            autohaus.AutohausGeld = 0;
+            autohaus.AutohausKaufpreis = Kaufpreis;
+            autohaus.AutohausX = Player.Position.X;
+            autohaus.AutohausY = Player.Position.Y;
+            autohaus.AutohausZ = Player.Position.Z;
+
+
+            String AutohausText = "~g~[~w~Autohaus ID: " + autohaus.Id + "~g~]~n~";
+            AutohausText += "~w~Kaufpreis: " + Funktionen.GeldFormatieren(autohaus.AutohausKaufpreis) + "~n~";
+            AutohausText += "~w~Beschreibung: " + autohaus.AutohausBeschreibung;
+
+
+            //TextLabel, Marker, Blip erstellen
+            autohaus.AutohausLabel = NAPI.TextLabel.CreateTextLabel(AutohausText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+            autohaus.AutohausMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            autohaus.AutohausBlip = NAPI.Blip.CreateBlip(new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ));
+            autohaus.AutohausBlip.Name = autohaus.AutohausBeschreibung;
+            autohaus.AutohausBlip.ShortRange = true;
+            autohaus.AutohausBlip.Sprite = 523;
+            autohaus.AutohausBlip.Color = 2;
+
+            //Autohaus in der Liste Lokal speichern
+            Funktionen.AutohausListe.Add(autohaus);
+
+            //Log Eintrag
+            Funktionen.LogEintrag(Player, "Autohaus erstellt");
         }
 
         [Command("tbeschreibung", "Nutze: /tbeschreibung [Id] [Text]", GreedyArg = true)]
@@ -398,6 +456,83 @@ namespace Haupt
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Tankstelle erstellt");
+        }
+
+        [Command("perstellen", "Nutze: /perstellen [Name] [Beschreibung]")]
+        public void PedErstellen(Client Player, String Name, String Beschreibung)
+        {
+            //Definitionen
+            uint BotHash = NAPI.Util.GetHashKey(Name);
+
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PedErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Enum.IsDefined(typeof(PedHash), BotHash) == false) { Player.SendChatMessage("~y~Info~w~: Dieses Ped kennen wir leider nicht."); return; }
+
+            //Ein neues Objekt erzeugen
+            var Bot = new Bot
+            {
+                BotName = Name,
+                BotBeschreibung = Beschreibung,
+                BotX = Player.Position.X,
+                BotY = Player.Position.Y,
+                BotZ = Player.Position.X,
+                BotKopf = Player.Rotation.Z,
+                BotDimension = Player.Dimension
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_bots.Add(Bot);
+            ContextFactory.Instance.SaveChanges();
+
+            //Tanke zu der Lokalen Liste hinzufügen
+            BotLokal bot = new BotLokal();
+
+            bot.Id = ContextFactory.Instance.srp_bots.Max(x => x.Id);
+            bot.BotName = Name;
+            bot.BotBeschreibung = Beschreibung;
+            bot.BotX = Player.Position.X;
+            bot.BotY = Player.Position.Y;
+            bot.BotZ = Player.Position.Z;
+            bot.BotKopf = Player.Rotation.Z;
+            bot.BotDimension = Player.Dimension;
+
+            //Bot erstellen
+            bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Name), new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, Player.Dimension);
+
+            //Tanke in der Liste Lokal speichern
+            Funktionen.BotListe.Add(bot);
+
+            //Log Eintrag
+            Funktionen.LogEintrag(Player, "Bot erstellt");
+        }
+
+        [Command("plöschen", "Nutze: /plöschen")]
+        public void PedLöschen(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PedLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            BotLokal bot = new BotLokal();
+            bot = Funktionen.NahePedBekommen(Player);
+
+            if (bot != null)
+            {
+                var Bot = ContextFactory.Instance.srp_bots.Where(x => x.Id == bot.Id).FirstOrDefault();
+
+                Funktionen.BotListe.Remove(bot);
+                bot.Bot.Delete();
+
+                //Query absenden
+                ContextFactory.Instance.srp_bots.Remove(Bot);
+
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "Tankstelle gelöscht");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Es wurde kein Ped gefunden.");
+            }
         }
 
         [Command("tpunkterstellen", "Nutze: /tpunkterstellen [TankstellenID]")]
@@ -715,7 +850,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Parken) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugParken) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1007,7 +1142,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Fahrzeugreparieren) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugReparieren) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Checken ob er in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1025,29 +1160,22 @@ namespace Haupt
             }
         }
 
-        [Command("fzuweisen", "Nutze: /fzuweisen [1 = Job, 2 = Fraktion] [Fraktions ID / Job ID]")]
-        public void FahrzeugZuweisen(Client Player, int Typ, int Id = 0, String Spieler = "")
+        [Command("fzuweisen", "Nutze: /fzuweisen [1 = Job, 2 = Fraktion, 3 = Autohaus] [Fraktions ID / Job ID / Autohaus ID]")]
+        public void FahrzeugZuweisen(Client Player, int Typ, int Id = 0)
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Fahrzeugzuweisen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugZuweisen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             if (Typ < 1 || Typ > 3) { Player.SendChatMessage("~y~Info~w~: Ungültiger Typ."); return; }
 
             //Checken ob er in einem Fahrzeug ist
             if (Player.IsInVehicle)
             {
-                //Fahrzeug aus der Datenbank greifen
-                int FahrzeugID = Player.Vehicle.GetData("Id");
-                var Fahrzeug = ContextFactory.Instance.srp_fahrzeuge.Where(x => x.Id == FahrzeugID).FirstOrDefault();
-                
-                //[Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat]
-                if(Fahrzeuge.TypBekommen(Player.Vehicle) == 1 && Typ == 1)
+                //[Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus]
+                if (Fahrzeuge.TypBekommen(Player.Vehicle) == 1 && Typ == 1)
                 {
                     //Schauen ob der Job überhaupt existiert
                     if (Id < 0|| Id > Zahlen.Jobs) { Player.SendChatMessage("~y~Info~w~: Ungültiger Job."); return; }
-
-                    //Dem Fahrzeug den Job zuweisen
-                    Fahrzeug.FahrzeugJob = Id;
 
                     //Dem Fahrzeug lokal die Werte mitgeben
                     Fahrzeuge.JobSetzen(Player.Vehicle, Id);
@@ -1056,15 +1184,12 @@ namespace Haupt
                     Player.SendChatMessage("~y~Info~w~: Dem Fahrzeug wurde der Job zugewiesen.");
 
                     //Log eintrag
-                    Funktionen.LogEintrag(Player, "Job Fahrzeug zugewiesen");
+                    Funktionen.LogEintrag(Player, "Fahrzeug Job zugewiesen");
                 }
                 else if (Fahrzeuge.TypBekommen(Player.Vehicle) == 3 && Typ == 2)
                 {
                     //Schauen ob die Fraktion überhaupt existiert
                     if (Id < 1 || Id > Zahlen.Fraktionen) { Player.SendChatMessage("~y~Info~w~: Ungültige Fraktion."); return; }
-
-                    //Dem Fahrzeug den Job zuweisen
-                    Fahrzeug.FahrzeugFraktion = Id;
 
                     //Dem Fahrzeug lokal die Werte mitgeben
                     Fahrzeuge.FraktionSetzen(Player.Vehicle, Id);
@@ -1073,16 +1198,30 @@ namespace Haupt
                     Player.SendChatMessage("~y~Info~w~: Dem Fahrzeug wurde die Fraktion zugewiesen.");
 
                     //Log eintrag
-                    Funktionen.LogEintrag(Player, "Fraktions Fahrzeug zugewiesen");
+                    Funktionen.LogEintrag(Player, "Fahrzeug Fraktion zugewiesen");
+                }
+                else if (Fahrzeuge.TypBekommen(Player.Vehicle) == 5 && Typ == 3)
+                {
+                    //Query durch die Autohäuser
+                    var Check = ContextFactory.Instance.srp_autohäuser.Count(x => x.Id == Id);
+
+                    //Prüfen ob das Autohaus existiert
+                    if (Check == 0) { Player.SendChatMessage("~y~Info~w~: Dieses Autohaus ist uns nicht bekannt."); return; }
+
+                    //Dem Fahrzeug lokal die Werte mitgeben
+                    Fahrzeuge.AutohausSetzen(Player.Vehicle, Id);
+
+                    //Nachricht an den Spieler
+                    Player.SendChatMessage("~y~Info~w~: Dem Fahrzeug wurde das Autohaus zugewiesen.");
+
+                    //Log eintrag
+                    Funktionen.LogEintrag(Player, "Fahrzeug Autohaus zugewiesen");
                 }
                 else
                 {
                     //Fehlermessage falls der Typ der Verändert werden soll nicht zum Fahrzeug passt
                     Player.SendChatMessage("~y~Info~w~: Da hat was nicht geklappt. Schaue auf das Kennzeichen um zu sehen was es für ein Fahrzeug ist.");
                 }
-
-                //Query absenden
-                ContextFactory.Instance.SaveChanges();
             }
             else
             {
@@ -1095,7 +1234,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Fahrzeugzuweisen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugZuweisen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Checken ob er in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1148,7 +1287,7 @@ namespace Haupt
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Fahrzeugporten) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugPorten) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             if (Id < 0) { Player.SendChatMessage("~y~Info~w~: Ungültige ID."); return; }
 
             //Schleife durch die Fahrzeuge die neugespawnt werden sollen
@@ -1180,7 +1319,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Fahrzeugrespawn) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugRespawn) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             if (Typ < 0 || Typ > 5) { Player.SendChatMessage("~y~Info~w~: Ungültiger Typ."); return; }
 
             //Schleife durch die Fahrzeuge die neugespawnt werden sollen
@@ -1202,6 +1341,31 @@ namespace Haupt
 
             //Log eintrag
             Funktionen.LogEintrag(Player, "Fahrzeuge respawnt");
+        }
+
+        [Command("vmodus", "Nutze: /vmodus")]
+        public void VerwaltungsModus(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.VerwaltungsModus) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            if(Player.GetData("VerwaltungsModus") == 1)
+            {
+                Player.SetData("VerwaltungsModus", 0);
+                Player.SendChatMessage("~y~Info~w~: Du hast den Verwaltungsmodus verlassen.");
+
+                //Log eintrag
+                Funktionen.LogEintrag(Player, "Verwaltungsmodus verlassen");
+            }
+            else
+            {
+                Player.SetData("VerwaltungsModus", 1);
+                Player.SendChatMessage("~y~Info~w~: Du hast den Verwaltungsmodus betreten.");
+
+                //Log eintrag
+                Funktionen.LogEintrag(Player, "Verwaltungsmodus betreten");
+            }
         }
 
         [Command("hilfe")]

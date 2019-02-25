@@ -24,12 +24,19 @@ namespace Haupt
         //Wetter
         public static int ServerWetter = 0;
 
+        //Cooldown
+        public static uint CoolDownZeit = 5000;
+
         //Marker
         public const int TankstellenMarker = 0;
         public const int TankstellenZapfsäuleMarker = 20;
         public const int TankstellenInfoMarker = 20;
         public const int ImmobilienMarker = 0;
         public const int SupermarktMarker = 0;
+        public const int AutohausMarker = 0;
+
+        //Preise
+        public const int PersonalausweisPreis = 100;
     }
 
     public class AdminBefehle
@@ -37,9 +44,13 @@ namespace Haupt
         //Hier kann man die Berechtigungen für die Befehle ändern
         public const int AdminGeben = 5;
         public const int GeldGeben = 5;
+        public const int VerwaltungsModus = 4;
         public const int TankeBeschreibung = 4;
         public const int TankeKaufpreis = 4;
         public const int FahrzeugErstellen = 4;
+        public const int AutohausErstellen = 4;
+        public const int PedErstellen = 4;
+        public const int PedLöschen = 4;
         public const int FahrzeugLöschen = 4;
         public const int FahrzeugMietPreis = 4;
         public const int FahrzeugKaufPreis = 4;
@@ -54,13 +65,13 @@ namespace Haupt
         public const int TankInfoLöschen = 4;
         public const int TankInfoErstellen = 4;
         public const int Waffe = 4;
-        public const int Parken = 3;
-        public const int Fahrzeugporten = 3;
+        public const int FahrzeugParken = 3;
+        public const int FahrzeugPorten = 3;
         public const int Teleporten = 1;
         public const int AdminChat = 1;
-        public const int Fahrzeugrespawn = 3;
-        public const int Fahrzeugreparieren = 3;
-        public const int Fahrzeugzuweisen = 3;
+        public const int FahrzeugRespawn = 3;
+        public const int FahrzeugReparieren = 3;
+        public const int FahrzeugZuweisen = 3;
     }
 
     public class Zahlen
@@ -80,6 +91,8 @@ namespace Haupt
         public static List<TankstellenPunktLokal> TankenPunktListe;
         public static List<TankstellenInfoLokal> TankenInfoListe;
         public static List<SupermarktLokal> SupermarktListe;
+        public static List<AutohausLokal> AutohausListe;
+        public static List<BotLokal> BotListe;
 
         public static void AllesStarten()
         {
@@ -98,6 +111,8 @@ namespace Haupt
             TankstellenInfoLadenLokal();
             ImmobilienLadenLokal();
             SupermärkteLadenLokal();
+            PedsLadenLokal();
+            AutohäuserLadenLokal();
 
             //Speicherungs Timer
             Timer.SetTimer(AlleSpielerSpeichern, 10000, 0);
@@ -105,11 +120,14 @@ namespace Haupt
             Timer.SetTimer(AlleTankstellenSpeichern, 10000, 0);
             Timer.SetTimer(AlleSupermärkteSpeichern, 10000, 0);
             Timer.SetTimer(AlleImmobilienSpeichern, 10000, 0);
+            Timer.SetTimer(AlleBotsSpeichern, 10000, 0);
+            Timer.SetTimer(AlleAutohäuserSpeichern, 10000, 0);
 
             //Update Timer
             Timer.SetTimer(AlleTankstellenUpdaten, 10000, 0);
             Timer.SetTimer(AlleSupermärkteUpdaten, 10000, 0);
             Timer.SetTimer(AlleImmobilienUpdaten, 10000, 0);
+            Timer.SetTimer(AlleAutohäuserUpdaten, 10000, 0);
 
             //Spieler Timer
             Timer.SetTimer(Alle, 1000, 0);
@@ -130,6 +148,8 @@ namespace Haupt
             var TankstellenInfoPunkte = ContextFactory.Instance.srp_tankstelleninfo.Count();
             var Immobilien = ContextFactory.Instance.srp_immobilien.Count();
             var Supermärkte = ContextFactory.Instance.srp_supermärkte.Count();
+            var Autohäuser = ContextFactory.Instance.srp_autohäuser.Count();
+            var Bots = ContextFactory.Instance.srp_bots.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -140,6 +160,8 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + TankstellenInfoPunkte + " Tankstellen Info Punkte wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Immobilien + " Immobilien wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Supermärkte + " Supermärkte wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + Autohäuser + " Autohäuser wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + Bots + " Peds wurden geladen.");
         }
 
         public static void TankstellenLadenLokal()
@@ -250,6 +272,47 @@ namespace Haupt
             }
         }
 
+        public static void AutohäuserLadenLokal()
+        {
+            AutohausListe = AlleAutohäuserLadenDB();
+
+            foreach (AutohausLokal autohaus in AutohausListe)
+            {
+                String AutohausText = null;
+                if (autohaus.AutohausBesitzer == 0)
+                {
+                    AutohausText = "~g~[~w~Autohaus: " + autohaus.Id + "~g~]~n~";
+                    AutohausText += "~w~Kaufpreis: " + GeldFormatieren(autohaus.AutohausKaufpreis) + "~n~";
+                    AutohausText += "~w~Beschreibung: " + autohaus.AutohausBeschreibung;
+                    autohaus.AutohausBlip = NAPI.Blip.CreateBlip(new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ));
+                    autohaus.AutohausBlip.Name = autohaus.AutohausBeschreibung;
+                    autohaus.AutohausBlip.ShortRange = true;
+                    autohaus.AutohausBlip.Sprite = 523;
+                    autohaus.AutohausBlip.Color = 2;
+                }
+                else
+                {
+                    AutohausText = "~g~[~w~Autohaus: " + autohaus.Id + "~g~]~n~";
+                    AutohausText += "~w~Beschreibung: " + autohaus.AutohausBeschreibung + "~n~";
+                    AutohausText += "~w~Besitzer: " + BesitzerNamenBekommen(autohaus.AutohausBesitzer);
+                    autohaus.AutohausBlip = NAPI.Blip.CreateBlip(new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ));
+                    autohaus.AutohausBlip.Name = autohaus.AutohausBeschreibung;
+                    autohaus.AutohausBlip.ShortRange = true;
+                    autohaus.AutohausBlip.Sprite = 523;
+                    autohaus.AutohausBlip.Color = 1;
+                }
+
+                //TextLabel und Marker erstellen
+                autohaus.AutohausLabel = NAPI.TextLabel.CreateTextLabel(AutohausText, new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                autohaus.AutohausMarker = NAPI.Marker.CreateMarker(GlobaleSachen.AutohausMarker, new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            }
+        }
+
+        public static void PedsLadenLokal()
+        {
+            BotListe = AlleBotsLadenDB();
+        }
+
         public static void FahrzeugeLadenLokal()
         {
             AutoListe = Fahrzeuge.AlleAutosLadenDB();
@@ -305,6 +368,57 @@ namespace Haupt
             }
         }
 
+        public static int HatImmobilie(Client Player)
+        {
+            int HatImmobilie = 0;
+            foreach (ImmobilienLokal immobilielocal in ImmobilienListe)
+            {
+                if (immobilielocal.ImmobilienBesitzer == Player.GetData("Id"))
+                {
+                    HatImmobilie = 1;
+                    break;
+                }
+            }
+            return HatImmobilie;
+        }
+
+        public static int HatBiz(Client Player)
+        {
+            int HatBiz = 0;
+            foreach (TankstelleLokal tankstellelocal in TankenListe)
+            {
+                if (tankstellelocal.TankstelleBesitzer == Player.GetData("Id"))
+                {
+                    HatBiz = 1;
+                    break;
+                }
+            }
+            
+            if(HatBiz == 0)
+            {
+                foreach (SupermarktLokal supermarktlocal in SupermarktListe)
+                {
+                    if (supermarktlocal.SupermarktBesitzer == Player.GetData("Id"))
+                    {
+                        HatBiz = 1;
+                        break;
+                    }
+                }
+            }
+            else if (HatBiz == 0)
+            {
+                foreach (AutohausLokal autohauslocal in AutohausListe)
+                {
+                    if (autohauslocal.AutohausBesitzer == Player.GetData("Id"))
+                    {
+                        HatBiz = 1;
+                        break;
+                    }
+                }
+            }
+            return HatBiz;
+        }
+
         public static TankstelleLokal NaheTankeBekommen(Client Player, float distance = 2.0f)
         {
             TankstelleLokal Tankstelle = null;
@@ -318,6 +432,19 @@ namespace Haupt
             return Tankstelle;
         }
 
+        public static BotLokal NahePedBekommen(Client Player, float distance = 2.0f)
+        {
+            BotLokal Bot = null;
+            foreach (BotLokal botlocal in BotListe)
+            {
+                if (Player.Position.DistanceTo(new Vector3(botlocal.BotX, botlocal.BotY, botlocal.BotZ)) < distance)
+                {
+                    Bot = botlocal;
+                }
+            }
+            return Bot;
+        }
+
         public static SupermarktLokal NaheSupermarktBekommen(Client Player, float distance = 2.0f)
         {
             SupermarktLokal Supermarkt = null;
@@ -329,6 +456,19 @@ namespace Haupt
                 }
             }
             return Supermarkt;
+        }
+
+        public static AutohausLokal NaheAutohausBekommen(Client Player, float distance = 2.0f)
+        {
+            AutohausLokal Autohaus = null;
+            foreach (AutohausLokal autohauslocal in AutohausListe)
+            {
+                if (Player.Position.DistanceTo(new Vector3(autohauslocal.AutohausX, autohauslocal.AutohausY, autohauslocal.AutohausZ)) < distance)
+                {
+                    Autohaus = autohauslocal;
+                }
+            }
+            return Autohaus;
         }
 
         public static TankstellenPunktLokal NaheTankePunktBekommen(Client Player, float distance = 4.0f)
@@ -361,6 +501,24 @@ namespace Haupt
                             Auto = autolocal;
                         }
                     }
+                }
+            }
+            return Auto;
+        }
+
+        public static AutoLokal NaheAutosBekommenVonInnen(Client Player)
+        {
+            AutoLokal Auto = null;
+            
+            //Benötigte Definitionen
+            int FahrzeugID = Player.Vehicle.GetData("Id");
+
+            foreach (AutoLokal autolocal in AutoListe)
+            {
+                if (FahrzeugID == autolocal.Id)
+                {
+                    Auto = autolocal;
+                    break;
                 }
             }
             return Auto;
@@ -1062,11 +1220,13 @@ namespace Haupt
                 if(Status == 1)
                 {
                     auto.FahrzeugAbgeschlossen = 1;
+                    NAPI.Vehicle.SetVehicleLocked(auto.Fahrzeug, true);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dein Fahrzeug abgeschlossen.");
                 }
                 else
                 {
                     auto.FahrzeugAbgeschlossen = 0;
+                    NAPI.Vehicle.SetVehicleLocked(auto.Fahrzeug, false);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dein Fahrzeug aufgeschlossen.");
                 }
             }
@@ -1075,6 +1235,10 @@ namespace Haupt
         [RemoteEvent("BCheck")]
         public static void BCheck(Client Player)
         {
+            //Cooldown
+            if (Player.GetData("Cooldown") == 1) { return; }
+            Timer.SetTimer(() => CoolDown(Player), GlobaleSachen.CoolDownZeit, 1);
+
             //Wichtige Abfragen
             if (Player.GetData("Eingeloggt") == 0) { return; }
 
@@ -1110,10 +1274,12 @@ namespace Haupt
         [RemoteEvent("F2Check")]
         public static void F2Check(Client Player)
         {
-            //Benötigte Definitionen
+            //Cooldown
+            if(Player.GetData("Cooldown") == 1) { return; }
+            Timer.SetTimer(() => CoolDown(Player), GlobaleSachen.CoolDownZeit, 1);
 
             //Benötigte Abfragen
-            if(Player.GetData("FahrzeugPrivatDialog") == 1) { Player.TriggerEvent("Fahrzeugverwaltung_Privat_Abbrechen"); Player.SetData("FahrzeugPrivatDialog", 0); return; }
+            if (Player.GetData("FahrzeugPrivatDialog") == 1) { Player.TriggerEvent("Fahrzeugverwaltung_Privat_Abbrechen"); Player.SetData("FahrzeugPrivatDialog", 0); return; }
 
             if (FahrzeugeZählenPrivat(Player) != 0)
             {
@@ -1160,7 +1326,6 @@ namespace Haupt
                         }
                     }
                 }
-
                 Player.SetData("FahrzeugPrivatDialog", 1);
             }
         }
@@ -1168,6 +1333,10 @@ namespace Haupt
         [RemoteEvent("KCheck")]
         public static void KCheck(Client Player)
         {
+            //Cooldown
+            if (Player.GetData("Cooldown") == 1) { return; }
+            Timer.SetTimer(() => CoolDown(Player), GlobaleSachen.CoolDownZeit, 1);
+
             //Wichtige Abfragen
             if (Player.GetData("Eingeloggt") == 0) { return; }
 
@@ -1175,12 +1344,13 @@ namespace Haupt
             if (!Player.IsInVehicle)
             {
                 TankstelleLokal tanke = new TankstelleLokal();
-                tanke = Funktionen.NaheTankeBekommen(Player);
+                tanke = NaheTankeBekommen(Player);
 
                 if (tanke != null)
                 {
                     if (tanke.TankstelleBesitzer == 0)
                     {
+                        if(HatBiz(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Business."); return; }
                         if (Player.GetData("KaufenTyp") == 1) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 1);
                         Player.SetData("KaufenId", tanke.Id);
@@ -1190,18 +1360,18 @@ namespace Haupt
                         Player.TriggerEvent("Chathiden");
 
                         Player.TriggerEvent("Kaufen", 1, GeldFormatieren(tanke.TankstelleKaufpreis));
-
                         return;
                     }
                 }
 
                 ImmobilienLokal haus = new ImmobilienLokal();
-                haus = Funktionen.NaheImmobilieBekommen(Player);
+                haus = NaheImmobilieBekommen(Player);
 
                 if (haus != null)
                 {
                     if (haus.ImmobilienBesitzer == 0)
                     {
+                        if (HatImmobilie(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Haus."); return; }
                         if (Player.GetData("KaufenTyp") == 2) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 2);
                         Player.SetData("KaufenId", haus.Id);
@@ -1211,18 +1381,18 @@ namespace Haupt
                         Player.TriggerEvent("Chathiden");
 
                         Player.TriggerEvent("Kaufen", 2, GeldFormatieren(haus.ImmobilienKaufpreis));
-
                         return;
                     }
                 }
 
                 SupermarktLokal supermarkt = new SupermarktLokal();
-                supermarkt = Funktionen.NaheSupermarktBekommen(Player);
+                supermarkt = NaheSupermarktBekommen(Player);
 
                 if (supermarkt != null)
                 {
                     if (supermarkt.SupermarktBesitzer == 0)
                     {
+                        if (HatBiz(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Business."); return; }
                         if (Player.GetData("KaufenTyp") == 3) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 3);
                         Player.SetData("KaufenId", supermarkt.Id);
@@ -1232,7 +1402,27 @@ namespace Haupt
                         Player.TriggerEvent("Chathiden");
 
                         Player.TriggerEvent("Kaufen", 3, GeldFormatieren(supermarkt.SupermarktKaufpreis));
+                        return;
+                    }
+                }
 
+                AutohausLokal autohaus = new AutohausLokal();
+                autohaus = NaheAutohausBekommen(Player);
+
+                if (autohaus != null)
+                {
+                    if (autohaus.AutohausBesitzer == 0)
+                    {
+                        if (HatBiz(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Business."); return; }
+                        if (Player.GetData("KaufenTyp") == 4) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                        Player.SetData("KaufenTyp", 4);
+                        Player.SetData("KaufenId", autohaus.Id);
+                        Player.SetData("KaufenPreis", autohaus.AutohausKaufpreis);
+
+                        //Chat weg
+                        Player.TriggerEvent("Chathiden");
+
+                        Player.TriggerEvent("Kaufen", 3, GeldFormatieren(autohaus.AutohausKaufpreis));
                         return;
                     }
                 }
@@ -1242,6 +1432,10 @@ namespace Haupt
         [RemoteEvent("ECheck")]
         public static void ECheck(Client Player)
         {
+            //Cooldown
+            if (Player.GetData("Cooldown") == 1) { return; }
+            Timer.SetTimer(() => CoolDown(Player), GlobaleSachen.CoolDownZeit, 1);
+
             //Wichtige Abfragen
             if (Player.GetData("Eingeloggt") == 0) { return; }
 
@@ -1443,6 +1637,28 @@ namespace Haupt
             return SupermarktListe;
         }
 
+        public static List<AutohausLokal> AlleAutohäuserLadenDB()
+        {
+            List<AutohausLokal> AutohausListe = new List<AutohausLokal>();
+            foreach (var Autohaus in ContextFactory.Instance.srp_autohäuser.Where(x => x.Id > 0).ToList())
+            {
+                AutohausLokal autohaus = new AutohausLokal();
+
+                autohaus.Id = Autohaus.Id;
+                autohaus.AutohausBeschreibung = Autohaus.AutohausBeschreibung;
+                autohaus.AutohausBesitzer = Autohaus.AutohausBesitzer;
+                autohaus.AutohausGeld = Autohaus.AutohausGeld;
+                autohaus.AutohausKaufpreis = Autohaus.AutohausKaufpreis;
+                autohaus.AutohausX = Autohaus.AutohausX;
+                autohaus.AutohausY = Autohaus.AutohausY;
+                autohaus.AutohausZ = Autohaus.AutohausZ;
+                autohaus.AutohausGeändert = false;
+
+                AutohausListe.Add(autohaus);
+            }
+            return AutohausListe;
+        }
+
         public static List<TankstellenPunktLokal> AlleTankstellenPunkteLadenDB()
         {
             List<TankstellenPunktLokal> TankstellenPunkteListe = new List<TankstellenPunktLokal>();
@@ -1505,6 +1721,39 @@ namespace Haupt
             return AccountListe;
         }
 
+        public static List<BotLokal> AlleBotsLadenDB()
+        {
+            List<BotLokal> BotListe = new List<BotLokal>();
+
+            foreach (var Bot in ContextFactory.Instance.srp_bots.Where(x => x.Id > 0).ToList())
+            {
+                BotLokal bot = new BotLokal();
+
+                if(Bot.BotDimension == 0)
+                {
+                    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, NAPI.GlobalDimension);
+                }
+                else
+                {
+                    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, Bot.BotDimension);
+                }
+
+                bot.BotName = Bot.BotName;
+                bot.BotBeschreibung = Bot.BotBeschreibung;
+                bot.BotX = Bot.BotX;
+                bot.BotY = Bot.BotY;
+                bot.BotZ = Bot.BotZ;
+                bot.BotKopf = Bot.BotKopf;
+                bot.BotDimension = Bot.BotDimension;
+
+                bot.BotGeändert = false;
+
+                //Zur lokalen Liste hinzufügen
+                BotListe.Add(bot);
+            }
+            return BotListe;
+        }
+
         public static String GeldFormatieren(long Geld)
         {
             //Benötigte Definitionen
@@ -1538,7 +1787,7 @@ namespace Haupt
             {
                 //Nochmal die Tankstelle ermitteln
                 TankstelleLokal tanke = new TankstelleLokal();
-                tanke = Funktionen.NaheTankeBekommen(Player);
+                tanke = NaheTankeBekommen(Player);
 
                 //Schauen ob er noch an der Tanke ist
                 if (tanke != null && tanke.Id == Player.GetData("KaufenId"))
@@ -1546,21 +1795,21 @@ namespace Haupt
                     //Schauen ob die Tankstelle immer noch keinen Besitzer hat
                     if (tanke.TankstelleBesitzer == 0)
                     {
-                        if (Funktionen.AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
+                        if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
                             Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
                         {
-                            long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
+                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
 
                             tanke.TankstelleBesitzer = Player.GetData("Id");
                             tanke.TankstelleBeschreibung = Player.Name + "`s Tankstelle";
 
                             Player.SendChatMessage("~y~Info~w~: Die Tankstelle gehört jetzt dir.");
                             Player.SendChatMessage("~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
-                            Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                            AccountGeldSetzen(Player, GeldAbzug);
                             Player.TriggerEvent("kaufenabbrechen");
 
                             tanke.TankstelleGeändert = true;
@@ -1570,31 +1819,31 @@ namespace Haupt
             }
             else if (Player.GetData("KaufenTyp") == 2)
             {
-                //Nochmal die Tankstelle ermitteln
+                //Nochmal die Immobilie ermitteln
                 ImmobilienLokal haus = new ImmobilienLokal();
-                haus = Funktionen.NaheImmobilieBekommen(Player);
+                haus = NaheImmobilieBekommen(Player);
 
-                //Schauen ob er noch an der Tanke ist
+                //Schauen ob er noch an der Immobilie ist
                 if (haus != null && haus.Id == Player.GetData("KaufenId"))
                 {
-                    //Schauen ob die Tankstelle immer noch keinen Besitzer hat
+                    //Schauen ob die Immobilie immer noch keinen Besitzer hat
                     if (haus.ImmobilienBesitzer == 0)
                     {
-                        if (Funktionen.AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
+                        if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
                             Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
                         {
-                            long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
+                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
 
                             haus.ImmobilienBesitzer = Player.GetData("Id");
                             haus.ImmobilienBeschreibung = Player.Name + "`s Immobilie";
 
                             Player.SendChatMessage("~y~Info~w~: Die Immobilie gehört jetzt dir.");
                             Player.SendChatMessage("~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
-                            Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                            AccountGeldSetzen(Player, GeldAbzug);
                             Player.TriggerEvent("kaufenabbrechen");
 
                             haus.ImmobilieGeändert = true;
@@ -1604,24 +1853,24 @@ namespace Haupt
             }
             else if (Player.GetData("KaufenTyp") == 3)
             {
-                //Nochmal die Tankstelle ermitteln
+                //Nochmal den Supermarkt ermitteln
                 SupermarktLokal supermarkt = new SupermarktLokal();
-                supermarkt = Funktionen.NaheSupermarktBekommen(Player);
+                supermarkt = NaheSupermarktBekommen(Player);
 
-                //Schauen ob er noch an der Tanke ist
+                //Schauen ob er noch an dem Supermarkt ist
                 if (supermarkt != null && supermarkt.Id == Player.GetData("KaufenId"))
                 {
-                    //Schauen ob die Tankstelle immer noch keinen Besitzer hat
+                    //Schauen ob der Supermarkt immer noch keinen Besitzer hat
                     if (supermarkt.SupermarktBesitzer == 0)
                     {
-                        if (Funktionen.AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
+                        if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
                             Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
                         {
-                            long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
+                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
 
                             supermarkt.SupermarktBesitzer = Player.GetData("Id");
                             supermarkt.SupermarktBeschreibung = Player.Name + "`s 24/7";
@@ -1632,6 +1881,39 @@ namespace Haupt
                             Player.TriggerEvent("kaufenabbrechen");
 
                             supermarkt.SupermarktGeändert = true;
+                        }
+                    }
+                }
+            }
+            else if (Player.GetData("KaufenTyp") == 4)
+            {
+                //Nochmal das Autohaus ermitteln
+                AutohausLokal autohaus = new AutohausLokal();
+                autohaus = NaheAutohausBekommen(Player);
+
+                //Schauen ob er noch an dem Autohaus ist
+                if (autohaus != null && autohaus.Id == Player.GetData("KaufenId"))
+                {
+                    //Schauen ob das Autohaus immer noch keinen Besitzer hat
+                    if (autohaus.AutohausBesitzer == 0)
+                    {
+                        if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
+                        {
+                            Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                            Player.TriggerEvent("kaufenabbrechen");
+                        }
+                        else
+                        {
+                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
+
+                            autohaus.AutohausBesitzer = Player.GetData("Id");
+
+                            Player.SendChatMessage("~y~Info~w~: Das Autohaus gehört jetzt dir.");
+                            Player.SendChatMessage("~y~Info~w~: Dieses wird sich gleich automatisch aktualisieren.");
+                            AccountGeldSetzen(Player, GeldAbzug);
+                            Player.TriggerEvent("kaufenabbrechen");
+
+                            autohaus.AutohausGeändert = true;
                         }
                     }
                 }
@@ -1668,6 +1950,8 @@ namespace Haupt
             Player.SetData("KaufenTyp", 0);
             Player.SetData("KaufenId", 0);
             Player.SetData("KaufenPreis", 0);
+            Player.SetData("Cooldown", 0);
+            Player.SetData("Verwaltungsmodus", 0);
 
             //Dialoge
             Player.SetData("StadthalleDialog", 0);
@@ -1890,6 +2174,36 @@ namespace Haupt
             }
         }
 
+        public static void AlleAutohäuserUpdaten()
+        {
+            foreach (AutohausLokal autohaus in AutohausListe)
+            {
+                String AutohausText = null;
+                if (autohaus.AutohausBesitzer == 0)
+                {
+                    AutohausText = "~g~[~w~Autohaus ID: " + autohaus.Id + "~g~]~n~";
+                    AutohausText += "~w~Kaufpreis: " + GeldFormatieren(autohaus.AutohausKaufpreis) + "~n~";
+                    AutohausText += "Beschreibung: " + autohaus.AutohausBeschreibung;
+                    autohaus.AutohausBlip.Name = autohaus.AutohausBeschreibung;
+                    autohaus.AutohausBlip.ShortRange = true;
+                    autohaus.AutohausBlip.Sprite = 523;
+                    autohaus.AutohausBlip.Color = 2;
+                }
+                else
+                {
+                    AutohausText = "~g~[~w~Autohaus ID: " + autohaus.Id + "~g~]~n~";
+                    AutohausText += "~w~Beschreibung: " + autohaus.AutohausBeschreibung + "~n~";
+                    AutohausText += "Besitzer: " + BesitzerNamenBekommen(autohaus.AutohausBesitzer);
+                    autohaus.AutohausBlip.Name = autohaus.AutohausBeschreibung;
+                    autohaus.AutohausBlip.ShortRange = true;
+                    autohaus.AutohausBlip.Sprite = 523;
+                    autohaus.AutohausBlip.Color = 1;
+                }
+                //Text Updaten
+                NAPI.TextLabel.SetTextLabelText(autohaus.AutohausLabel, AutohausText);
+            }
+        }
+
         public static void AlleTankstellenSpeichern()
         {
             foreach (TankstelleLokal tanke in TankenListe)
@@ -1917,6 +2231,31 @@ namespace Haupt
 
                     //Damit Sie nicht dauerhaft gespeichert wird
                     tanke.TankstelleGeändert = false;
+                }
+            }
+        }
+
+        public static void AlleBotsSpeichern()
+        {
+            foreach (BotLokal bot in BotListe)
+            {
+                if (bot.BotGeändert == true)
+                {
+                    var Bot = ContextFactory.Instance.srp_bots.Where(x => x.Id == bot.Id).FirstOrDefault();
+
+                    Bot.BotName = bot.BotName;
+                    Bot.BotBeschreibung = bot.BotBeschreibung;
+                    Bot.BotX = bot.BotX;
+                    Bot.BotY = bot.BotY;
+                    Bot.BotZ = bot.BotZ;
+                    Bot.BotKopf = bot.BotKopf;
+                    Bot.BotDimension = bot.BotDimension;
+
+                    //Query absenden
+                    ContextFactory.Instance.SaveChanges();
+
+                    //Damit Sie nicht dauerhaft gespeichert wird
+                    bot.BotGeändert = false;
                 }
             }
         }
@@ -1972,6 +2311,31 @@ namespace Haupt
 
                     //Damit Sie nicht dauerhaft gespeichert wird
                     supermarkt.SupermarktGeändert = false;
+                }
+            }
+        }
+
+        public static void AlleAutohäuserSpeichern()
+        {
+            foreach (AutohausLokal autohaus in AutohausListe)
+            {
+                if (autohaus.AutohausGeändert == true)
+                {
+                    var Autohaus = ContextFactory.Instance.srp_autohäuser.Where(x => x.Id == autohaus.Id).FirstOrDefault();
+
+                    Autohaus.AutohausBeschreibung = autohaus.AutohausBeschreibung;
+                    Autohaus.AutohausBesitzer = autohaus.AutohausBesitzer;
+                    Autohaus.AutohausGeld = autohaus.AutohausGeld;
+                    Autohaus.AutohausKaufpreis = autohaus.AutohausKaufpreis;
+                    Autohaus.AutohausX = autohaus.AutohausX;
+                    Autohaus.AutohausY = autohaus.AutohausY;
+                    Autohaus.AutohausZ = autohaus.AutohausZ;
+
+                    //Query absenden
+                    ContextFactory.Instance.SaveChanges();
+
+                    //Damit Sie nicht dauerhaft gespeichert wird
+                    autohaus.AutohausGeändert = false;
                 }
             }
         }
@@ -2057,6 +2421,35 @@ namespace Haupt
             Player.SetData("SiehtPerso", 0);
         }
 
+        [RemoteEvent("Personalausweis")]
+        public void PersonalausweisStadthalle(Client Player)
+        {
+            //Lokalen Account bekommen
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            if (account.Perso == 0)
+            {
+                if (Funktionen.AccountGeldBekommen(Player) < GlobaleSachen.PersonalausweisPreis)
+                {
+                    Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                }
+                else
+                {
+                    long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - GlobaleSachen.PersonalausweisPreis;
+
+                    Player.SendChatMessage("~y~Info~w~: Du hast einen Personalausweis erhalten.");
+                    account.Perso = 1;
+                    Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                    Player.TriggerEvent("StadthalleWeg");
+                }
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Du hast bereits einen Personalausweis.");
+            }
+        }
+
         [RemoteEvent("AutoAnAus")]
         public void AutoAnAus(Client Player)
         {
@@ -2097,6 +2490,12 @@ namespace Haupt
         {
             //Unfreeze
             Player.TriggerEvent("Unfreeze");
+        }
+
+        public static void CoolDown(Client Player)
+        {
+            //Cooldown beenden
+            Player.SetData("Cooldown", 0);
         }
 
         public static void SpawnManager(Client Player)

@@ -79,6 +79,8 @@ namespace Haupt
             Player.SetData("KaufenTyp", 0);
             Player.SetData("KaufenId", 0);
             Player.SetData("KaufenPreis", 0);
+            Player.SetData("Cooldown", 0);
+            Player.SetData("Verwaltungsmodus", 0);
 
             //Dialoge
             Player.SetData("StadthalleDialog", 0);

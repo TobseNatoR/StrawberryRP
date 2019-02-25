@@ -314,4 +314,68 @@ namespace Datenbank
 
         public Boolean SupermarktGeändert { get; set; }
     }
+
+    public class Autohaus
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public String AutohausBeschreibung { get; set; }
+        public int AutohausBesitzer { get; set; }
+        public long AutohausGeld { get; set; }
+        public long AutohausKaufpreis { get; set; }
+        public float AutohausX { get; set; }
+        public float AutohausY { get; set; }
+        public float AutohausZ { get; set; }
+    }
+
+    public class AutohausLokal
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public String AutohausBeschreibung { get; set; }
+        public int AutohausBesitzer { get; set; }
+        public long AutohausGeld { get; set; }
+        public long AutohausKaufpreis { get; set; }
+        public float AutohausX { get; set; }
+        public float AutohausY { get; set; }
+        public float AutohausZ { get; set; }
+        public TextLabel AutohausLabel { get; set; }
+        public Marker AutohausMarker { get; set; }
+        public Blip AutohausBlip { get; set; }
+
+        public Boolean AutohausGeändert { get; set; }
+    }
+
+    public class Bot
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public String BotName { get; set; }
+        public String BotBeschreibung { get; set; }
+        public float BotX { get; set; }
+        public float BotY { get; set; }
+        public float BotZ { get; set; }
+        public float BotKopf { get; set; }
+        public uint BotDimension { get; set; }
+    }
+
+    public class BotLokal
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public String BotName { get; set; }
+        public String BotBeschreibung { get; set; }
+        public float BotX { get; set; }
+        public float BotY { get; set; }
+        public float BotZ { get; set; }
+        public float BotKopf { get; set; }
+        public uint BotDimension { get; set; }
+        public Ped Bot { get; set; }
+
+        public Boolean BotGeändert { get; set; }
+    }
 }
