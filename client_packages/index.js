@@ -9,7 +9,7 @@ require('./Login/main.js');
 require('./Nickname/main.js');
 require('./Hilfe/main.js');
 require('./Popup/main.js');
-require('./interior-browser/index.js');
+require('./IntBrowser/index.js');
 require('./Perso/main.js');
 require('./Tanken/main.js');
 require('./Kaufen/main.js');
