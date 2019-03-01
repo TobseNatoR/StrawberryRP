@@ -15,7 +15,7 @@ namespace Haupt
     public class Commands : Script
     {
         [Command("fire", "")]
-        public void FahrzeugErstellen(Client Player)
+        public void Feuer(Client Player)
         {
             Player.TriggerEvent("StartFire", -3237.754f, 969.6091f, 12.94306f, 25, true);
             
@@ -56,7 +56,8 @@ namespace Haupt
                 TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100,
                 Kilometerstand = 0.0f,
                 FahrzeugHU = DateTime.Now.AddMonths(+1),
-                FahrzeugAbgeschlossen = 0
+                FahrzeugAbgeschlossen = 0,
+                FahrzeugMotor = 1
             };
 
             //Query absenden
@@ -94,6 +95,7 @@ namespace Haupt
             auto.Kilometerstand = 0;
             auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
             auto.FahrzeugAbgeschlossen = 0;
+            auto.FahrzeugMotor = 1;
 
             //Diese Sachen nur lokal
             auto.FahrzeugAltePositionX = Player.Position.X;
@@ -119,6 +121,107 @@ namespace Haupt
             if (Typ == 5) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Autohaus zugewiesen werden."); }
 
             Funktionen.LogEintrag(Player, Funktionen.FahrzeugTypNamen(Typ) + "(s) Fahrzeug erstellt");
+        }
+
+        [Command("mfferstellen", "Nutze: /mfferstellen [Name]")]
+        public void FahrzeugErstellenManufaktur(Client Player, String Name)
+        {
+            //Definitionen
+            uint AutoCode = NAPI.Util.GetHashKey(Name);
+            Name = Funktionen.ErsterBuchstabeGroß(Name);
+            Random random = new Random();
+            int Farbe1 = random.Next(0, 159);
+            int Farbe2 = random.Next(0, 159);
+
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ManufakturFahrzeugErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { Player.SendChatMessage("~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+
+            //Ein neues Objekt erzeugen
+            var veh = new Auto
+            {
+                FahrzeugBeschreibung = "Neuwagen",
+                FahrzeugName = Name,
+                FahrzeugTyp = 5,
+                FahrzeugFraktion = 0,
+                FahrzeugJob = 0,
+                FahrzeugSpieler = 0,
+                FahrzeugMietpreis = 0,
+                FahrzeugKaufpreis = 0,
+                FahrzeugAutohaus = -1,
+                FahrzeugX = Player.Position.X,
+                FahrzeugY = Player.Position.Y,
+                FahrzeugZ = Player.Position.Z,
+                FahrzeugRot = Player.Rotation.Z,
+                FahrzeugFarbe1 = Farbe1,
+                FahrzeugFarbe2 = Farbe2,
+                TankVolumen = Funktionen.TankVolumenBerechnen(Name),
+                TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100,
+                Kilometerstand = 0.0f,
+                FahrzeugHU = DateTime.Now.AddMonths(+3),
+                FahrzeugAbgeschlossen = 0,
+                FahrzeugMotor = 1
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_fahrzeuge.Add(veh);
+            ContextFactory.Instance.SaveChanges();
+
+            //Objekt für die Liste erzeugen
+            AutoLokal auto = new AutoLokal();
+
+            //Das Fahrzeug spawnen
+            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, Farbe1, Farbe2, numberPlate: "Neuwagen");
+
+            auto.Fahrzeug.NumberPlate = "Neuwagen";
+            auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
+
+            //Dem Fahrzeug die Werte lokal übergeben
+            auto.Id = ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id);
+            auto.FahrzeugBeschreibung = "Neuwagen";
+            auto.FahrzeugName = Name;
+            auto.FahrzeugTyp = 5;
+            auto.FahrzeugFraktion = 0;
+            auto.FahrzeugJob = 0;
+            auto.FahrzeugSpieler = 0;
+            auto.FahrzeugMietpreis = 0;
+            auto.FahrzeugKaufpreis = 0;
+            auto.FahrzeugAutohaus = -1;
+            auto.FahrzeugX = Player.Position.X;
+            auto.FahrzeugY = Player.Position.Y;
+            auto.FahrzeugZ = Player.Position.Z;
+            auto.FahrzeugRot = Player.Rotation.Z;
+            auto.FahrzeugFarbe1 = Farbe1;
+            auto.FahrzeugFarbe2 = Farbe2;
+            auto.TankVolumen = Funktionen.TankVolumenBerechnen(Name);
+            auto.TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100;
+            auto.Kilometerstand = 0;
+            auto.FahrzeugHU = DateTime.Now.AddMonths(+3);
+            auto.FahrzeugAbgeschlossen = 0;
+            auto.FahrzeugMotor = 1;
+
+            //Diese Sachen nur lokal
+            auto.FahrzeugAltePositionX = Player.Position.X;
+            auto.FahrzeugAltePositionY = Player.Position.Y;
+            auto.FahrzeugAltePositionZ = Player.Position.Z;
+            auto.FahrzeugNeuePositionX = 0;
+            auto.FahrzeugNeuePositionY = 0;
+            auto.FahrzeugNeuePositionZ = 0;
+
+            //Fahrzeug in der Liste ablegen
+            Funktionen.AutoListe.Add(auto);
+
+            //Dem Auto die DB Id lokal geben
+            auto.Fahrzeug.SetData("Id", ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id));
+
+            //Den Spieler in das Auto setzen
+            Player.SetIntoVehicle(auto.Fahrzeug, -1);
+
+            //Auto als kaufbar markieren
+            Fahrzeuge.AutohausSetzen(Player.Vehicle, -1);
+
+            Funktionen.LogEintrag(Player, "Manufaktur Fahrzeug erstellt");
         }
 
         [Command("herstellen", "Nutze: /herstellen [Interior 1 - 24] [Kaufpreis]")]
@@ -343,7 +446,7 @@ namespace Haupt
             if(Beschreibung.Length > 20) { Player.SendChatMessage("~y~Info~w~: Die Beschreibung ist zu lang."); return; }
 
             TankstelleLokal tanke = new TankstelleLokal();
-            tanke = Funktionen.TankeVonIdBekommen(Player, Id);
+            tanke = Funktionen.TankeVonIdBekommen(Id);
 
             if(tanke != null)
             {
@@ -362,6 +465,34 @@ namespace Haupt
             Funktionen.LogEintrag(Player, "Tankstellen Beschreibung geändert");
         }
 
+        [Command("ahbeschreibung", "Nutze: /ahbeschreibung [Id] [Text]", GreedyArg = true)]
+        public void AutohausBeschreibung(Client Player, int Id, String Beschreibung)
+        {
+            //Benötigte Abfragen
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausBeschreibung) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Id < 0) { Player.SendChatMessage("~y~Info~w~: Die Id kann nicht kleiner als 0 sein."); return; }
+            if (Beschreibung.Length > 20) { Player.SendChatMessage("~y~Info~w~: Die Beschreibung ist zu lang."); return; }
+
+            AutohausLokal autohaus = new AutohausLokal();
+            autohaus = Funktionen.AutohausVonIdBekommen(Id);
+
+            if (autohaus != null)
+            {
+                autohaus.AutohausBeschreibung = Beschreibung;
+                autohaus.AutohausGeändert = true;
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Das Autohaus konnte nicht gefunden werden.");
+            }
+
+            //Erfolgreich Nachricht
+            Player.SendChatMessage("~g~Info~w~: Die Beschreibung des Autohauses " + Id + " wurde erfolgreich geändert.");
+
+            //Log Eintrag
+            Funktionen.LogEintrag(Player, "Autohaus Beschreibung geändert");
+        }
+
         [Command("tkaufpreis", "Nutze: /tkaufpreis [Id] [Kaufpreis]")]
         public void TankstellenKaufPreis(Client Player, int Id, long Kaufpreis)
         {
@@ -371,7 +502,7 @@ namespace Haupt
             
 
             TankstelleLokal tanke = new TankstelleLokal();
-            tanke = Funktionen.TankeVonIdBekommen(Player, Id);
+            tanke = Funktionen.TankeVonIdBekommen(Id);
 
             if (tanke != null)
             {
@@ -457,10 +588,14 @@ namespace Haupt
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Tankstelle erstellt");
         }
-
+        
         [Command("perstellen", "Nutze: /perstellen [Name] [Beschreibung]")]
         public void PedErstellen(Client Player, String Name, String Beschreibung)
         {
+            int Gesperrt = 1;
+
+            if(Gesperrt == 1) { Player.SendChatMessage("~y~Info~w~: Der Befehl ist derzeit leider gesperrt."); return; }
+
             //Definitionen
             uint BotHash = NAPI.Util.GetHashKey(Name);
 
@@ -708,6 +843,36 @@ namespace Haupt
             else
             {
                 Player.SendChatMessage("~y~Info~w~: Es wurde kein 24/7 gefunden.");
+            }
+        }
+
+        [Command("ahlöschen", "Nutze: /ahlöschen")]
+        public void AutohausLöschen(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            AutohausLokal autohaus = new AutohausLokal();
+            autohaus = Funktionen.NaheAutohausBekommen(Player);
+
+            if (autohaus != null)
+            {
+                var Autohaus = ContextFactory.Instance.srp_autohäuser.Where(x => x.Id == autohaus.Id).FirstOrDefault();
+                autohaus.AutohausLabel.Delete();
+                autohaus.AutohausMarker.Delete();
+                autohaus.AutohausBlip.Delete();
+                Funktionen.AutohausListe.Remove(autohaus);
+
+                //Query absenden
+                ContextFactory.Instance.srp_autohäuser.Remove(Autohaus);
+
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "Autohaus gelöscht");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Es wurde kein Autohaus gefunden.");
             }
         }
 
@@ -995,7 +1160,7 @@ namespace Haupt
             }
         }
 
-        [Command("a", "Nutze /a [Text]")]
+        [Command("a", "Nutze /a [Text]", GreedyArg = true)]
         public void AdminChat(Client Player, String Text)
         {
             //Benötigte Abfragen
@@ -1006,7 +1171,7 @@ namespace Haupt
             {
                 if (Funktionen.AccountAdminLevelBekommen(Spieler) > 0)
                 {
-                    Player.SendChatMessage("~y~Adminchat ~w~" + Funktionen.AdminLevelName(Funktionen.AccountAdminLevelBekommen(Player)) + " " + Player.Name + ": " + Text);
+                    Spieler.SendChatMessage("~y~Adminchat ~w~" + Funktionen.AdminLevelName(Funktionen.AccountAdminLevelBekommen(Player)) + " " + Player.Name + ": " + Text);
                 }
             }
         }
@@ -1021,7 +1186,18 @@ namespace Haupt
 
             //Den Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
-            if(Spieler1 == null) { Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden."); return; }
+            if(Spieler1 == null)
+            {
+                if(Funktionen.SpielerSuchen(Spieler) == null)
+                {
+                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    return;
+                }
+                else
+                {
+                    Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                }
+            }
 
             if(Typ == 1)
             {
@@ -1121,10 +1297,21 @@ namespace Haupt
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.GeldGeben) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            
-            //Spieler über den Namen ermitteln
+
+            //Den Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
-            if (Spieler1 == null) { Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden."); return; }
+            if (Spieler1 == null)
+            {
+                if (Funktionen.SpielerSuchen(Spieler) == null)
+                {
+                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    return;
+                }
+                else
+                {
+                    Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                }
+            }
 
             //Dem Spieler das Admin Level setzen
             Funktionen.AccountGeldSetzen(Spieler1, Geld);
@@ -1366,16 +1553,6 @@ namespace Haupt
                 //Log eintrag
                 Funktionen.LogEintrag(Player, "Verwaltungsmodus betreten");
             }
-        }
-
-        [Command("hilfe")]
-        public void SpielerHilfe(Client Player)
-        {
-            //Benötigte Abfragen
-            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-
-            //Clientseitiges Event Triggern und ihm das AdminLevel mitgeben
-            Player.TriggerEvent("hilfebrowseroeffnen", Funktionen.AccountAdminLevelBekommen(Player));
         }
 
         [Command("fid")]

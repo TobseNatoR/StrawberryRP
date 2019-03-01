@@ -51,7 +51,7 @@ namespace Login
                 //Prüfen ob der Social Club Name bereits registriert ist
                 if(Check > 0)
                 {
-                    NAPI.Notification.SendNotificationToPlayer(player, "~y~Info~w~: Der Name" + player.SocialClubName + " ist bereits bei uns registriert!");
+                    NAPI.Notification.SendNotificationToPlayer(player, "~y~Info~w~: Der Name " + player.SocialClubName + " ist bereits bei uns registriert!");
                 }
                 else
                 {
@@ -64,41 +64,19 @@ namespace Login
                         SocialClub = player.SocialClubName,
                         NickName = "Nicht gesetzt",
                         Passwort = passwort,
-                        AdminLevel = 0,
+                        AdminLevel = 5,
                         Fraktion = 0,
                         Job = 0,
-                        Geld = 0,
+                        Geld = 100,
                         BankGeld = 0,
                         Perso = 0,
                         EinreiseDatum = DateTime.Now,
-                        FahrzeugSchlüssel = 2
+                        FahrzeugSchlüssel = 0
                     };
 
                     //Query absenden
                     ContextFactory.Instance.srp_accounts.Add(NeuerAccount);
                     ContextFactory.Instance.SaveChanges();
-
-                    //Account Objekt erzeugen
-                    AccountLokal account = new AccountLokal();
-
-                    account.Id = ContextFactory.Instance.srp_accounts.Max(x => x.Id);
-                    account.SocialClub = player.SocialClubName;
-                    account.NickName = "Nicht gesetzt";
-                    account.Passwort = passwort;
-                    account.AdminLevel = 0;
-                    account.Fraktion = 0;
-                    account.Job = 0;
-                    account.Geld = 100;
-                    account.BankGeld = 0;
-                    account.Perso = 0;
-                    account.EinreiseDatum = DateTime.Now;
-                    account.FahrzeugSchlüssel = 2;
-
-                    //Damit der Account nochmal im Anschluss gespeichert wird
-                    account.AccountGeändert = true;
-
-                    //Account in der Liste Lokal speichern
-                    Funktionen.AccountListe.Add(account);
 
                     Funktionen.LogEintrag(player, "Registriert");
 
@@ -131,15 +109,6 @@ namespace Login
 
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~w~Du heißt jetzt " + nickname + "!");
                     NAPI.Player.SetPlayerName(Player, nickname);
-
-                    foreach (AccountLokal account in Funktionen.AccountListe)
-                    {
-                        if (account.SocialClub == Player.SocialClubName)
-                        {
-                            account.NickName = nickname;
-                            account.AccountGeändert = true;
-                        }
-                    }
 
                     Player.TriggerEvent("kameraoff");
                     Player.TriggerEvent("nicknamebrowserschliessen");

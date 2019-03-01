@@ -15,8 +15,8 @@ namespace Haupt
     public class GlobaleSachen
     {
         //Datenbankverbindung
-        //public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp_server; Uid=strawberryrpserver; Pwd=rElciatks7Pn7DpH";
-        public const String Verbindung = "Server=localhost; Database=strawberryrp_server; Uid=root;Pwd=";
+        public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp_server; Uid=strawberryrpserver; Pwd=rElciatks7Pn7DpH";
+        //public const String Verbindung = "Server=localhost; Database=strawberryrp_server; Uid=root;Pwd=";
 
         //Verbrauch
         public const float Verbrauch = 0.7f;
@@ -48,7 +48,10 @@ namespace Haupt
         public const int TankeBeschreibung = 4;
         public const int TankeKaufpreis = 4;
         public const int FahrzeugErstellen = 4;
+        public const int ManufakturFahrzeugErstellen = 4;
         public const int AutohausErstellen = 4;
+        public const int AutohausBeschreibung = 4;
+        public const int AutohausLöschen = 4;
         public const int PedErstellen = 4;
         public const int PedLöschen = 4;
         public const int FahrzeugLöschen = 4;
@@ -115,28 +118,29 @@ namespace Haupt
             AutohäuserLadenLokal();
 
             //Speicherungs Timer
-            Timer.SetTimer(AlleSpielerSpeichern, 10000, 0);
-            Timer.SetTimer(FahrzeugeSpeichern, 10000, 0);
-            Timer.SetTimer(AlleTankstellenSpeichern, 10000, 0);
-            Timer.SetTimer(AlleSupermärkteSpeichern, 10000, 0);
-            Timer.SetTimer(AlleImmobilienSpeichern, 10000, 0);
-            Timer.SetTimer(AlleBotsSpeichern, 10000, 0);
-            Timer.SetTimer(AlleAutohäuserSpeichern, 10000, 0);
+            Timer.SetTimer(AlleSpielerSpeichern, 30000, 0);
+            Timer.SetTimer(FahrzeugeSpeichern, 15000, 0);
+            Timer.SetTimer(AlleTankstellenSpeichern, 40000, 0);
+            Timer.SetTimer(AlleSupermärkteSpeichern, 41000, 0);
+            Timer.SetTimer(AlleImmobilienSpeichern, 42000, 0);
+            //Timer.SetTimer(AlleBotsSpeichern, 10000, 0);
+            Timer.SetTimer(AlleAutohäuserSpeichern, 43000, 0);
 
             //Update Timer
-            Timer.SetTimer(AlleTankstellenUpdaten, 10000, 0);
-            Timer.SetTimer(AlleSupermärkteUpdaten, 10000, 0);
-            Timer.SetTimer(AlleImmobilienUpdaten, 10000, 0);
-            Timer.SetTimer(AlleAutohäuserUpdaten, 10000, 0);
+            Timer.SetTimer(AlleTankstellenUpdaten, 20000, 0);
+            Timer.SetTimer(AlleSupermärkteUpdaten, 41000, 0);
+            Timer.SetTimer(AlleImmobilienUpdaten, 42000, 0);
+            Timer.SetTimer(AlleAutohäuserUpdaten, 43000, 0);
+            Timer.SetTimer(FahrzeugeUpdaten, 10000, 0);
 
             //Spieler Timer
             Timer.SetTimer(Alle, 1000, 0);
 
             //Sonstige Timer
-            Timer.SetTimer(WetterAendern, 3600000, 0);
+            Timer.SetTimer(WetterAendern, 14400000, 0); //4 Stunden
             Timer.SetTimer(WetterStation, 900000, 0);
             Timer.SetTimer(Uhrzeit, 1000, 0);
-            Timer.SetTimer(Fahrzeuge.TachoUpdaten, 200, 0);
+            Timer.SetTimer(Fahrzeuge.TachoUpdaten, 300, 0);
             WetterAendern();
 
             //Daten aus den Datenbanken zählen
@@ -427,6 +431,7 @@ namespace Haupt
                 if (Player.Position.DistanceTo(new Vector3(tankstellelocal.TankstelleX, tankstellelocal.TankstelleY, tankstellelocal.TankstelleZ)) < distance)
                 {
                     Tankstelle = tankstellelocal;
+                    break;
                 }
             }
             return Tankstelle;
@@ -440,6 +445,7 @@ namespace Haupt
                 if (Player.Position.DistanceTo(new Vector3(botlocal.BotX, botlocal.BotY, botlocal.BotZ)) < distance)
                 {
                     Bot = botlocal;
+                    break;
                 }
             }
             return Bot;
@@ -453,6 +459,7 @@ namespace Haupt
                 if (Player.Position.DistanceTo(new Vector3(supermarktlocal.SupermarktX, supermarktlocal.SupermarktY, supermarktlocal.SupermarktZ)) < distance)
                 {
                     Supermarkt = supermarktlocal;
+                    break;
                 }
             }
             return Supermarkt;
@@ -466,6 +473,7 @@ namespace Haupt
                 if (Player.Position.DistanceTo(new Vector3(autohauslocal.AutohausX, autohauslocal.AutohausY, autohauslocal.AutohausZ)) < distance)
                 {
                     Autohaus = autohauslocal;
+                    break;
                 }
             }
             return Autohaus;
@@ -479,6 +487,7 @@ namespace Haupt
                 if (Player.Position.DistanceTo(new Vector3(tankstellenpunktlocal.TankstellenPunktX, tankstellenpunktlocal.TankstellenPunktY, tankstellenpunktlocal.TankstellenPunktZ)) < distance)
                 {
                     TankstellenPunkt = tankstellenpunktlocal;
+                    break;
                 }
             }
             return TankstellenPunkt;
@@ -590,7 +599,7 @@ namespace Haupt
             return Auto;
         }
 
-        public static TankstelleLokal TankeVonIdBekommen(Client Player, int Id)
+        public static TankstelleLokal TankeVonIdBekommen(int Id)
         {
             TankstelleLokal Tanke = null;
             foreach (TankstelleLokal tanke in TankenListe)
@@ -603,6 +612,19 @@ namespace Haupt
             return Tanke;
         }
 
+        public static AutohausLokal AutohausVonIdBekommen(int Id)
+        {
+            AutohausLokal Autohaus = null;
+            foreach (AutohausLokal autohauslocal in AutohausListe)
+            {
+                if (autohauslocal.Id == Id)
+                {
+                    Autohaus = autohauslocal;
+                }
+            }
+            return Autohaus;
+        }
+
         public static AccountLokal AccountBekommen(Client Player)
         {
             AccountLokal acc = null;
@@ -611,9 +633,38 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     acc = account;
+                    break;
                 }
             }
             return acc;
+        }
+
+        public static int AccountHatAutohaus(Client Player)
+        {
+            int ah = 0;
+            foreach (AutohausLokal autohaus in AutohausListe)
+            {
+                if (Player.GetData("Id") == autohaus.AutohausBesitzer)
+                {
+                    ah = 1;
+                    break;
+                }
+            }
+            return ah;
+        }
+
+        public static int AccountAutohausBekommen(Client Player)
+        {
+            int ahid = 0;
+            foreach (AutohausLokal autohaus in AutohausListe)
+            {
+                if (Player.GetData("Id") == autohaus.AutohausBesitzer)
+                {
+                    ahid = autohaus.Id;
+                    break;
+                }
+            }
+            return ahid;
         }
 
         public static int AccountAdminLevelBekommen(Client Player)
@@ -852,50 +903,50 @@ namespace Haupt
                     if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
                     if (Random == 2) { GlobaleSachen.ServerWetter = 6; }
                     if (Random == 3) { GlobaleSachen.ServerWetter = 8; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 9; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 6; }
                     if (Random == 5) { GlobaleSachen.ServerWetter = 6; }
                     break;
                 case 3:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 5; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 8; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 9; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 9; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 6; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 2; }
                     break;
                 case 4:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 1; }
                     if (Random == 2) { GlobaleSachen.ServerWetter = 1; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 9; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
                     if (Random == 4) { GlobaleSachen.ServerWetter = 2; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 2; }
                     break;
                 case 5:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 0; }
                     if (Random == 2) { GlobaleSachen.ServerWetter = 1; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 1; }
                     break;
                 case 6:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 0; }
                     break;
                 case 7:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 0; }
                     break;
                 case 8:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 0; }
                     break;
                 case 9:
                     if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
@@ -1156,11 +1207,18 @@ namespace Haupt
                     }
                 }
 
+                //Tanke erfassen für Sprit abzug
+                TankstelleLokal dietanke = new TankstelleLokal();
+                dietanke = TankeVonIdBekommen(Player.GetData("TankenTankstellenId"));
+
                 //Dem Spieler nun sagen das er bezahlen soll
                 int iLiter = (int)Liter;
-                if(Diesel == 1) { TankRechnung = DieselPreis * iLiter; }
-                else if (E10 == 1) { TankRechnung = E10Preis * iLiter; }
-                else if (Super == 1) { TankRechnung = SuperPreis * iLiter; }
+                if(Diesel == 1) { TankRechnung = DieselPreis * iLiter; dietanke.TankstelleDiesel -= iLiter; }
+                else if (E10 == 1) { TankRechnung = E10Preis * iLiter; dietanke.TankstelleE10 -= iLiter; }
+                else if (Super == 1) { TankRechnung = SuperPreis * iLiter; dietanke.TankstelleSuper -= iLiter; }
+
+                //Tanke wurde geändert
+                dietanke.TankstelleGeändert = true;
 
                 //Auto Tank setzen
                 if(TankDanach >= TankVolumen + 1)
@@ -1380,6 +1438,9 @@ namespace Haupt
                         //Chat weg
                         Player.TriggerEvent("Chathiden");
 
+                        //Freeze
+                        Freeze(Player);
+
                         Player.TriggerEvent("Kaufen", 2, GeldFormatieren(haus.ImmobilienKaufpreis));
                         return;
                     }
@@ -1400,6 +1461,9 @@ namespace Haupt
 
                         //Chat weg
                         Player.TriggerEvent("Chathiden");
+
+                        //Freeze
+                        Freeze(Player);
 
                         Player.TriggerEvent("Kaufen", 3, GeldFormatieren(supermarkt.SupermarktKaufpreis));
                         return;
@@ -1422,7 +1486,10 @@ namespace Haupt
                         //Chat weg
                         Player.TriggerEvent("Chathiden");
 
-                        Player.TriggerEvent("Kaufen", 3, GeldFormatieren(autohaus.AutohausKaufpreis));
+                        //Freeze
+                        Freeze(Player);
+
+                        Player.TriggerEvent("Kaufen", 4, GeldFormatieren(autohaus.AutohausKaufpreis));
                         return;
                     }
                 }
@@ -1769,12 +1836,36 @@ namespace Haupt
             return GeldFormatiert;
         }
 
+        public static Client SpielerSuchen(String Name)
+        {
+            //Benötigte Definitionen
+            Client Spieler = null;
+
+            foreach (var Typ in NAPI.Pools.GetAllPlayers())
+            {
+                if (Typ.Name.Contains(Name))
+                {
+                    Spieler = Typ;
+                    break;
+                }
+            }
+            return Spieler;
+        }
+
         [RemoteEvent("KaufenAbbrechen")]
         public static void KaufenAbbrechen(Client Player)
         {
+            if(Player.GetData("KaufenTyp") == 5 || Player.GetData("KaufenTyp") == 6)
+            {
+                Player.TriggerEvent("FahrzeugVerlassen");
+            }
+
             Player.SetData("KaufenTyp", 0);
             Player.SetData("KaufenId", 0);
             Player.SetData("KaufenPreis", 0);
+
+            //Unfreeze
+            Unfreeze(Player);
 
             //Chat an
             Player.TriggerEvent("Chatzeigen");
@@ -1918,6 +2009,52 @@ namespace Haupt
                     }
                 }
             }
+            else if (Player.GetData("KaufenTyp") == 5)
+            {
+                //Schauen ob er noch an dem Autohaus ist
+                if (Fahrzeuge.IdBekommen(Player.Vehicle) == Player.GetData("KaufenId") && Fahrzeuge.TypBekommen(Player.Vehicle) == 5)
+                {
+                    //Schauen ob das Autohaus immer noch keinen Besitzer hat
+                    if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
+                    {
+                        Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                        Player.TriggerEvent("kaufenabbrechen");
+                    }
+                    else
+                    {
+                        long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
+
+                        Fahrzeuge.FahrzeugKaufen(Player, Player.Vehicle);
+
+                        Player.SendChatMessage("~y~Info~w~: Das Fahrzeug gehört jetzt dir.");
+                        AccountGeldSetzen(Player, GeldAbzug);
+                        Player.TriggerEvent("kaufenabbrechen");
+                    }
+                }
+            }
+            else if (Player.GetData("KaufenTyp") == 6)
+            {
+                //Schauen ob er noch an dem Autohaus ist
+                if (Fahrzeuge.IdBekommen(Player.Vehicle) == Player.GetData("KaufenId") && Fahrzeuge.TypBekommen(Player.Vehicle) == 5 && Fahrzeuge.AutoHausBekommen(Player.Vehicle) == -1)
+                {
+                    //Schauen ob das Autohaus immer noch keinen Besitzer hat
+                    if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
+                    {
+                        Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                        Player.TriggerEvent("kaufenabbrechen");
+                    }
+                    else
+                    {
+                        long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
+
+                        Fahrzeuge.FahrzeugKaufenAutohaus(Player, Player.Vehicle);
+
+                        Player.SendChatMessage("~y~Info~w~: Das Fahrzeug gehört jetzt deinem Autohaus.");
+                        AccountGeldSetzen(Player, GeldAbzug);
+                        Player.TriggerEvent("kaufenabbrechen");
+                    }
+                }
+            }
         }
 
         public static void SpielerLaden(Client Player)
@@ -1941,6 +2078,9 @@ namespace Haupt
             account.FahrzeugSchlüssel = Account.FahrzeugSchlüssel;
             account.AccountGeändert = false;
 
+            //Zur Liste adden
+            AccountListe.Add(account);
+
             //Dies sind lokale Dinge bitte keine floats etc nutzen, dass buggt per SetData
             Player.SetData("Eingeloggt", 1);
             Player.SetData("SiehtPerso", 0);
@@ -1951,7 +2091,7 @@ namespace Haupt
             Player.SetData("KaufenId", 0);
             Player.SetData("KaufenPreis", 0);
             Player.SetData("Cooldown", 0);
-            Player.SetData("Verwaltungsmodus", 0);
+            Player.SetData("VerwaltungsModus", 0);
 
             //Dialoge
             Player.SetData("StadthalleDialog", 0);
@@ -2037,6 +2177,7 @@ namespace Haupt
                         var AktuellesFahrzeug = ContextFactory.Instance.srp_fahrzeuge.Where(x => x.Id == AutoId).FirstOrDefault();
 
                         //Kilometerstand zuweisen
+                        AktuellesFahrzeug.FahrzeugTyp = auto.FahrzeugTyp;
                         AktuellesFahrzeug.FahrzeugFraktion = auto.FahrzeugFraktion;
                         AktuellesFahrzeug.FahrzeugJob = auto.FahrzeugJob;
                         AktuellesFahrzeug.FahrzeugSpieler = auto.FahrzeugSpieler;
@@ -2054,12 +2195,52 @@ namespace Haupt
                         AktuellesFahrzeug.Kilometerstand = AktuellerKilometerstand;
                         AktuellesFahrzeug.FahrzeugHU = auto.FahrzeugHU;
                         AktuellesFahrzeug.FahrzeugAbgeschlossen = auto.FahrzeugAbgeschlossen;
+                        AktuellesFahrzeug.FahrzeugMotor = auto.FahrzeugMotor;
 
                         //Query absenden
                         ContextFactory.Instance.SaveChanges();
 
+                        //Sachen am Fahrzeug updaten wie Nummernschild etc.
+                        Fahrzeuge.NumberPlate = auto.FahrzeugBeschreibung;
+
                         //Damit er nicht dauerthaft gespeichert wird
                         auto.FahrzeugGeändert = false;
+                    }
+                }
+            }
+        }
+
+        public static void FahrzeugeUpdaten()
+        {
+            //Schleife durch alle Fahrzeuge
+            foreach (var Fahrzeuge in NAPI.Pools.GetAllVehicles())
+            {
+                //Benötigte Definitionen
+                int AutoId = Fahrzeuge.GetData("Id");
+                String VerkaufsText = null;
+
+                foreach (AutoLokal auto in Funktionen.AutoListe)
+                {
+                    if (AutoId == auto.Id && auto.FahrzeugAutohaus > 0)
+                    {
+                        auto.AutohausTextLabel.Delete();
+
+                        VerkaufsText = "~r~[~w~Zu verkaufen~r~]~n~";
+                        VerkaufsText += "Name~w~: " + auto.FahrzeugName + "~n~~r~";
+                        VerkaufsText += "Autohaus~w~: " + auto.FahrzeugAutohaus + "~n~~r~";
+                        VerkaufsText += "Preis~w~: " + GeldFormatieren(auto.FahrzeugKaufpreis);
+
+                        auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.Position.X, Fahrzeuge.Position.Y, Fahrzeuge.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                    }
+                    else if (AutoId == auto.Id && auto.FahrzeugAutohaus < 0)
+                    {
+                        auto.AutohausTextLabel.Delete();
+
+                        VerkaufsText = "~r~[~w~Manufaktur~r~]~n~";
+                        VerkaufsText += "Name~w~: " + auto.FahrzeugName + "~n~~r~";
+                        VerkaufsText += "Preis~w~: " + GeldFormatieren(auto.FahrzeugKaufpreis);
+
+                        auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.Position.X, Fahrzeuge.Position.Y, Fahrzeuge.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
                     }
                 }
             }
@@ -2107,9 +2288,6 @@ namespace Haupt
                         NAPI.TextLabel.SetTextLabelText(tankeninfo.TankstellenInfoLabel, TankstellenInfoText);
                     }
                 }
-
-                //Damit es nicht immer weiter gespeichert wird
-                tankstelle.TankstelleGeändert = false;
             }
         }
 
@@ -2208,7 +2386,7 @@ namespace Haupt
         {
             foreach (TankstelleLokal tanke in TankenListe)
             {
-                if(tanke.TankstelleGeändert == true)
+                if (tanke.TankstelleGeändert == true)
                 {
                     var Tankstelle = ContextFactory.Instance.srp_tankstellen.Where(x => x.Id == tanke.Id).FirstOrDefault();
 
@@ -2372,6 +2550,7 @@ namespace Haupt
         {
             Blip Noobspawn = NAPI.Blip.CreateBlip(new Vector3(-3237.754, 969.6091, 12.94306)); Noobspawn.Name = "Neulingsspawn"; Noobspawn.ShortRange = true; Noobspawn.Sprite = 162; Noobspawn.Color = 12;
             Blip Stadthalle = NAPI.Blip.CreateBlip(new Vector3(-1285.605, -567.0062, 31.7124)); Stadthalle.Name = "Stadthalle"; Stadthalle.ShortRange = true; Stadthalle.Sprite = 120; Stadthalle.Color = 12;
+            Blip Manufaktur_Mittelklasse = NAPI.Blip.CreateBlip(new Vector3(-1073.475, -2147.839, 13.40069)); Manufaktur_Mittelklasse.Name = "Manufaktur Mittelklassefahrzeuge"; Manufaktur_Mittelklasse.ShortRange = true; Manufaktur_Mittelklasse.Sprite = 78; Manufaktur_Mittelklasse.Color = 12;
         }
 
         public static void MarkersLaden()
@@ -2440,6 +2619,7 @@ namespace Haupt
 
                     Player.SendChatMessage("~y~Info~w~: Du hast einen Personalausweis erhalten.");
                     account.Perso = 1;
+                    account.AccountGeändert = true;
                     Funktionen.AccountGeldSetzen(Player, GeldAbzug);
                     Player.TriggerEvent("StadthalleWeg");
                 }
@@ -2456,15 +2636,21 @@ namespace Haupt
             //Abfragen ob er in einem Auto ist
             if(Player.IsInVehicle && NAPI.Player.GetPlayerVehicleSeat(Player) == -1)
             {
-                if (Player.Vehicle.EngineStatus == false)
+                if (Player.Vehicle.EngineStatus == false && Fahrzeuge.TankInhaltBekommen(Player.Vehicle) > 0)
                 {
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Motor wurde gestartet.");
                     Player.Vehicle.EngineStatus = true;
+                    Fahrzeuge.FahrzeugMotor(Player.Vehicle, 1);
                 }
-                else
+                else if (Player.Vehicle.EngineStatus == true)
                 {
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Motor wurde gestoppt.");
                     Player.Vehicle.EngineStatus = false;
+                    Fahrzeuge.FahrzeugMotor(Player.Vehicle, 0);
+                }
+                else
+                {
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Tank ist leer.");
                 }
             }
             else
@@ -2496,6 +2682,12 @@ namespace Haupt
         {
             //Cooldown beenden
             Player.SetData("Cooldown", 0);
+        }
+
+        public static void LoginLadenBeenden(Client Player)
+        {
+            Player.TriggerEvent("LadenBeenden");
+            Player.TriggerEvent("browseroeffnen");
         }
 
         public static void SpawnManager(Client Player)

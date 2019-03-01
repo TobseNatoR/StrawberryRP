@@ -242,6 +242,7 @@ namespace Datenbank
         [Column(TypeName = "datetime")]
         public DateTime FahrzeugHU { get; set; }
         public int FahrzeugAbgeschlossen { get; set; }
+        public int FahrzeugMotor { get; set; }
 
     }
 
@@ -270,6 +271,7 @@ namespace Datenbank
         public float Kilometerstand { get; set; }
         public DateTime FahrzeugHU { get; set; }
         public int FahrzeugAbgeschlossen { get; set; }
+        public int FahrzeugMotor { get; set; }
         public Vehicle Fahrzeug { get; set; }
         public float FahrzeugAltePositionX { get; set; }
         public float FahrzeugAltePositionY { get; set; }
@@ -277,6 +279,7 @@ namespace Datenbank
         public float FahrzeugNeuePositionX { get; set; }
         public float FahrzeugNeuePositionY { get; set; }
         public float FahrzeugNeuePositionZ { get; set; }
+        public TextLabel AutohausTextLabel { get; set; }
 
         public Boolean FahrzeugGeändert { get; set; }
 

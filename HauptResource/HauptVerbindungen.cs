@@ -49,11 +49,12 @@ namespace Haupt
             Player.SendChatMessage("~y~Info~w~: Hallo " + Player.SocialClubName + "!");
             Player.SendChatMessage("~y~Info~w~: Wir wünschen dir viel Spaß bei uns!");
 
-            //Login öffnen
-            Player.TriggerEvent("browseroeffnen");
+            //Laden und danach Login/Register
+            Player.TriggerEvent("Laden");
+            Timer.SetTimer(() => Funktionen.LoginLadenBeenden(Player), 4000, 1);
 
             //An den eine Versteckte Position setzen damit er nirgendwo rumsteht
-            Player.Position = new Vector3(-3245.781, 945.7014, 8.519356);
+            Player.Position = new Vector3(-3245.781, 945.7014, 7.519356);
 
             //Freeze
             Funktionen.Freeze(Player);
