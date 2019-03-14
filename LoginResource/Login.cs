@@ -4,6 +4,7 @@ using Haupt;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Login
@@ -22,14 +23,25 @@ namespace Login
             {
                 foreach (var Account in ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == player.SocialClubName).ToList())
                 {
-                    if (passwort == Account.Passwort)
+                    if (GetMD5Hash(passwort) == Account.Passwort)
                     {
                         player.TriggerEvent("browserschliessen");
-                        player.TriggerEvent("kameraoff");
 
                         Funktionen.LogEintrag(player, "Eingeloggt");
-                        Funktionen.SpielerLaden(player);
-                        Funktionen.SpawnManager(player);
+                        if(Account.NickName == "Keiner")
+                        {
+                            player.TriggerEvent("nicknamebrowseroeffnen");
+                        }
+                        else if(Account.GeburtsDatum == DateTime.Parse("01/01/1900"))
+                        {
+                            player.TriggerEvent("geburtstagbrowseroeffnen");
+                        }
+                        else
+                        {
+                            Funktionen.SpielerLaden(player);
+                            Funktionen.SpawnManager(player);
+                            player.TriggerEvent("kameraoff");
+                        }
 
                         NAPI.Player.SetPlayerName(player, Account.NickName);
                         NAPI.Notification.SendNotificationToPlayer(player, "~y~Info~w~: ~w~Du hast dich erfolgreich als " + player.SocialClubName + " angemeldet!");
@@ -62,16 +74,21 @@ namespace Login
                     var NeuerAccount = new Account
                     {
                         SocialClub = player.SocialClubName,
-                        NickName = "Nicht gesetzt",
-                        Passwort = passwort,
+                        NickName = "Keiner",
+                        Passwort = GetMD5Hash(passwort),
                         AdminLevel = 5,
                         Fraktion = 0,
                         Job = 0,
                         Geld = 100,
                         BankGeld = 0,
                         Perso = 0,
+                        Spielzeit = 0,
+                        Exp = 0,
+                        GeburtsDatum = DateTime.Parse("01/01/1900"),
                         EinreiseDatum = DateTime.Now,
-                        FahrzeugSchlüssel = 0
+                        FahrzeugSchlüssel = 0,
+                        Kündigungszeit = 0,
+                        BerufskraftfahrerExp = 0
                     };
 
                     //Query absenden
@@ -87,6 +104,23 @@ namespace Login
                 }
             }
         }
+
+        public static string GetMD5Hash(string TextToHash)
+        {
+          //Prüfen ob Daten übergeben wurden.
+          if((TextToHash == null) || (TextToHash.Length == 0))
+          {
+            return string.Empty;
+          }
+
+          //MD5 Hash aus dem String berechnen. Dazu muss der string in ein Byte[]
+          //zerlegt werden. Danach muss das Resultat wieder zurück in ein string.
+          MD5 md5 = new MD5CryptoServiceProvider();
+          byte[] textToHash = Encoding.Default.GetBytes (TextToHash);
+          byte[] result = md5.ComputeHash(textToHash); 
+
+          return System.BitConverter.ToString(result); 
+        } 
 
         [RemoteEvent("NicknameVersuch")]
         public void NicknameVersuch(Client Player, String nickname)
@@ -110,11 +144,9 @@ namespace Login
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~w~Du heißt jetzt " + nickname + "!");
                     NAPI.Player.SetPlayerName(Player, nickname);
 
-                    Player.TriggerEvent("kameraoff");
                     Player.TriggerEvent("nicknamebrowserschliessen");
+                    Player.TriggerEvent("geburtstagbrowseroeffnen");
 
-                    Funktionen.SpielerLaden(Player);
-                    Funktionen.SpawnManager(Player);
                     Funktionen.LogEintrag(Player, "Nickname gesetzt");
 
                     ContextFactory.Instance.SaveChanges();
@@ -123,6 +155,27 @@ namespace Login
             }
         }
 
+        [RemoteEvent("GeburtstagVersuch")]
+        public void GeburtstagVersuch(Client Player, String geburtstag)
+        {
+            DateTime Geburtstag = DateTime.Parse(geburtstag);
+            if (Geburtstag > DateTime.Now) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Geburtstag muss in der Vergangenheit liegen."); return; }
+            if (Geburtstag < DateTime.Parse("01/01/1950")) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: So alt kannst du nicht sein!"); return; }
+            if (Geburtstag > DateTime.Today.AddYears(-18)) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst mindestens 18 Jahre alt sein!"); return; }
+
+            var Account = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Player.SocialClubName).FirstOrDefault();
+            Account.GeburtsDatum = Geburtstag;
+
+            Player.TriggerEvent("kameraoff");
+            Player.TriggerEvent("geburtstagbrowserschliessen");
+
+            Funktionen.SpielerLaden(Player);
+            Funktionen.SpawnManager(Player);
+            Funktionen.LogEintrag(Player, "Geburtstag gesetzt");
+
+            ContextFactory.Instance.SaveChanges();
+
+        }
     }
 }
 

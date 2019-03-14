@@ -1,6 +1,6 @@
 var kaufen;
 let player = mp.players.local;
-mp.events.add('Kaufen', (Typ, Preis) => {
+mp.events.add('Kaufen', (Typ, Preis, Manufakturpreis) => {
     kaufen = mp.browsers.new('package://Kaufen/kaufen.html');
 	mp.gui.cursor.show(true, true);
 	
@@ -23,6 +23,16 @@ mp.events.add('Kaufen', (Typ, Preis) => {
     {
         kaufen.execute(`document.getElementById('kaufentext').innerHTML = 'Autohaus kaufen';`);
         kaufen.execute(`document.getElementById('text').innerHTML = 'Möchtest du das Autohaus für <b>${Preis}</b> kaufen?';`);
+    }
+	else if (Typ == 5)
+    {
+        kaufen.execute(`document.getElementById('kaufentext').innerHTML = 'Fahrzeug kaufen';`);
+        kaufen.execute(`document.getElementById('text').innerHTML = 'Möchtest du das Fahrzeug für <b>${Preis}</b> kaufen?';`);
+    }
+	else if (Typ == 6)
+    {
+        kaufen.execute(`document.getElementById('kaufentext').innerHTML = 'Fahrzeug für Autohaus kaufen';`);
+        kaufen.execute(`document.getElementById('text').innerHTML = 'Möchtest du das Fahrzeug für <b>${Preis}</b> kaufen?<br>Du kannst es an deinem Autohaus für <b>${Manufakturpreis}</b> verkaufen.';`);
     }
 	
 });

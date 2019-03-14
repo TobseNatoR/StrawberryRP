@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Diagnostics;
 
 
 
@@ -18,7 +19,12 @@ namespace Haupt
         public void Feuer(Client Player)
         {
             Player.TriggerEvent("StartFire", -3237.754f, 969.6091f, 12.94306f, 25, true);
-            
+
+            foreach (AutoLokal auto in Funktionen.AutoListe)
+            {
+                Player.SendChatMessage(auto.Id + " | " + auto.FahrzeugTyp + " | " + auto.FahrzeugName);
+            }
+
         }
 
         [Command("ferstellen", "Nutze: /ferstellen [Name] [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus] [Farbe 1] [Farbe 2]")]
@@ -33,36 +39,41 @@ namespace Haupt
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             if (Typ < 0 || Typ > 5) { Player.SendChatMessage("~y~Info~w~: Ungültiger Typ."); return; }
             if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { Player.SendChatMessage("~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+            if (Typ == 1) { Player.SendChatMessage("~y~Info~w~: Job Fahrzeuge werden an der jeweiligen Base gespawnt. Sie können nicht mehr per /ferstellen erstellt werden."); return; }
 
-            //Ein neues Objekt erzeugen
-            var veh = new Auto
+            if(Typ != 0)
             {
-                FahrzeugBeschreibung = Funktionen.FahrzeugTypNamen(Typ),
-                FahrzeugName = Name,
-                FahrzeugTyp = Typ,
-                FahrzeugFraktion = 0,
-                FahrzeugJob = 0,
-                FahrzeugSpieler = 0,
-                FahrzeugMietpreis = 0,
-                FahrzeugKaufpreis = 0,
-                FahrzeugAutohaus = 0,
-                FahrzeugX = Player.Position.X,
-                FahrzeugY = Player.Position.Y,
-                FahrzeugZ = Player.Position.Z,
-                FahrzeugRot = Player.Rotation.Z,
-                FahrzeugFarbe1 = Farbe1,
-                FahrzeugFarbe2 = Farbe2,
-                TankVolumen = Funktionen.TankVolumenBerechnen(Name),
-                TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100,
-                Kilometerstand = 0.0f,
-                FahrzeugHU = DateTime.Now.AddMonths(+1),
-                FahrzeugAbgeschlossen = 0,
-                FahrzeugMotor = 1
-            };
+                //Ein neues Objekt erzeugen
+                var veh = new Auto
+                {
+                    FahrzeugBeschreibung = Funktionen.FahrzeugTypNamen(Typ),
+                    FahrzeugName = Name,
+                    FahrzeugTyp = Typ,
+                    FahrzeugFraktion = 0,
+                    FahrzeugJob = 0,
+                    FahrzeugSpieler = 0,
+                    FahrzeugMietpreis = 0,
+                    FahrzeugKaufpreis = 0,
+                    FahrzeugAutohaus = 0,
+                    FahrzeugX = Player.Position.X,
+                    FahrzeugY = Player.Position.Y,
+                    FahrzeugZ = Player.Position.Z,
+                    FahrzeugRot = Player.Rotation.Z,
+                    FahrzeugFarbe1 = Farbe1,
+                    FahrzeugFarbe2 = Farbe2,
+                    TankVolumen = Funktionen.TankVolumenBerechnen(Name),
+                    TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100,
+                    Kilometerstand = 0.0f,
+                    FahrzeugHU = DateTime.Now.AddMonths(+1),
+                    FahrzeugAbgeschlossen = 0,
+                    FahrzeugMotor = 1,
+                    FahrzeugGespawnt = 1
+                };
 
-            //Query absenden
-            ContextFactory.Instance.srp_fahrzeuge.Add(veh);
-            ContextFactory.Instance.SaveChanges();
+                //Query absenden
+                ContextFactory.Instance.srp_fahrzeuge.Add(veh);
+                ContextFactory.Instance.SaveChanges();
+            }
 
             //Objekt für die Liste erzeugen
             AutoLokal auto = new AutoLokal();
@@ -74,7 +85,14 @@ namespace Haupt
             auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
 
             //Dem Fahrzeug die Werte lokal übergeben
-            auto.Id = ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id);
+            if(Typ != 0)
+            {
+                auto.Id = ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id);
+            }
+            else
+            {
+                auto.Id = -1;
+            }
             auto.FahrzeugBeschreibung = Funktionen.FahrzeugTypNamen(Typ);
             auto.FahrzeugName = Name;
             auto.FahrzeugTyp = Typ;
@@ -96,6 +114,7 @@ namespace Haupt
             auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
             auto.FahrzeugAbgeschlossen = 0;
             auto.FahrzeugMotor = 1;
+            auto.FahrzeugGespawnt = 1;
 
             //Diese Sachen nur lokal
             auto.FahrzeugAltePositionX = Player.Position.X;
@@ -109,7 +128,14 @@ namespace Haupt
             Funktionen.AutoListe.Add(auto);
 
             //Dem Auto die DB Id lokal geben
-            auto.Fahrzeug.SetData("Id", ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id));
+            if (Typ != 0)
+            {
+                auto.Fahrzeug.SetData("Id", ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id));
+            }
+            else
+            {
+                auto.Fahrzeug.SetData("Id", -1);
+            }
 
             //Den Spieler in das Auto setzen
             Player.SetIntoVehicle(auto.Fahrzeug, -1);
@@ -161,7 +187,8 @@ namespace Haupt
                 Kilometerstand = 0.0f,
                 FahrzeugHU = DateTime.Now.AddMonths(+3),
                 FahrzeugAbgeschlossen = 0,
-                FahrzeugMotor = 1
+                FahrzeugMotor = 1,
+                FahrzeugGespawnt = 1
             };
 
             //Query absenden
@@ -200,6 +227,7 @@ namespace Haupt
             auto.FahrzeugHU = DateTime.Now.AddMonths(+3);
             auto.FahrzeugAbgeschlossen = 0;
             auto.FahrzeugMotor = 1;
+            auto.FahrzeugGespawnt = 1;
 
             //Diese Sachen nur lokal
             auto.FahrzeugAltePositionX = Player.Position.X;
@@ -225,11 +253,11 @@ namespace Haupt
         }
 
         [Command("herstellen", "Nutze: /herstellen [Interior 1 - 24] [Kaufpreis]")]
-        public void HausErstellen(Client Player, int Interior, long Kaufpreis)
+        public void ImmobilieErstellen(Client Player, int Interior, long Kaufpreis)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if(Interior < 0 || Interior > 24) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; } 
+            if(Interior <= 0 || Interior > 24) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; } 
 
             //Benötigte Definitionen
             String InteriorName = null;
@@ -906,6 +934,120 @@ namespace Haupt
             }
         }
 
+        [Command("hint", "Nutze: /hint [Interior 1 - 24]")]
+        public void ImmobilieInterior(Client Player, int Interior)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausInterior) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Interior <= 0 || Interior > 24) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; }
+
+            ImmobilienLokal haus = new ImmobilienLokal();
+            haus = Funktionen.NaheImmobilieBekommen(Player);
+
+            if (haus != null)
+            {
+                //Benötigte Definitionen
+                String InteriorName = null;
+                float EingangX = 0.0f, EingangY = 0.0f, EingangZ = 0.0f;
+
+                //Interior Liste
+                if (Interior == 1) { InteriorName = "apa_v_mp_h_01_a"; EingangX = -786.8663f; EingangY = 315.7642f; EingangZ = 217.6385f; }
+                else if (Interior == 2) { InteriorName = "apa_v_mp_h_01_c"; EingangX = -786.9563f; EingangY = 315.6229f; EingangZ = 187.9136f; }
+                else if (Interior == 3) { InteriorName = "apa_v_mp_h_01_b"; EingangX = -774.0126f; EingangY = 342.0428f; EingangZ = 196.6864f; }
+                else if (Interior == 4) { InteriorName = "apa_v_mp_h_02_a"; EingangX = -787.0749f; EingangY = 315.8198f; EingangZ = 217.6386f; }
+                else if (Interior == 5) { InteriorName = "apa_v_mp_h_02_c"; EingangX = -786.8195f; EingangY = 315.5634f; EingangZ = 187.9137f; }
+                else if (Interior == 6) { InteriorName = "apa_v_mp_h_02_b"; EingangX = -774.1382f; EingangY = 342.0316f; EingangZ = 196.6864f; }
+                else if (Interior == 7) { InteriorName = "apa_v_mp_h_03_a"; EingangX = -786.6245f; EingangY = 315.6175f; EingangZ = 217.6385f; }
+                else if (Interior == 8) { InteriorName = "apa_v_mp_h_03_c"; EingangX = -786.9584f; EingangY = 315.7974f; EingangZ = 187.9135f; }
+                else if (Interior == 9) { InteriorName = "apa_v_mp_h_03_b"; EingangX = -774.0223f; EingangY = 342.1718f; EingangZ = 196.6863f; }
+                else if (Interior == 10) { InteriorName = "apa_v_mp_h_04_a"; EingangX = -787.0902f; EingangY = 315.7039f; EingangZ = 217.6384f; }
+                else if (Interior == 11) { InteriorName = "apa_v_mp_h_04_c"; EingangX = -787.0155f; EingangY = 315.7071f; EingangZ = 187.9135f; }
+                else if (Interior == 12) { InteriorName = "apa_v_mp_h_04_b"; EingangX = -773.8976f; EingangY = 342.1525f; EingangZ = 196.6863f; }
+                else if (Interior == 13) { InteriorName = "apa_v_mp_h_05_a"; EingangX = -786.9887f; EingangY = 315.7393f; EingangZ = 217.6386f; }
+                else if (Interior == 14) { InteriorName = "apa_v_mp_h_05_c"; EingangX = -786.8809f; EingangY = 315.6634f; EingangZ = 187.9136f; }
+                else if (Interior == 15) { InteriorName = "apa_v_mp_h_05_b"; EingangX = -774.0675f; EingangY = 342.0773f; EingangZ = 196.6864f; }
+                else if (Interior == 16) { InteriorName = "apa_v_mp_h_06_a"; EingangX = -787.1423f; EingangY = 315.6943f; EingangZ = 217.6384f; }
+                else if (Interior == 17) { InteriorName = "apa_v_mp_h_06_c"; EingangX = -787.0961f; EingangY = 315.815f; EingangZ = 187.9135f; }
+                else if (Interior == 18) { InteriorName = "apa_v_mp_h_06_b"; EingangX = -773.9552f; EingangY = 341.9892f; EingangZ = 196.6862f; }
+                else if (Interior == 19) { InteriorName = "apa_v_mp_h_07_a"; EingangX = -787.029f; EingangY = 315.7113f; EingangZ = 217.6385f; }
+                else if (Interior == 20) { InteriorName = "apa_v_mp_h_07_c"; EingangX = -787.0574f; EingangY = 315.6567f; EingangZ = 187.9135f; }
+                else if (Interior == 21) { InteriorName = "apa_v_mp_h_07_b"; EingangX = -774.0109f; EingangY = 342.0965f; EingangZ = 196.6863f; }
+                else if (Interior == 22) { InteriorName = "apa_v_mp_h_08_a"; EingangX = -786.9469f; EingangY = 315.5655f; EingangZ = 217.6383f; }
+                else if (Interior == 23) { InteriorName = "apa_v_mp_h_08_c"; EingangX = -786.9756f; EingangY = 315.723f; EingangZ = 187.9134f; }
+                else if (Interior == 24) { InteriorName = "apa_v_mp_h_08_b"; EingangX = -774.0349f; EingangY = 342.0296f; EingangZ = 196.6862f; }
+
+                haus.ImmobilienEingangX = EingangX;
+                haus.ImmobilienEingangY = EingangY;
+                haus.ImmobilienEingangZ = EingangZ;
+                haus.ImmobilienInteriorName = InteriorName;
+
+                haus.ImmobilieGeändert = true;
+
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "Immobilie Interior geändert");
+
+                //Nachricht
+                Player.SendChatMessage("~y~Info~w~: Das Interior wurde angepasst.");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Es wurde keine Immobilie gefunden.");
+            }
+        }
+
+        [Command("hkaufpreis", "Nutze: /hkaufpreis [Preis]")]
+        public void ImmobilieKaufpreis(Client Player, long Preis)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausKaufPreis) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Preis < 0) { Player.SendChatMessage("~y~Info~w~:Das ist zu wenig Geld."); return; }
+
+            ImmobilienLokal haus = new ImmobilienLokal();
+            haus = Funktionen.NaheImmobilieBekommen(Player);
+
+            if (haus != null)
+            {
+                haus.ImmobilienKaufpreis = Preis;
+                haus.ImmobilieGeändert = true;
+
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "Immobilie Kaufpreis geändert");
+
+                Player.SendChatMessage("~y~Info~w~: Der Kaufpreis wurde auf " + Funktionen.GeldFormatieren(Preis) + " geändert!");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Es wurde keine Immobilie gefunden.");
+            }
+        }
+
+        [Command("htp", "Nutze: /htp [Hausnummer]")]
+        public void ImmobilieTeleport(Client Player, int Hausnummer)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausTeleport) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Benötigte Definitionen
+            int i = 0;
+
+            foreach (ImmobilienLokal hauslocal in Funktionen.ImmobilienListe)
+            {
+                if(hauslocal.Id == Hausnummer)
+                {
+                    Player.Position = new Vector3(hauslocal.ImmobilienX, hauslocal.ImmobilienY, hauslocal.ImmobilienZ);
+                    i = 1;
+                }
+            }
+
+            if(i == 0)
+            {
+                Player.SendChatMessage("~y~Info~w~: Dieses Haus konnte nicht gefunden werden.");
+            }
+        }
+
         [Command("tpunktlöschen", "Nutze: /tpunktlöschen")]
         public void TankstellenPunktLöschen(Client Player)
         {
@@ -999,15 +1141,11 @@ namespace Haupt
             Player.SendChatMessage("~w~[~r~Stats für " + Player.Name + "~w~]");
             Player.SendChatMessage("Social-Club: " + Funktionen.AccountSocialClubBekommen(Player));
             Player.SendChatMessage("Admin Level: " + Funktionen.AccountAdminLevelBekommen(Player));
+            Player.SendChatMessage("Spielzeit: " + Funktionen.AccountSpielzeitBerechnen(Player));
             Player.SendChatMessage("Geld: " + Funktionen.GeldFormatieren(Funktionen.AccountGeldBekommen(Player)));
             Player.SendChatMessage("Bank Geld: " + Funktionen.GeldFormatieren(Funktionen.AccountBankGeldBekommen(Player)));
             Player.SendChatMessage("Fahrzeug Schlüssel: " + Funktionen.AccountFahrzeugSchlüsselBekommen(Player));
-        }
-
-        [Command("g")]
-        public void Groß(Client Player, String HI)
-        {
-            Player.SendChatMessage(Funktionen.ErsterBuchstabeGroß(HI));
+            Player.SendChatMessage("Job: " + Funktionen.AccountJobInNamen(Player));
         }
 
         [Command("fparken", "Nutze /fparken")]
@@ -1024,7 +1162,7 @@ namespace Haupt
                 int FahrzeugID = Player.Vehicle.GetData("Id");
 
                 AutoLokal auto = new AutoLokal();
-                auto = Funktionen.AutoBekommen(Player);
+                auto = Funktionen.AutoBekommen(Player.Vehicle);
 
                 auto.FahrzeugX = Player.Vehicle.Position.X;
                 auto.FahrzeugY = Player.Vehicle.Position.Y;
@@ -1062,7 +1200,7 @@ namespace Haupt
                 int FahrzeugID = Player.Vehicle.GetData("Id");
 
                 AutoLokal auto = new AutoLokal();
-                auto = Funktionen.AutoBekommen(Player);
+                auto = Funktionen.AutoBekommen(Player.Vehicle);
 
                 if(auto.FahrzeugTyp != 2) { Player.SendChatMessage("~y~Info~w~: Das ist kein Mietfahrzeug."); return; }
 
@@ -1099,7 +1237,7 @@ namespace Haupt
                 int FahrzeugID = Player.Vehicle.GetData("Id");
 
                 AutoLokal auto = new AutoLokal();
-                auto = Funktionen.AutoBekommen(Player);
+                auto = Funktionen.AutoBekommen(Player.Vehicle);
 
                 if (auto.FahrzeugTyp != 5) { Player.SendChatMessage("~y~Info~w~: Das ist kein verkaufbares Fahrzeug."); return; }
 
@@ -1121,6 +1259,20 @@ namespace Haupt
             }
         }
 
+        [Command("pferd1", "Nutze /pferd1")]
+        public void PferdeRennen(Client Player)
+        {
+            Player.TriggerEvent("Pferderennenoeffnen");
+            Player.SetData("Pferderennen", 1);
+        }
+
+        [Command("pferd2", "Nutze /pferd2")]
+        public void PferdeRennen1(Client Player)
+        {
+            Player.TriggerEvent("Pferderennenschliessen");
+            Player.SetData("Pferderennen", 0);
+        }
+
         [Command("flöschen", "Nutze /flöschen")]
         public void FahrzeugLöschen(Client Player)
         {
@@ -1131,28 +1283,29 @@ namespace Haupt
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
             {
-                //Die Datenbank ID des Fahrzeuges bekommen
-                int FahrzeugID = Player.Vehicle.GetData("Id");
-
                 AutoLokal auto = new AutoLokal();
-                auto = Funktionen.AutoBekommen(Player);
+                auto = Funktionen.AutoBekommen(Player.Vehicle);
+
+                //Falls es ein Admin Fahrzeug ist
+                if(auto.FahrzeugTyp == 0) { Funktionen.AdminFahrzeugLöschen(Player, Player.Vehicle); return; }
 
                 var Fahrzeug = ContextFactory.Instance.srp_fahrzeuge.Where(x => x.Id == auto.Id).FirstOrDefault();
 
                 //Query absenden
                 ContextFactory.Instance.srp_fahrzeuge.Remove(Fahrzeug);
 
-                //Von der lokalen Liste entfernen
-                Funktionen.AutoListe.Remove(auto);
-
+                //Query absenden
+                ContextFactory.Instance.SaveChanges();
+                
                 //Auto zerstören
                 auto.Fahrzeug.Delete();
 
-                //Log Eintrag
-                Funktionen.LogEintrag(Player, "Fahrzeug ID: " + FahrzeugID + " gelöscht");
+                //Von der lokalen Liste entfernen
+                Funktionen.AutoListe.Remove(auto);
 
-                //Query absenden
-                ContextFactory.Instance.SaveChanges();
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "Fahrzeug ID: " + auto.Id + " gelöscht");
+
             }
             else
             {
@@ -1239,8 +1392,11 @@ namespace Haupt
             DateTime Datum = Funktionen.AccountEinreiseDatumBekommen(Player);
             String EinreiseDatumString = Datum.ToString("dd.MM.yyyy");
 
+            DateTime Datum1 = Funktionen.AccountGeburtstagBekommen(Player);
+            String GeburtstagString = Datum1.ToString("dd.MM.yyyy");
+
             //Den Perso anzeigen
-            Player.TriggerEvent("persozeigen", Player.Name, "10.10.2010", EinreiseDatumString, Player.GetData("Id"));
+            Player.TriggerEvent("persozeigen", Player.Name, GeburtstagString, EinreiseDatumString, Player.GetData("Id"));
 
             //Dem Spieler zuweisen das er gerade einen Perso sieht
             Player.SetData("SiehtPerso", 1);
@@ -1261,6 +1417,14 @@ namespace Haupt
             else if (Name == "Noobspawn")
             {
                 Player.Position = new Vector3(-3245.707, 967.6216, 12.73052);
+            }
+            else if (Name == "Arbeitsamt")
+            {
+                Player.Position = new Vector3(-837.6387, -272.0361, 38.72037);
+            }
+            else if (Name == "Berufskraftfahrer")
+            {
+                Player.Position = new Vector3(-1546.57, 1367.763, 126.1016);
             }
             else
             {
@@ -1338,7 +1502,7 @@ namespace Haupt
                 Funktionen.LogEintrag(Player, "Fahrzeug repariert");
 
                 Player.SendChatMessage("~y~Info~w~: Das Fahrzeug mit der ID: ~g~" + Player.Vehicle.GetData("Id") + " ~w~wurde erfolgreich repariert.");
-                Player.Vehicle.Health = 1000;
+                Player.Vehicle.Repair();
                 Player.TriggerEvent("FahrzeugReparieren");
             }
             else
@@ -1501,6 +1665,30 @@ namespace Haupt
             }
         }
 
+        [Command("speichern", "Nutze: /speichern")]
+        public void Speichern(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Speichern) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            NAPI.Chat.SendChatMessageToAll("~g~Info~w~: Speicherung wurde eingeleitet.");
+            NAPI.Chat.SendChatMessageToAll("~g~Info~w~: Dies kann zu Verzögerungen führen!");
+
+            //Stoppuhr starten
+            var Uhr = System.Diagnostics.Stopwatch.StartNew();
+
+            //Alles speichern
+            Funktionen.AllesSpeichern();
+
+            //StoppUhr anhalten
+            Uhr.Stop();
+            var MS = Uhr.ElapsedMilliseconds;
+
+            //Ausgabe
+            NAPI.Chat.SendChatMessageToAll("~g~Info~w~: Der Gesamte Server wurde gespeichert. [" + MS + "ms]");
+        }
+
         [Command("frespawn", "Nutze: /frespawn [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus]")]
         public void FahrzeugRespawn(Client Player, int Typ)
         {
@@ -1515,7 +1703,7 @@ namespace Haupt
 
                 foreach (AutoLokal auto in Funktionen.AutoListe)
                 {
-                    if (auto.FahrzeugTyp == Typ && Fahrzeuge.GetData("Id") == auto.Id)
+                    if (auto.FahrzeugTyp == Typ && Fahrzeuge.GetData("Id") == auto.Id && auto.FahrzeugGespawnt == 1)
                     {
                         Fahrzeuge.Position = new Vector3(auto.FahrzeugX, auto.FahrzeugY, auto.FahrzeugZ);
                         Fahrzeuge.Rotation = new Vector3(0.0, 0.0, auto.FahrzeugRot);

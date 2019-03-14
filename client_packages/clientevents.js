@@ -1,5 +1,35 @@
-mp.game.vehicle.defaultEngineBehaviour = false;
+//mp.game.vehicle.defaultEngineBehaviour = false;
 let Player = mp.players.local;
+let Fahrzeug = mp.players.local.vehicle;
+mp.nametags.enabled = false;
+
+mp.events.add('FahrzeugVerlassen', () => {
+	let localVeh = mp.players.local.vehicle;
+	if (localVeh) 
+	{
+		mp.players.local.taskLeaveVehicle(localVeh.handle, 16);
+	}
+});
+
+mp.events.add('NichtFahrbar', () => {
+	let localVeh = mp.players.local.vehicle;
+	if (localVeh) 
+	{
+		localVeh.setUndriveable(true);
+	}
+});
+
+mp.events.add('Fahrbar', () => {
+	let localVeh = mp.players.local.vehicle;
+	if (localVeh) 
+	{
+		localVeh.setUndriveable(false);
+	}
+});
+
+mp.events.add('DiscordStatusSetzen', (serverName, status) => {
+  mp.discord.update(serverName, status)
+});
 
 mp.events.add('FahrzeugReparieren', () => {
 	Player.vehicle.setDeformationFixed();
@@ -25,13 +55,6 @@ mp.events.add('Chatzeigen', () => {
 	mp.gui.chat.show(true);
 });
 
-mp.events.add('Enter', (Eingeloggt) => {
-    if(Eingeloggt == 0)
-	{
-		return;
-	}
-});
-
 //Client event 
 mp.events.add('StartFire', (posX, posY, posZ, maxChilderen, gasPowerd) => {
     // The fireId is a int
@@ -39,7 +62,14 @@ mp.events.add('StartFire', (posX, posY, posZ, maxChilderen, gasPowerd) => {
 	mp.game.fire.addExplosion(posX, posY, posZ, 34, 60, true, false, 10);
 });
 
+//Navigation
+mp.events.add('Navigation', (posX, posY) => {
+    mp.game.ui.setNewWaypoint(posX, posY);
+});
+
+
 mp.events.add('WantedLevel', (Anzahl) => {
     mp.game.gameplay.setFakeWantedLevel(Anzahl);
 });
+
 

@@ -1,17 +1,6 @@
-﻿/* 
- * 27.02.2019
- *  - /hilfe
- *  + /ahbeschreibung
- *  
- * 
- * 26.02.2019
- * + /mfferstellen
- * + /ahlöschen
- * 
- * 25.02.2019
- * + /perstellen
- * + /plöschen
- * + /vmodus
- * + /aherstellen
- * 
+﻿/*
+13.03.2019
+ + Berufskraftfahrer erhalten nun pro belieferte Tankstelle 20 EXP.
+ + Kündigungsfrist von 60 Minuten eingebaut. Man muss einen Job jetzt 1 Stunden lang spielen bis man ihn kündigen kann.
+
  */

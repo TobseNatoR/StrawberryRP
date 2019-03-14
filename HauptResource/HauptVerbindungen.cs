@@ -70,21 +70,36 @@ namespace Haupt
             if(Player.GetData("Eingeloggt") == 1)
             {
                 Funktionen.SpielerSpeichern(Player);
+
+                //Spieler Online Status
+                Funktionen.ServerSpielerGejoined(2);
             }
 
             //Daten zur Sicherheit zurücksetzen
+            //Generelle Daten
             Player.SetData("SiehtPerso", 0);
+            Player.SetData("Scoreboard", 0);
             Player.SetData("AmTanken", 0);
             Player.SetData("TankenTankstellenId", 0);
             Player.SetData("TankRechnung", 0);
             Player.SetData("KaufenTyp", 0);
             Player.SetData("KaufenId", 0);
             Player.SetData("KaufenPreis", 0);
-            Player.SetData("Cooldown", 0);
+            Player.SetData("KeyCoolDown", 0);
+            Player.SetData("MenuCoolDown", 0);
             Player.SetData("Verwaltungsmodus", 0);
+            Player.SetData("Pferderennen", 0);
+
+            //Job Daten
+            Player.SetData("BerufskraftfahrerFahrzeug", 0);
+            Player.SetData("BerufskraftfahrerJobAngenommen", 0);
+            Player.SetData("BerufskraftfahrerKraftstoffTyp", 0);
+            Player.SetData("BerufskraftfahrerDieselTanke", 0);
+            Player.SetData("BerufskraftfahrerE10Tanke", 0);
+            Player.SetData("BerufskraftfahrerSuperTanke", 0);
+            Player.SetData("BerufskraftfahrerVerdienst", 0);
 
             //Dialoge
-            Player.SetData("StadthalleDialog", 0);
             Player.SetData("FahrzeugPrivatDialog", 0);
 
             Funktionen.LogEintrag(Player, "Verbindung getrennt");

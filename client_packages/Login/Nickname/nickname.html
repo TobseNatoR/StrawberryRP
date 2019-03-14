@@ -1,15 +1,13 @@
-<!-- Erstellt von Toby Gallenkamp für StrawberryRP -->
+﻿<!-- Erstellt von Toby Gallenkamp für StrawberryRP -->
 <html lang="en">
 <head>
-    <!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/css/bootstrap.min.css">
     <script src="https://filebase.strawberry-rp.de/server/Dependences/jquery-3.3.1.min.js"></script>
     <script src="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
-    <link rel="stylesheet" href="kaufen.css" />
+    <link rel="stylesheet" href="nickname.css" />
     <meta charset="utf-8" />
 </head>
-
 <body>
     <div class="jumbotron">
 		<center>
@@ -20,26 +18,16 @@
         <div class="tab-content">
             <div id="loginTab" class="tab-pane active">
                 <form>
-					<center>
-						<h4>
-							<div id="kaufentext"></div>
-						</h4>
-						
-						<br>
-						
-						<div id="text"></div>
-						
-						<br>
-						
-						<div class="btn-group" role="group" style="width: 90%;">
-							<button id="kaufen" type="button" style="width: 60%;" class="btn btn-success btn-secondary">Kaufen</button>
-							<button id="abbrechen" type="button" style="width: 40%;" class="btn btn-danger btn-secondary">Abbrechen</button>
-						</div>
+					<center>Du kannst hier deinen Nicknamen wählen.<br>Diesen sehen andere Spieler.<p></center>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fas fa-user"></i></span>
+                        <input id="nickname" type="text" class="form-control" placeholder="Nicknamen">
+                    </div>
+                    <button id="absendebutton" type="button" class="btn btn-danger btn-block">Absenden</button>
                 </form>
             </div>
         </div>
     </div>
-	
-    <script src="kaufen.js" type="text/javascript"></script>
+    <script src="nickname.js" type="text/javascript"></script>
 </body>
 </html>

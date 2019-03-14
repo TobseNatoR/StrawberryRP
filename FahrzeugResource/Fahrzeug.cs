@@ -16,7 +16,7 @@ namespace Fahrzeug
         {
             //Das Fahrzeug greifen
             AutoLokal auto = new AutoLokal();
-            auto = Funktionen.AutoBekommen(Player);
+            auto = Funktionen.AutoBekommen(Player.Vehicle);
 
             if(Funktionen.AccountGeldBekommen(Player) < auto.FahrzeugMietpreis)
             {
@@ -48,19 +48,32 @@ namespace Fahrzeug
             Player.TriggerEvent("Chatzeigen");
         }
 
+        [RemoteEvent("LichtAn")]
+        public void LichtAn(Client Player)
+        {
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Licht eingeschaltet.");
+        }
+
+        [RemoteEvent("LichtAus")]
+        public void LichtAus(Client Player)
+        {
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Licht ausgeschaltet.");
+        }
+
         [ServerEvent(Event.PlayerEnterVehicle)]
         public void OnPlayerEnterVehicle(Client Player, Vehicle vehicle, sbyte seatID)
         {
-            //Motor Sachen
-            if(FahrzeugMotorStatus(Player.Vehicle) == 1)
+            //Motor Starten/Stoppen
+            if(FahrzeugMotorStatus(vehicle) == 1)
             {
-                Player.SendChatMessage("Motor war an");
-                Player.Vehicle.EngineStatus = true;
+                vehicle.EngineStatus = true;
             }
             else
             {
-                Player.SendChatMessage("Motor war aus");
-                Player.Vehicle.EngineStatus = false;
+                Player.TriggerEvent("NichtFahrbar");
+                vehicle.EngineStatus = false;
+                Funktionen.Freeze(Player);
+                Timer.SetTimer(() => Funktionen.Unfreeze(Player), 3000, 1);
             }
 
             //Abfragen damit niemand mit den autos rumfahren kann
@@ -68,7 +81,7 @@ namespace Fahrzeug
             {
                 if (AutoHausBekommen(Player.Vehicle) == -1 && Funktionen.AccountHatAutohaus(Player) == 0) { Player.TriggerEvent("FahrzeugVerlassen"); return; }
             }
-                
+            
             //Mietfahrzeug
             if (TypBekommen(Player.Vehicle) == 2)
             {
@@ -131,6 +144,78 @@ namespace Fahrzeug
             }
         }
 
+        [ServerEvent(Event.PlayerExitVehicle)]
+        public void OnPlayerExitVehicle(Client Player, Vehicle vehicle)
+        {
+            AutoLokal auto = new AutoLokal();
+            auto = Funktionen.AutoBekommen(Player.Vehicle);
+
+            if(auto.FahrzeugJob == 1 && vehicle.GetData("GeradeGespawnt") == 0)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Gehe zurück in dein Job Fahrzeug!");
+                Timer.SetTimer(() => JobFahrzeugLöschen(Player, vehicle), 240000, 1);
+            }
+            else
+            {
+                Funktionen.FahrzeugSpeichern(vehicle);
+            }
+        }
+
+        public static void JobFahrzeugLöschen(Client Player, Vehicle Fahrzeug)
+        {
+            if(Player.Vehicle == Fahrzeug)
+            {
+                return;
+            }
+            else
+            {
+                if (Player.GetData("BerufskraftfahrerDieselTanke") != 0 || Player.GetData("BerufskraftfahrerE10Tanke") != 0 || Player.GetData("BerufskraftfahrerSuperTanke") != 0)
+                {
+                    if(Player.GetData("BerufskraftfahrerDieselTanke") != 0)
+                    {
+                        foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                        {
+                            if(tanke.Id == Player.GetData("BerufskraftfahrerDieselTanke"))
+                            {
+                                tanke.TankstelleJobSpieler = 0;
+                            }
+                        }
+                    }
+                    else if (Player.GetData("BerufskraftfahrerE10Tanke") != 0)
+                    {
+                        foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                        {
+                            if (tanke.Id == Player.GetData("BerufskraftfahrerE10Tanke"))
+                            {
+                                tanke.TankstelleJobSpieler = 0;
+                            }
+                        }
+                    }
+                    else if (Player.GetData("BerufskraftfahrerSuperTanke") != 0)
+                    {
+                        foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                        {
+                            if (tanke.Id == Player.GetData("BerufskraftfahrerSuperTanke"))
+                            {
+                                tanke.TankstelleJobSpieler = 0;
+                            }
+                        }
+                    }
+                }
+                AutoLokal auto = new AutoLokal();
+                auto = Funktionen.AutoBekommen(Fahrzeug);
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job Fahrzeug wurde gelöscht.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job Auftrag wurde abgebrochen.");
+                Player.SetData("BerufskraftfahrerFahrzeug", 0);
+                Player.SetData("BerufskraftfahrerJobAngenommen", 0);
+                Player.SetData("BerufskraftfahrerDieselTanke", 0);
+                Player.SetData("BerufskraftfahrerE10Tanke", 0);
+                Player.SetData("BerufskraftfahrerSuperTanke", 0);
+
+                auto.Fahrzeug.Delete();
+            }
+        }
+
         public static List<AutoLokal> AlleAutosLadenDB()
         {
             List<AutoLokal> AutoListe = new List<AutoLokal>();
@@ -148,16 +233,6 @@ namespace Fahrzeug
                 //ID Lokal setzen damit man das Fahrzeug erkennen kann
                 auto.Fahrzeug.SetData("Id", Fahrzeuge.Id);
 
-                //Zuweisungen für das Auto
-                auto.Fahrzeug.NumberPlate = Fahrzeuge.FahrzeugBeschreibung;
-                if(auto.FahrzeugMotor == 0)
-                {
-                    auto.Fahrzeug.EngineStatus = false;
-                }
-                else
-                {
-                    auto.Fahrzeug.EngineStatus = true;
-                }
                 auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
 
                 auto.Id = Fahrzeuge.Id;
@@ -193,6 +268,18 @@ namespace Fahrzeug
 
                 //Zur Liste hinzufügen
                 AutoListe.Add(auto);
+
+                //Zuweisungen für das Auto
+                auto.Fahrzeug.NumberPlate = Fahrzeuge.FahrzeugBeschreibung;
+
+                if (auto.FahrzeugMotor == 0)
+                {
+                    auto.Fahrzeug.EngineStatus = false;
+                }
+                else
+                {
+                    auto.Fahrzeug.EngineStatus = true;
+                }
 
                 //Schauen ob es ein Verkaufs Auto ist
                 if (auto.FahrzeugAutohaus > 0)
@@ -386,51 +473,6 @@ namespace Fahrzeug
             return TankInhalt;
         }
 
-        public static float XBekommen(Vehicle Auto)
-        {
-            //Benötigte Definitionen
-            float X = 0.0f;
-
-            foreach (AutoLokal auto in Funktionen.AutoListe)
-            {
-                if (Auto.GetData("Id") == auto.Id)
-                {
-                    X = auto.FahrzeugX;
-                }
-            }
-            return X;
-        }
-
-        public static float YBekommen(Vehicle Auto)
-        {
-            //Benötigte Definitionen
-            float Y = 0.0f;
-
-            foreach (AutoLokal auto in Funktionen.AutoListe)
-            {
-                if (Auto.GetData("Id") == auto.Id)
-                {
-                    Y = auto.FahrzeugX;
-                }
-            }
-            return Y;
-        }
-
-        public static float ZBekommen(Vehicle Auto)
-        {
-            //Benötigte Definitionen
-            float Z = 0.0f;
-
-            foreach (AutoLokal auto in Funktionen.AutoListe)
-            {
-                if (Auto.GetData("Id") == auto.Id)
-                {
-                    Z = auto.FahrzeugX;
-                }
-            }
-            return Z;
-        }
-
         public static float RotBekommen(Vehicle Auto)
         {
             //Benötigte Definitionen
@@ -526,6 +568,51 @@ namespace Fahrzeug
             }
         }
 
+        public static void FahrzeugCheck()
+        {
+            //Benötigte Definitionen
+            Boolean HatFahrer = false;
+            foreach (var Fahrzeug in NAPI.Pools.GetAllVehicles())
+            {
+                NAPI.Vehicle.SetVehicleSpecialLightStatus(Fahrzeug, true);
+                if (Fahrzeug.EngineStatus == true)
+                {
+                    if (NAPI.Vehicle.GetVehicleDriver(Fahrzeug) == null)
+                    {
+                        foreach (var Spieler in NAPI.Pools.GetAllPlayers())
+                        {
+                            if(Spieler.Vehicle == Fahrzeug)
+                            {
+                                HatFahrer = true;
+                            }
+                        }
+                        if(HatFahrer == false)
+                        {
+                            foreach (AutoLokal auto in Funktionen.AutoListe)
+                            {
+                                if (Fahrzeug.GetData("Id") == auto.Id)
+                                {
+                                    if (auto.TankInhalt <= 0)
+                                    {
+                                        Fahrzeug.EngineStatus = false;
+                                        FahrzeugMotor(Fahrzeug, 0);
+                                        if (auto.TankInhalt < 0)
+                                        {
+                                            auto.TankInhalt = 0.0f;
+                                        }
+                                        return;
+                                    }
+
+                                    auto.TankInhalt -= 5;
+                                    auto.FahrzeugGeändert = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         public static void TachoUpdaten()
         {
             //Schleife für alle Autos
@@ -540,7 +627,7 @@ namespace Fahrzeug
 
                     //Fahrzeug abprüfen
                     AutoLokal auto = new AutoLokal();
-                    auto = Funktionen.AutoBekommen(Player);
+                    auto = Funktionen.AutoBekommen(Player.Vehicle);
 
                     if(auto.TankInhalt <= 0)
                     {
@@ -576,6 +663,12 @@ namespace Fahrzeug
 
                     //Verbrauch errechnen
                     float Verbraucht = Distanz * GlobaleSachen.Verbrauch;
+
+                    //Wenn er nicht fährt
+                    if(Distanz == 0)
+                    {
+                        Verbraucht = 0.2f;
+                    }
 
                     //Verbrauch subtrahieren
                     float Tank = auto.TankInhalt - Verbraucht;

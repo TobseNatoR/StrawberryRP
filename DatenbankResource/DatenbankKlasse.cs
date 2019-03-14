@@ -17,6 +17,9 @@ namespace Datenbank
         public DateTime WetterAktualisiert { get; set; }
         public long Staatskasse { get; set; }
         public int OnlineRekord { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime OnlineRekordDatum { get; set; }
+        public int Online { get; set; }
     }
 
     public class Whitelist
@@ -45,9 +48,15 @@ namespace Datenbank
         public long Geld { get; set; }
         public long BankGeld { get; set; }
         public int Perso { get; set; }
+        public int Spielzeit { get; set; }
+        public int Exp { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime GeburtsDatum { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime EinreiseDatum { get; set; }
         public int FahrzeugSchlüssel { get; set; }
+        public int Kündigungszeit { get; set; }
+        public int BerufskraftfahrerExp { get; set; }
     }
 
     public class AccountLokal
@@ -64,9 +73,13 @@ namespace Datenbank
         public long Geld { get; set; }
         public long BankGeld { get; set; }
         public int Perso { get; set; }
-        [Column(TypeName = "datetime")]
+        public int Spielzeit { get; set; }
+        public int Exp { get; set; }
+        public DateTime GeburtsDatum { get; set; }
         public DateTime EinreiseDatum { get; set; }
         public int FahrzeugSchlüssel { get; set; }
+        public int Kündigungszeit { get; set; }
+        public int BerufskraftfahrerExp { get; set; }
 
         public Boolean AccountGeändert { get; set; }
     }
@@ -166,6 +179,9 @@ namespace Datenbank
         public Marker TankstellenMarker { get; set; }
         public Blip TankstellenBlip { get; set; }
 
+        //Job Kram
+        public int TankstelleJobSpieler { get; set; }
+
         public Boolean TankstelleGeändert { get; set; }
     }
 
@@ -243,6 +259,7 @@ namespace Datenbank
         public DateTime FahrzeugHU { get; set; }
         public int FahrzeugAbgeschlossen { get; set; }
         public int FahrzeugMotor { get; set; }
+        public int FahrzeugGespawnt { get; set; }
 
     }
 
@@ -272,6 +289,7 @@ namespace Datenbank
         public DateTime FahrzeugHU { get; set; }
         public int FahrzeugAbgeschlossen { get; set; }
         public int FahrzeugMotor { get; set; }
+        public int FahrzeugGespawnt { get; set; }
         public Vehicle Fahrzeug { get; set; }
         public float FahrzeugAltePositionX { get; set; }
         public float FahrzeugAltePositionY { get; set; }
