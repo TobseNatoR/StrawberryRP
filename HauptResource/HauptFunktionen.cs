@@ -39,8 +39,13 @@ namespace Haupt
 
         //Preise
         public const int PersonalausweisPreis = 100;
+        public const int HeiratenPreis = 15000;
+        public const int GruppenPreis = 100000;
+        public const int GruppenEinlage = 25000;
 
+        //Dinge die am laufen sind
         public static int Pferderennen = 0;
+        public static int Heiraten = 0;
     }
 
     public class AdminBefehle
@@ -83,6 +88,10 @@ namespace Haupt
         public const int FahrzeugRespawn = 3;
         public const int FahrzeugReparieren = 3;
         public const int FahrzeugZuweisen = 3;
+        public const int AdminFahrzeugErstellen = 1;
+        public const int PositionSpeichern = 3;
+        public const int SaveListe = 1;
+        public const int CoordinatenTeleport = 1;
     }
 
     public class Zahlen
@@ -104,6 +113,8 @@ namespace Haupt
         public static List<SupermarktLokal> SupermarktListe;
         public static List<AutohausLokal> AutohausListe;
         public static List<BotLokal> BotListe;
+        public static List<SaveLokal> SaveListe;
+        public static List<GruppenLokal> GruppenListe;
 
         public static void AllesStarten()
         {
@@ -122,6 +133,8 @@ namespace Haupt
             ImmobilienLadenLokal();
             SupermärkteLadenLokal();
             PedsLadenLokal();
+            SavesLadenLokal();
+            GruppenLadenLokal();
             AutohäuserLadenLokal();
 
             //Speicherungs Timer
@@ -162,6 +175,8 @@ namespace Haupt
             var Supermärkte = ContextFactory.Instance.srp_supermärkte.Count();
             var Autohäuser = ContextFactory.Instance.srp_autohäuser.Count();
             var Bots = ContextFactory.Instance.srp_bots.Count();
+            var Saves = ContextFactory.Instance.srp_saves.Count();
+            var Gruppen = ContextFactory.Instance.srp_gruppen.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -174,6 +189,8 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Supermärkte + " Supermärkte wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Autohäuser + " Autohäuser wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Bots + " Peds wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + Saves + " Saves wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + Gruppen + " Gruppen wurden geladen.");
 
             //Spieler auf 0 setzen
             var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
@@ -212,8 +229,8 @@ namespace Haupt
                 }
 
                 //TextLabel und Marker erstellen
-                tankstelle.TankstellenLabel = NAPI.TextLabel.CreateTextLabel(TankstellenText, new Vector3(tankstelle.TankstelleX, tankstelle.TankstelleY, tankstelle.TankstelleZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-                tankstelle.TankstellenMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenMarker, new Vector3(tankstelle.TankstelleX, tankstelle.TankstelleY, tankstelle.TankstelleZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+                tankstelle.TankstellenLabel = NAPI.TextLabel.CreateTextLabel(TankstellenText, new Vector3(tankstelle.TankstelleX, tankstelle.TankstelleY, tankstelle.TankstelleZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                tankstelle.TankstellenMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenMarker, new Vector3(tankstelle.TankstelleX, tankstelle.TankstelleY, tankstelle.TankstelleZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             }
         }
 
@@ -248,8 +265,8 @@ namespace Haupt
                 }
 
                 //TextLabel und Marker erstellen
-                haus.ImmobilienLabel = NAPI.TextLabel.CreateTextLabel(ImmobilienText, new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-                haus.ImmobilienMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ImmobilienMarker, new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+                haus.ImmobilienLabel = NAPI.TextLabel.CreateTextLabel(ImmobilienText, new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                haus.ImmobilienMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ImmobilienMarker, new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             }
         }
 
@@ -296,6 +313,12 @@ namespace Haupt
             Autohäuser.Stop();
             var AutohäuserMS = Autohäuser.ElapsedMilliseconds;
             NAPI.Util.ConsoleOutput("[StrawberryRP] Alle Autohäuser gespeichert [" + AutohäuserMS + "ms]");
+
+            var Gruppen = System.Diagnostics.Stopwatch.StartNew();
+            AlleGruppenSpeichern();
+            Gruppen.Stop();
+            var GruppenMS = Gruppen.ElapsedMilliseconds;
+            NAPI.Util.ConsoleOutput("[StrawberryRP] Alle Gruppen gespeichert [" + GruppenMS + "ms]");
         }
 
         public static void SupermärkteLadenLokal()
@@ -313,7 +336,7 @@ namespace Haupt
                     supermarkt.SupermarktBlip = NAPI.Blip.CreateBlip(new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ));
                     supermarkt.SupermarktBlip.Name = supermarkt.SupermarktBeschreibung;
                     supermarkt.SupermarktBlip.ShortRange = true;
-                    supermarkt.SupermarktBlip.Sprite = 590;
+                    supermarkt.SupermarktBlip.Sprite = 52;
                     supermarkt.SupermarktBlip.Color = 2;
                 }
                 else
@@ -324,13 +347,13 @@ namespace Haupt
                     supermarkt.SupermarktBlip = NAPI.Blip.CreateBlip(new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ));
                     supermarkt.SupermarktBlip.Name = supermarkt.SupermarktBeschreibung;
                     supermarkt.SupermarktBlip.ShortRange = true;
-                    supermarkt.SupermarktBlip.Sprite = 590;
+                    supermarkt.SupermarktBlip.Sprite = 52;
                     supermarkt.SupermarktBlip.Color = 1;
                 }
 
                 //TextLabel und Marker erstellen
-                supermarkt.SupermarktLabel = NAPI.TextLabel.CreateTextLabel(SupermarktText, new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-                supermarkt.SupermarktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+                supermarkt.SupermarktLabel = NAPI.TextLabel.CreateTextLabel(SupermarktText, new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                supermarkt.SupermarktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             }
         }
 
@@ -365,14 +388,24 @@ namespace Haupt
                 }
 
                 //TextLabel und Marker erstellen
-                autohaus.AutohausLabel = NAPI.TextLabel.CreateTextLabel(AutohausText, new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-                autohaus.AutohausMarker = NAPI.Marker.CreateMarker(GlobaleSachen.AutohausMarker, new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+                autohaus.AutohausLabel = NAPI.TextLabel.CreateTextLabel(AutohausText, new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                autohaus.AutohausMarker = NAPI.Marker.CreateMarker(GlobaleSachen.AutohausMarker, new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             }
         }
 
         public static void PedsLadenLokal()
         {
             BotListe = AlleBotsLadenDB();
+        }
+
+        public static void SavesLadenLokal()
+        {
+            SaveListe = AlleSavesLadenDB();
+        }
+
+        public static void GruppenLadenLokal()
+        {
+            GruppenListe = AlleGruppenLadenDB();
         }
 
         public static void FahrzeugeLadenLokal()
@@ -395,8 +428,8 @@ namespace Haupt
                 TankstellenPunktText += "~w~Tankstelle: ~g~" + tankpunkt.TankstellenId;
 
                 //TextLabel und Marker erstellen
-                tankpunkt.TankstellenPunktLabel = NAPI.TextLabel.CreateTextLabel(TankstellenPunktText, new Vector3(tankpunkt.TankstellenPunktX, tankpunkt.TankstellenPunktY, tankpunkt.TankstellenPunktZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-                tankpunkt.TankstellenPunktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenZapfsäuleMarker, new Vector3(tankpunkt.TankstellenPunktX, tankpunkt.TankstellenPunktY, tankpunkt.TankstellenPunktZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+                tankpunkt.TankstellenPunktLabel = NAPI.TextLabel.CreateTextLabel(TankstellenPunktText, new Vector3(tankpunkt.TankstellenPunktX, tankpunkt.TankstellenPunktY, tankpunkt.TankstellenPunktZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                tankpunkt.TankstellenPunktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenZapfsäuleMarker, new Vector3(tankpunkt.TankstellenPunktX, tankpunkt.TankstellenPunktY, tankpunkt.TankstellenPunktZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             }
         }
 
@@ -425,8 +458,8 @@ namespace Haupt
                 TankstellenInfoText += "~w~Super: ~g~" + Super + "~w~L";
 
                 //TextLabel und Marker erstellen
-                tankinfo.TankstellenInfoLabel = NAPI.TextLabel.CreateTextLabel(TankstellenInfoText, new Vector3(tankinfo.TankstellenInfoX, tankinfo.TankstellenInfoY, tankinfo.TankstellenInfoZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-                tankinfo.TankstellenInfoMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenInfoMarker, new Vector3(tankinfo.TankstellenInfoX, tankinfo.TankstellenInfoY, tankinfo.TankstellenInfoZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+                tankinfo.TankstellenInfoLabel = NAPI.TextLabel.CreateTextLabel(TankstellenInfoText, new Vector3(tankinfo.TankstellenInfoX, tankinfo.TankstellenInfoY, tankinfo.TankstellenInfoZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                tankinfo.TankstellenInfoMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenInfoMarker, new Vector3(tankinfo.TankstellenInfoX, tankinfo.TankstellenInfoY, tankinfo.TankstellenInfoZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             }
         }
 
@@ -551,7 +584,7 @@ namespace Haupt
             return TankstellenPunkt;
         }
 
-        public static AutoLokal NaheAutosBekommen(Client Player, float distance = 2.0f)
+        public static AutoLokal NaheAutosBekommen(Client Player, float distance = 4.0f)
         {
             AutoLokal Auto = null;
             foreach (var Fahrzeuge in NAPI.Pools.GetAllVehicles())
@@ -566,6 +599,7 @@ namespace Haupt
                         if(FahrzeugID == autolocal.Id)
                         {
                             Auto = autolocal;
+                            break;
                         }
                     }
                 }
@@ -667,6 +701,7 @@ namespace Haupt
                 if (tanke.Id == Id)
                 {
                     Tanke = tanke;
+                    break;
                 }
             }
             return Tanke;
@@ -680,6 +715,7 @@ namespace Haupt
                 if (autohauslocal.Id == Id)
                 {
                     Autohaus = autohauslocal;
+                    break;
                 }
             }
             return Autohaus;
@@ -737,9 +773,46 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     AdminLevel = account.AdminLevel;
+                    break;
                 }
             }
             return AdminLevel;
+        }
+
+        public static String AccountGruppenRangNamenBekommen(int Gruppe, int Rang)
+        {
+            //Benötigte Definitionen
+            String RangName = null;
+
+            foreach (GruppenLokal gruppe in GruppenListe)
+            {
+                if (gruppe.Id == Gruppe)
+                {
+                    if(Rang == 1) { RangName = gruppe.GruppenRang1Name; }
+                    else if (Rang == 2) { RangName = gruppe.GruppenRang2Name; }
+                    else if (Rang == 3) { RangName = gruppe.GruppenRang3Name; }
+                    else if (Rang == 4) { RangName = gruppe.GruppenRang4Name; }
+                    else if (Rang == 5) { RangName = gruppe.GruppenRang5Name; }
+                    break;
+                }
+            }
+            return RangName;
+        }
+
+        public static Vehicle AccountJobFahrzeugBekommen(Client Player)
+        {
+            //Benötigte Definitionen
+            Vehicle Fahrzeug = null;
+
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    Fahrzeug = account.JobFahrzeug;
+                    break;
+                }
+            }
+            return Fahrzeug;
         }
 
         public static int AccountSpielzeitBekommen(Client Player)
@@ -752,6 +825,7 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     Spielzeit = account.Spielzeit;
+                    break;
                 }
             }
             return Spielzeit;
@@ -794,6 +868,7 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     Perso = account.Perso;
+                    break;
                 }
             }
             return Perso;
@@ -809,9 +884,26 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     Geld = account.Geld;
+                    break;
                 }
             }
             return Geld;
+        }
+
+        public static String AccountVerheiratetBekommen(Client Player)
+        {
+            //Benötigte Definitionen
+            String Name = null;
+
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    Name = account.Verheiratet;
+                    break;
+                }
+            }
+            return Name;
         }
 
         public static long AccountBankGeldBekommen(Client Player)
@@ -824,9 +916,87 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     BankGeld = account.BankGeld;
+                    break;
                 }
             }
             return BankGeld;
+        }
+
+        public static int AccountGruppeBekommen(Client Player)
+        {
+            //Benötigte Definitionen
+            int Gruppierung = 0;
+
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    Gruppierung = account.Gruppe;
+                    break;
+                }
+            }
+            return Gruppierung;
+        }
+
+        public static int AccountGruppeRangBekommen(Client Player)
+        {
+            //Benötigte Definitionen
+            int Rang = 0;
+
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    Rang = account.GruppenRang;
+                    break;
+                }
+            }
+            return Rang;
+        }
+
+        public static void AccountGruppeSetzen(Client Player, int Id)
+        {
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    account.Gruppe = Id;
+                    account.AccountGeändert = true;
+                    break;
+                }
+            }
+        }
+
+        public static void AccountGruppeRangSetzen(Client Player, int Rang)
+        {
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    account.GruppenRang = Rang;
+                    account.AccountGeändert = true;
+                    break;
+                }
+            }
+        }
+
+        public static long AccountGesamtVermögenBekommen(Client Player)
+        {
+            //Benötigte Definitionen
+            long BankGeld = 0;
+            long HandGeld = 0;
+            long GesamtGeld = 0;
+
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    BankGeld = account.BankGeld;
+                    HandGeld = account.Geld;
+                    GesamtGeld = BankGeld + HandGeld;
+                }
+            }
+            return GesamtGeld;
         }
 
         public static long AccountFahrzeugSchlüsselBekommen(Client Player)
@@ -844,16 +1014,23 @@ namespace Haupt
             return FahrzeugSchlüssel;
         }
 
-        public static void AccountGeldSetzen(Client Player, long Geld)
+        public static void AccountGeldSetzen(Client Player, int Wie, long Geld)
         {
-            foreach (AccountLokal account in Funktionen.AccountListe)
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            if (Wie == 1)
             {
-                if (Player.GetData("Id") == account.Id)
-                {
-                    account.Geld = Geld;
-                    account.AccountGeändert = true;
-                }
+                account.Geld += Geld;
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Geld: + " + GeldFormatieren(Geld));
             }
+            else
+            {
+                account.Geld += Geld;
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Geld: - " + GeldFormatieren(Geld));
+            }
+
+            account.AccountGeändert = true;
         }
 
         public static void AccountAdminLevelSetzen(Client Player, int AdminLevel)
@@ -1009,12 +1186,12 @@ namespace Haupt
             return Volumen;
         }
 
-        public static void AccountBerufskraftfahrerExpSetzen(Client Player, String Wie, int Exp)
+        public static void AccountBerufskraftfahrerExpSetzen(Client Player, int Wie, int Exp)
         {
             AccountLokal account = new AccountLokal();
             account = AccountBekommen(Player);
 
-            if(Wie == "Plus")
+            if(Wie == 1)
             {
                 account.BerufskraftfahrerExp += Exp;
                 NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Berufskraftfahrer + " + Exp + " Exp");
@@ -1026,6 +1203,29 @@ namespace Haupt
             }
 
             account.AccountGeändert = true;
+        }
+
+        public static void AccountPositionInteriorDimensionUpdaten(Client Player)
+        {
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            account.PositionX = Player.Position.X;
+            account.PositionY = Player.Position.Y;
+            account.PositionZ = Player.Position.Z;
+            account.PositionRot = Player.Rotation.Z;
+            account.Dimension = Player.Dimension;
+            account.Interior = Player.GetData("InteriorName");
+
+            account.AccountGeändert = true;
+        }
+
+        public static void AccountJobFahrzeugSetzen(Client Player, Vehicle Fahrzeug)
+        {
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            account.JobFahrzeug = Fahrzeug;
         }
 
         public static TankstellenInfoLokal NaheTankeInfoBekommen(Client Player, float distance = 2.0f)
@@ -1083,6 +1283,90 @@ namespace Haupt
 
             //Uhrzeit setzen
             NAPI.World.SetTime(Zeit.Hour, Zeit.Minute, 0);
+        }
+
+        public static void HeiratenSound()
+        {
+            foreach (var Spieler in NAPI.Pools.GetAllPlayers())
+            {
+                if (Spieler.Position.DistanceTo(new Vector3(-329.9244, 6150.168, 32.31319)) < 500.0f)
+                {
+                    Spieler.TriggerEvent("soundbrowseroeffnen");
+                    Spieler.TriggerEvent("SoundStarten", 1);
+                    Spieler.SetData("HeiratenBrowser", 1);
+                }
+            }
+
+            //Sound beenden
+            Timer.SetTimer(HeiratenSoundBeenden, 60000, 1);
+
+        }
+
+        public static void Ladebalken(Client Player, int Typ, uint ZeitMS)
+        {
+            //CEF öffnen
+            Player.TriggerEvent("ladebalkenoeffnen");
+
+            //Ladebalken starten
+            Player.TriggerEvent("Ladebalken", Typ, ZeitMS);
+
+            //Timer zum Beenden
+            Timer.SetTimer(() => LadebalkenBeenden(Player), ZeitMS, 1);
+        }
+
+        public static void LadebalkenBeenden(Client Player)
+        {
+            //CEF schliessen
+            Player.TriggerEvent("ladebalkenschliessen");
+        }
+
+        public static void HeiratenBeenden(Client Player)
+        {
+            if(GlobaleSachen.Heiraten == 1)
+            {
+                if (NAPI.Player.IsPlayerConnected(Player))
+                {
+                    if (AccountVerheiratetBekommen(Player) == "Nein")
+                    {
+                        Player.SendChatMessage("~y~Info~w~: Die Heirat wurde beendet da niemand angenommen / abgelehnt hat.");
+                        Player.SetData("HeiratenId", 0);
+                        Player.SetData("HeiratsId", 0);
+                        Player.SetData("HeiratsAntrag", 0);
+                    }
+                }
+
+                foreach (var Spieler in NAPI.Pools.GetAllPlayers())
+                {
+                    if (Spieler.GetData("HeiratsId") == Player.GetData("Id"))
+                    {
+                        if (AccountVerheiratetBekommen(Player) == "Nein")
+                        {
+                            Spieler.SendChatMessage("~y~Info~w~: Die Heirat wurde beendet da niemand angenommen / abgelehnt hat.");
+                            Spieler.SetData("HeiratsId", 0);
+                            Spieler.SetData("HeiratenId", 0);
+                            Spieler.SetData("HeiratsAntrag", 0);
+                        }
+                    }
+                }
+
+                //Heiraten Resetten
+                GlobaleSachen.Heiraten = 0;
+            }
+        }
+
+        public static void HeiratenSoundBeenden()
+        {
+            foreach (var Spieler in NAPI.Pools.GetAllPlayers())
+            {
+                if (Spieler.GetData("HeiratenBrowser") == 1)
+                {
+                    Spieler.TriggerEvent("soundbrowserschliessen");
+                    Spieler.SetData("HeiratenBrowser", 0);
+                }
+            }
+
+            //Kirche wieder freigeben
+            GlobaleSachen.Heiraten = 0;
         }
 
         public static void Alle()
@@ -1494,6 +1778,60 @@ namespace Haupt
             Player.TriggerEvent("Chatzeigen");
         }
 
+        [RemoteEvent("IBerry")]
+        public static void IBerry(Client Player)
+        {
+            if (Player.GetData("Eingeloggt") == 0) { return; }
+
+            //Cooldown
+            if (Player.GetData("KeyCoolDown") == 1) { return; }
+            Player.SetData("KeyCoolDown", 1);
+            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.KeyCoolDownZeit, 1);
+
+            if (Player.GetData("IBerry") == 0)
+            {
+                //Damit wir wissen das er das CEF geöffnet hat
+                Player.SetData("IBerry", 1);
+
+                //Alle Daten vom Spieler laden
+                String Nickname = Player.Name;
+                String Level = AccountLevelBekommen(Player);
+                String Playtime = AccountSpielzeitBerechnen(Player);
+                String Lastonline = "%";
+                int Exp = AccountExpBekommen(Player);
+                String Geschlecht = "%";
+                String Ehepartner = AccountVerheiratetBekommen(Player);
+                String Job = AccountJobInNamen(Player);
+                String Geld = GeldFormatieren(AccountGesamtVermögenBekommen(Player));
+                String Handynummer = "%";
+
+                //CEF öffnen
+                Player.TriggerEvent("IBerryoeffnen");
+
+                //Daten an das CEF übergeben
+                Player.TriggerEvent("IBerry_Laden_Server", 19);
+                Player.TriggerEvent("IBerry_Laden_Spieler", Nickname, Level, Playtime, Lastonline, Exp, Geschlecht, Ehepartner, Job, Geld, Handynummer);
+
+                //Log Eintrag
+                LogEintrag(Player, "IBerry geöffnet");
+
+                //Chat zeigen
+                Player.TriggerEvent("Chathiden");
+            }
+            else
+            {
+                Player.SetData("IBerry", 0);
+
+                Player.TriggerEvent("IBerryschliessen");
+
+                //Log Eintrag
+                LogEintrag(Player, "IBerry geschlossen");
+
+                //Chat zeigen
+                Player.TriggerEvent("Chatzeigen");
+            }
+        }
+
         [RemoteEvent("Fahrzeugverwaltung_Privat_Abbrechen")]
         public static void FahrzeugVerwaltungPrivatAbbrechen(Client Player)
         {
@@ -1504,13 +1842,8 @@ namespace Haupt
         }
 
         [RemoteEvent("Fahrzeug_Privat_Abschliessen")]
-        public static void FahrzeugPrivatAbschließen(Client Player, int Status)
+        public static void FahrzeugPrivatAbschliessen(Client Player, int Status)
         {
-            //Cooldown
-            if (Player.GetData("KeyCoolDown") == 1) { return; }
-            Player.SetData("KeyCoolDown", 1);
-            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.KeyCoolDownZeit, 1);
-
             AutoLokal auto = new AutoLokal();
             auto = NaheEigenesAutoBekommenPrivat(Player);
 
@@ -1546,22 +1879,21 @@ namespace Haupt
             if (!Player.IsInVehicle)
             {
                 //Stadthalle Eingang
-                if (Player.Position.DistanceTo(new Vector3(-1285.605, -567.0062, 31.7124)) < 4.0f)
+                if (Player.Position.DistanceTo(new Vector3(337.764, -1562.13, 30.298)) < 3.0f)
                 {
-                   
-                    Player.TriggerEvent("InteriorLaden", "ex_dt1_02_office_02c");
-                    Player.Position = new Vector3(-141.5429, -620.9524, 168.8204);
-                    NAPI.Entity.SetEntityDimension(Player, 100000);
+
+                    InteriorLaden(Player, "StadthalleINT");
+                    Player.Position = new Vector3(334.039, -1564.35, 30.3066);
                     Freeze(Player);
                     Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                     return;
                 }
                 //Stadthalle Ausgang
-                else if (Player.Position.DistanceTo(new Vector3(-139.473, -617.4647, 168.8204)) < 4.0f && Player.Dimension == Convert.ToUInt32(100000))
+                else if (Player.Position.DistanceTo(new Vector3(334.039, -1564.35, 30.3066)) < 3.0f)
                 {
-                    Player.Position = new Vector3(-1282.161, -563.8747, 31.7124);
+                    InteriorLaden(Player, "0");
+                    Player.Position = new Vector3(337.764, -1562.13, 30.298);
                     Player.Rotation = new Vector3(0.0, 0.0, 309.4669);
-                    NAPI.Entity.SetEntityDimension(Player, NAPI.GlobalDimension);
                     Freeze(Player);
                     Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                     return;
@@ -1569,7 +1901,7 @@ namespace Haupt
                 //Arbeitsamt Eingang
                 else if (Player.Position.DistanceTo(new Vector3(-837.6387, -272.0361, 38.72037)) < 4.0f)
                 {
-                    Player.TriggerEvent("InteriorLaden", "ex_dt1_02_office_02c");
+                    InteriorLaden(Player, "ex_dt1_02_office_02c");
                     NAPI.Entity.SetEntityDimension(Player, 100001);
                     Player.Position = new Vector3(-141.5429, -620.9524, 168.8204);
                     Freeze(Player);
@@ -1579,9 +1911,10 @@ namespace Haupt
                 //Arbeitsamt Ausgang
                 else if (Player.Position.DistanceTo(new Vector3(-139.473, -617.4647, 168.8204)) < 4.0f && Player.Dimension == Convert.ToUInt32(100001))
                 {
+                    InteriorLaden(Player, "0");
                     Player.Position = new Vector3(-837.6387, -272.0361, 38.72037);
                     Player.Rotation = new Vector3(0.0, 0.0, 309.4669);
-                    NAPI.Entity.SetEntityDimension(Player, NAPI.GlobalDimension);
+                    Player.Dimension = 0;
                     Freeze(Player);
                     Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                     return;
@@ -1595,7 +1928,7 @@ namespace Haupt
                 {
                     if (Player.Position.DistanceTo(new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ)) < 2.0f)
                     {
-                        Player.TriggerEvent("InteriorLaden", haus.ImmobilienInteriorName);
+                        InteriorLaden(Player, haus.ImmobilienInteriorName);
                         Player.Position = new Vector3(haus.ImmobilienEingangX, haus.ImmobilienEingangY, haus.ImmobilienEingangZ);
                         uint Dimension = Convert.ToUInt32(haus.Id);
                         NAPI.Entity.SetEntityDimension(Player, Dimension);
@@ -1605,8 +1938,9 @@ namespace Haupt
                     }
                     else if (Player.Position.DistanceTo(new Vector3(haus.ImmobilienEingangX, haus.ImmobilienEingangY, haus.ImmobilienEingangZ)) < 2.0f)
                     {
+                        InteriorLaden(Player, "0");
                         Player.Position = new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ);
-                        NAPI.Entity.SetEntityDimension(Player, NAPI.GlobalDimension);
+                        Player.Dimension = 0;
                         Freeze(Player);
                         Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                         return;
@@ -1618,6 +1952,8 @@ namespace Haupt
         [RemoteEvent("F2Check")]
         public static void F2Check(Client Player)
         {
+            if(Player.GetData("Eingeloggt") == 0) { return; }
+
             //Cooldown
             if (Player.GetData("KeyCoolDown") == 1) { return; }
             Player.SetData("KeyCoolDown", 1);
@@ -1873,16 +2209,16 @@ namespace Haupt
             {
                 if (NAPI.Player.GetPlayerVehicleSeat(Player) == -1)
                 {
-                    //Berufskraftfahrer
+                    //Berufskraftfahrer Kraftstoff
                     if (Player.Position.DistanceTo(new Vector3(815.2087, -1590.846, 31.01333)) < 5.0f)
                     {
                         if (AccountJobBekommen(Player) != 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
                         AutoLokal auto = new AutoLokal();
                         auto = AutoBekommen(Player.Vehicle);
 
-                        if(auto.FahrzeugJob == 1)
+                        if (auto.FahrzeugJob == 1)
                         {
-                            if(Player.GetData("BerufskraftfahrerKraftstoffTyp") == 1 && Player.GetData("BerufskraftfahrerDieselTanke") == 0)
+                            if (Player.GetData("BerufskraftfahrerKraftstoffTyp") == 1 && Player.GetData("BerufskraftfahrerDieselTanke") == 0)
                             {
                                 JobBerufskraftfahrerDiesel(Player);
                                 return;
@@ -1899,141 +2235,41 @@ namespace Haupt
                             }
                         }
                     }
-                    else if(Player.GetData("BerufskraftfahrerDieselTanke") != 0)
+                    //Berufskraftfahrer Holz beladen
+                    else if (Player.Position.DistanceTo(new Vector3(-511.5431, 5241.104, 80.30409)) < 5.0f)
                     {
+                        if (AccountJobBekommen(Player) != 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
                         AutoLokal auto = new AutoLokal();
                         auto = AutoBekommen(Player.Vehicle);
 
                         if (auto.FahrzeugJob == 1)
                         {
-                            foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                            if (Player.GetData("BerufskraftfahrerHolz") == 1 && Player.GetData("BerufskraftfahrerHolzGeladen") == 0)
                             {
-                                if (tanke.Id == Player.GetData("BerufskraftfahrerDieselTanke"))
-                                {
-                                    if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
-                                    {
-                                        int Volumen = 0;
-                                        Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
-
-                                        if(tanke.TankstelleDiesel + Volumen > 2000)
-                                        {
-                                            AccountBerufskraftfahrerExpSetzen(Player, "Plus", 20);
-                                            tanke.TankstelleDiesel = 2000;
-                                            tanke.TankstelleGeändert = true;
-                                            long Verdienst = AccountGeldBekommen(Player) + Player.GetData("BerufskraftfahrerVerdienst");
-                                            AccountGeldSetzen(Player, Verdienst);
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: + " + GeldFormatieren(Player.GetData("BerufskraftfahrerVerdienst")));
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Diesel beliefert.");
-                                        }
-                                        else
-                                        {
-                                            tanke.TankstelleDiesel += Volumen;
-                                            tanke.TankstelleGeändert = true;
-                                            long Verdienst = AccountGeldBekommen(Player) + Player.GetData("BerufskraftfahrerVerdienst");
-                                            AccountGeldSetzen(Player, Verdienst);
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: + " + GeldFormatieren(Player.GetData("BerufskraftfahrerVerdienst")));
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Diesel beliefert.");
-                                        }
-
-                                        Player.SetData("BerufskraftfahrerDieselTanke", 0);
-                                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun eine neue Tankstelle beliefern.");
-                                        var Ladepunkt = new Vector3(815.2087, -1590.846, 0);
-                                        Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
-                                        return;
-                                    }
-                                }
+                                JobBerufskraftfahrerHolzLaden(Player);
+                                return;
                             }
                         }
+                    }
+                    //Job Berufskraftfahrer Holz entladen
+                    else if (Player.Position.DistanceTo(new Vector3(1307.297, 4324.441, 38.20026)) < 5.0f)
+                    {
+                        if (Player.GetData("BerufskraftfahrerHolz") == 1 && Player.GetData("BerufskraftfahrerHolzGeladen") == 1)
+                        {
+                            JobBerufskraftFahrerHolzEntladen(Player);
+                        }
+                    }
+                    else if(Player.GetData("BerufskraftfahrerDieselTanke") != 0)
+                    {
+                        JobBerufskraftFahrerDieselTankeCheck(Player);
                     }
                     else if (Player.GetData("BerufskraftfahrerE10Tanke") != 0)
                     {
-                        AutoLokal auto = new AutoLokal();
-                        auto = AutoBekommen(Player.Vehicle);
-
-                        if (auto.FahrzeugJob == 1)
-                        {
-                            foreach (TankstelleLokal tanke in Funktionen.TankenListe)
-                            {
-                                if (tanke.Id == Player.GetData("BerufskraftfahrerE10Tanke"))
-                                {
-                                    if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
-                                    {
-                                        int Volumen = 0;
-                                        Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
-
-                                        if (tanke.TankstelleE10 + Volumen > 2000)
-                                        {
-                                            tanke.TankstelleE10 = 2000;
-                                            tanke.TankstelleGeändert = true;
-                                            long Verdienst = AccountGeldBekommen(Player) + Player.GetData("BerufskraftfahrerVerdienst");
-                                            AccountGeldSetzen(Player, Verdienst);
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: + " + GeldFormatieren(Player.GetData("BerufskraftfahrerVerdienst")));
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit E10 beliefert.");
-                                        }
-                                        else
-                                        {
-                                            tanke.TankstelleE10 += Volumen;
-                                            tanke.TankstelleGeändert = true;
-                                            long Verdienst = AccountGeldBekommen(Player) + Player.GetData("BerufskraftfahrerVerdienst");
-                                            AccountGeldSetzen(Player, Verdienst);
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: + " + GeldFormatieren(Player.GetData("BerufskraftfahrerVerdienst")));
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit E10 beliefert.");
-                                        }
-
-                                        Player.SetData("BerufskraftfahrerE10Tanke", 0);
-                                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun eine neue Tankstelle beliefern.");
-                                        var Ladepunkt = new Vector3(815.2087, -1590.846, 0);
-                                        Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
-                                        return;
-                                    }
-                                }
-                            }
-                        }
+                        JobBerufskraftFahrerE10TankeCheck(Player);
                     }
                     else if (Player.GetData("BerufskraftfahrerSuperTanke") != 0)
                     {
-                        AutoLokal auto = new AutoLokal();
-                        auto = AutoBekommen(Player.Vehicle);
-
-                        if (auto.FahrzeugJob == 1)
-                        {
-                            foreach (TankstelleLokal tanke in Funktionen.TankenListe)
-                            {
-                                if (tanke.Id == Player.GetData("BerufskraftfahrerSuperTanke"))
-                                {
-                                    if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
-                                    {
-                                        int Volumen = 0;
-                                        Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
-
-                                        if (tanke.TankstelleSuper + Volumen > 2000)
-                                        {
-                                            tanke.TankstelleSuper = 2000;
-                                            tanke.TankstelleGeändert = true;
-                                            long Verdienst = AccountGeldBekommen(Player) + Player.GetData("BerufskraftfahrerVerdienst");
-                                            AccountGeldSetzen(Player, Verdienst);
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: + " + GeldFormatieren(Player.GetData("BerufskraftfahrerVerdienst")));
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Super beliefert.");
-                                        }
-                                        else
-                                        {
-                                            tanke.TankstelleSuper += Volumen;
-                                            tanke.TankstelleGeändert = true;
-                                            long Verdienst = AccountGeldBekommen(Player) + Player.GetData("BerufskraftfahrerVerdienst");
-                                            AccountGeldSetzen(Player, Verdienst);
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: + " + GeldFormatieren(Player.GetData("BerufskraftfahrerVerdienst")));
-                                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Super beliefert.");
-                                        }
-
-                                        Player.SetData("BerufskraftfahrerSuperTanke", 0);
-                                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun eine neue Tankstelle beliefern.");
-                                        var Ladepunkt = new Vector3(815.2087, -1590.846, 0);
-                                        Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
-                                        return;
-                                    }
-                                }
-                            }
-                        }
+                        JobBerufskraftFahrerSuperTankeCheck(Player);
                     }
                 }
             }
@@ -2041,13 +2277,13 @@ namespace Haupt
             else
             {
                 //Stadthalle
-                if (Player.Position.DistanceTo(new Vector3(-138.8336, -632.2155, 168.8204)) < 4.0f && Player.Dimension == Convert.ToUInt32(100000))
+                if (Player.Position.DistanceTo(new Vector3(331.347, -1569.97, 30.3076)) < 3.0f)
                 {
                     Player.TriggerEvent("Stadthalle");
                     return;
                 }
                 //Arbeitsamt
-                else if (Player.Position.DistanceTo(new Vector3(-138.8336, -632.2155, 168.8204)) < 4.0f && Player.Dimension == Convert.ToUInt32(100001))
+                else if (Player.Position.DistanceTo(new Vector3(-138.8336, -632.2155, 168.8204)) < 3.0f && Player.Dimension == Convert.ToUInt32(100001))
                 {
                     Player.TriggerEvent("Arbeitsamt");
                     return;
@@ -2131,8 +2367,7 @@ namespace Haupt
                             Player.SendChatMessage("~y~Info~w~: Eine angenehme Weiterfahrt.");
 
                             //Dem Spieler das Geld abziehen
-                            long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - Player.GetData("TankRechnung");
-                            Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                            Funktionen.AccountGeldSetzen(Player, 2, Player.GetData("TankRechnung"));
 
                             //Werte wieder resetten
                             Player.SetData("AmTanken", 0);
@@ -2141,6 +2376,298 @@ namespace Haupt
 
                             //Tankstelle wurde geändert
                             tanke.TankstelleGeändert = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerHolzEntladen(Client Player)
+        {
+            if(Player.IsInVehicle == false) { return; }
+            Player.SendChatMessage("Debug1");
+            if(Player.GetData("BerufskraftfahrerAmAbladen") == 1) { return; }
+            Player.SendChatMessage("Debug2");
+            if (Player.GetData("BerufskraftfahrerHolzGeladen") == 0) { return; }
+            Player.SendChatMessage("Debug3");
+            if (Player.Vehicle != AccountJobFahrzeugBekommen(Player)) { return; }
+
+            if(Player.GetData("BerufskraftfahrerJobAngenommen") == 0)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst erst einen Job annehmen!");
+                return;
+            }
+
+            Player.SetData("BerufskraftfahrerAmAbladen", 1);
+            Freeze(Player);
+            Player.Vehicle.FreezePosition = true;
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein LKW wird entladen...");
+            Timer.SetTimer(() => JobBerufskraftFahrerHolzEntladenBeenden(Player), 20000, 1);
+            Ladebalken(Player, 3, 20000);
+            Player.Vehicle.EngineStatus = false;
+        }
+
+        public static void JobBerufskraftFahrerHolzEntladenBeenden(Client Player)
+        {
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+            if (AccountJobBekommen(Player) != 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                if (Player.GetData("BerufskraftfahrerHolzGeladen") == 1)
+                {
+                    int Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
+                    AccountBerufskraftfahrerExpSetzen(Player, 1, 40);
+                    AccountGeldSetzen(Player, 1, Volumen * 10);
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Holz erfolgreich abgeladen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun neues Holz holen.");
+                    var Ladepunkt = new Vector3(-511.5431, 5241.104, 0);
+                    Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
+                    Unfreeze(Player);
+                    Player.Vehicle.FreezePosition = false;
+                    Player.Vehicle.EngineStatus = true;
+                    Player.SetData("BerufskraftfahrerHolzGeladen", 0);
+                    Player.SetData("BerufskraftfahrerAmAbladen", 0);
+                    LogEintrag(Player, "Holz entladen");
+                    return;
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerDieselTankeCheck(Client Player)
+        {
+            if (Player.IsInVehicle == false) { return; }
+            if (Player.GetData("BerufskraftfahrerAmAbladen") == 1) { return; }
+            if (Player.Vehicle != AccountJobFahrzeugBekommen(Player)) { return; }
+
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                {
+                    if (tanke.Id == Player.GetData("BerufskraftfahrerDieselTanke"))
+                    {
+                        if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
+                        {
+                            Player.SetData("BerufskraftfahrerAmAbladen", 1);
+                            FreezeAuto(Player);
+                            Ladebalken(Player, 3, 20000);
+                            Timer.SetTimer(() => JobBerufskraftFahrerDieselTankeCheck1(Player), 20000, 1);
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein LKW wird entladen...");
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerDieselTankeCheck1(Client Player)
+        {
+            //Server crash prevention
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+            if (Player.IsInVehicle == false) { Unfreeze(Player); return; }
+
+            UnfreezeAuto(Player);
+
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                {
+                    if (tanke.Id == Player.GetData("BerufskraftfahrerDieselTanke"))
+                    {
+                        if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
+                        {
+                            int Volumen = 0;
+                            Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
+
+                            if (tanke.TankstelleDiesel + Volumen > 2000)
+                            {
+                                AccountBerufskraftfahrerExpSetzen(Player, 1, 20);
+                                tanke.TankstelleDiesel = 2000;
+                                tanke.TankstelleGeändert = true;
+                                AccountGeldSetzen(Player, 1, Player.GetData("BerufskraftfahrerVerdienst"));
+                                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Diesel beliefert.");
+                            }
+                            else
+                            {
+                                tanke.TankstelleDiesel += Volumen;
+                                tanke.TankstelleGeändert = true;
+                                AccountGeldSetzen(Player, 1, Player.GetData("BerufskraftfahrerVerdienst"));
+                                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Diesel beliefert.");
+                            }
+
+                            Player.SetData("BerufskraftfahrerAmAbladen", 0);
+                            Player.SetData("BerufskraftfahrerAmAbladen", 0);
+                            Player.SetData("BerufskraftfahrerDieselTanke", 0);
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun eine neue Tankstelle beliefern.");
+                            var Ladepunkt = new Vector3(815.2087, -1590.846, 0);
+                            Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
+                            LogEintrag(Player, "Tankstelle mit Diesel beliefert");
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerE10TankeCheck(Client Player)
+        {
+            if (Player.IsInVehicle == false) { return; }
+            if (Player.GetData("BerufskraftfahrerAmAbladen") == 1) { return; }
+            if (Player.Vehicle != AccountJobFahrzeugBekommen(Player)) { return; }
+
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                {
+                    if (tanke.Id == Player.GetData("BerufskraftfahrerE10Tanke"))
+                    {
+                        if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
+                        {
+                            Player.SetData("BerufskraftfahrerAmAbladen", 1);
+
+                            FreezeAuto(Player);
+                            Ladebalken(Player, 3, 20000);
+                            Timer.SetTimer(() => JobBerufskraftFahrerE10TankeCheck1(Player), 20000, 1);
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein LKW wird entladen...");
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerE10TankeCheck1(Client Player)
+        {
+            //Server crash prevention
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+            if (Player.IsInVehicle == false) { Unfreeze(Player); return; }
+
+            UnfreezeAuto(Player);
+
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                {
+                    if (tanke.Id == Player.GetData("BerufskraftfahrerE10Tanke"))
+                    {
+                        if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
+                        {
+                            int Volumen = 0;
+                            Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
+
+                            if (tanke.TankstelleE10 + Volumen > 2000)
+                            {
+                                tanke.TankstelleE10 = 2000;
+                                tanke.TankstelleGeändert = true;
+                                AccountGeldSetzen(Player, 1, Player.GetData("BerufskraftfahrerVerdienst"));
+                                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit E10 beliefert.");
+                            }
+                            else
+                            {
+                                tanke.TankstelleE10 += Volumen;
+                                tanke.TankstelleGeändert = true;
+                                AccountGeldSetzen(Player, 1, Player.GetData("BerufskraftfahrerVerdienst"));
+                                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit E10 beliefert.");
+                            }
+
+                            Player.SetData("BerufskraftfahrerAmAbladen", 0);
+                            Player.SetData("BerufskraftfahrerE10Tanke", 0);
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun eine neue Tankstelle beliefern.");
+                            var Ladepunkt = new Vector3(815.2087, -1590.846, 0);
+                            Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
+                            LogEintrag(Player, "Tankstelle mit E10 beliefert");
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerSuperTankeCheck(Client Player)
+        {
+            if (Player.IsInVehicle == false) { return; }
+            if (Player.GetData("BerufskraftfahrerAmAbladen") == 1) { return; }
+            if (Player.Vehicle != AccountJobFahrzeugBekommen(Player)) { return; }
+
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                {
+                    if (tanke.Id == Player.GetData("BerufskraftfahrerSuperTanke"))
+                    {
+                        if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
+                        {
+                            FreezeAuto(Player);
+                            Ladebalken(Player, 3, 20000);
+                            Timer.SetTimer(() => JobBerufskraftFahrerSuperTankeCheck1(Player), 20000, 1);
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein LKW wird entladen...");
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+
+        public static void JobBerufskraftFahrerSuperTankeCheck1(Client Player)
+        {
+            //Server crash prevention
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+            if (Player.IsInVehicle == false) { Unfreeze(Player); return; }
+
+            UnfreezeAuto(Player);
+
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(Player.Vehicle);
+
+            if (auto.FahrzeugJob == 1)
+            {
+                foreach (TankstelleLokal tanke in Funktionen.TankenListe)
+                {
+                    if (tanke.Id == Player.GetData("BerufskraftfahrerSuperTanke"))
+                    {
+                        if (Player.Position.DistanceTo(new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ)) < 8.0f)
+                        {
+                            int Volumen = 0;
+                            Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
+
+                            if (tanke.TankstelleSuper + Volumen > 2000)
+                            {
+                                tanke.TankstelleSuper = 2000;
+                                tanke.TankstelleGeändert = true;
+                                AccountGeldSetzen(Player, 1, Player.GetData("BerufskraftfahrerVerdienst"));
+                                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Super beliefert.");
+                            }
+                            else
+                            {
+                                tanke.TankstelleSuper += Volumen;
+                                tanke.TankstelleGeändert = true;
+                                AccountGeldSetzen(Player, 1, Player.GetData("BerufskraftfahrerVerdienst"));
+                                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Tankstelle erfolgreich mit Super beliefert.");
+                            }
+
+                            Player.SetData("BerufskraftfahrerSuperTanke", 0);
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun eine neue Tankstelle beliefern.");
+                            var Ladepunkt = new Vector3(815.2087, -1590.846, 0);
+                            Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
+                            LogEintrag(Player, "Tankstelle mit Super beliefert");
+                            return;
                         }
                     }
                 }
@@ -2317,7 +2844,7 @@ namespace Haupt
 
                 if(Bot.BotDimension == 0)
                 {
-                    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, NAPI.GlobalDimension);
+                    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, 0);
                 }
                 else
                 {
@@ -2340,6 +2867,56 @@ namespace Haupt
             return BotListe;
         }
 
+        public static List<SaveLokal> AlleSavesLadenDB()
+        {
+            List<SaveLokal> SaveListe = new List<SaveLokal>();
+
+            foreach (var Save in ContextFactory.Instance.srp_saves.Where(x => x.Id > 0).ToList())
+            {
+                SaveLokal save = new SaveLokal();
+
+                save.Id = Save.Id;
+                save.Von = Save.Von;
+                save.Beschreibung = Save.Beschreibung;
+                save.PositionX = Save.PositionX;
+                save.PositionY = Save.PositionY;
+                save.PositionZ = Save.PositionZ;
+                save.PositionRot = Save.PositionRot;
+
+                //Zur lokalen Liste hinzufügen
+                SaveListe.Add(save);
+            }
+            return SaveListe;
+        }
+
+        public static List<GruppenLokal> AlleGruppenLadenDB()
+        {
+            List<GruppenLokal> GruppenListe = new List<GruppenLokal>();
+
+            foreach (var Gruppe in ContextFactory.Instance.srp_gruppen.Where(x => x.Id > 0).ToList())
+            {
+                GruppenLokal gruppe = new GruppenLokal();
+
+                gruppe.Id = Gruppe.Id;
+                gruppe.GruppenName = Gruppe.GruppenName;
+                gruppe.GruppenBesitzer = Gruppe.GruppenBesitzer;
+                gruppe.GruppenTag = Gruppe.GruppenTag;
+                gruppe.GruppenFarbe = Gruppe.GruppenFarbe;
+                gruppe.GruppenGeld = Gruppe.GruppenGeld;
+                gruppe.GruppenRang1Name = Gruppe.GruppenRang1Name;
+                gruppe.GruppenRang2Name = Gruppe.GruppenRang2Name;
+                gruppe.GruppenRang3Name = Gruppe.GruppenRang3Name;
+                gruppe.GruppenRang4Name = Gruppe.GruppenRang4Name;
+                gruppe.GruppenRang5Name = Gruppe.GruppenRang5Name;
+
+                gruppe.GruppeGeändert = false;
+
+                //Zur lokalen Liste hinzufügen
+                GruppenListe.Add(gruppe);
+            }
+            return GruppenListe;
+        }
+
         public static String GeldFormatieren(long Geld)
         {
             //Benötigte Definitionen
@@ -2355,14 +2932,20 @@ namespace Haupt
             return GeldFormatiert;
         }
 
-        public static Client SpielerSuchen(String Name)
+        public static Client SpielerSuchen(String Sender)
         {
             //Benötigte Definitionen
             Client Spieler = null;
-
+            String TempName = null;
+            String TempSender = null;
             foreach (var Typ in NAPI.Pools.GetAllPlayers())
             {
-                if (Typ.Name.Contains(Name))
+                TempName = Typ.Name;
+                TempName = TempName.ToLower();
+                TempSender = Sender;
+                TempSender = TempSender.ToLower();
+
+                if (TempName.Contains(TempSender))
                 {
                     Spieler = Typ;
                     break;
@@ -2412,14 +2995,12 @@ namespace Haupt
                         }
                         else
                         {
-                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
-
                             tanke.TankstelleBesitzer = Player.GetData("Id");
                             tanke.TankstelleBeschreibung = Player.Name + "`s Tankstelle";
 
                             Player.SendChatMessage("~y~Info~w~: Die Tankstelle gehört jetzt dir.");
                             Player.SendChatMessage("~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
-                            AccountGeldSetzen(Player, GeldAbzug);
+                            AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
                             tanke.TankstelleGeändert = true;
@@ -2446,14 +3027,12 @@ namespace Haupt
                         }
                         else
                         {
-                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
-
                             haus.ImmobilienBesitzer = Player.GetData("Id");
                             haus.ImmobilienBeschreibung = Player.Name + "`s Immobilie";
 
                             Player.SendChatMessage("~y~Info~w~: Die Immobilie gehört jetzt dir.");
                             Player.SendChatMessage("~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
-                            AccountGeldSetzen(Player, GeldAbzug);
+                            AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
                             haus.ImmobilieGeändert = true;
@@ -2480,14 +3059,12 @@ namespace Haupt
                         }
                         else
                         {
-                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
-
                             supermarkt.SupermarktBesitzer = Player.GetData("Id");
                             supermarkt.SupermarktBeschreibung = Player.Name + "`s 24/7";
 
                             Player.SendChatMessage("~y~Info~w~: Der 24/7 gehört jetzt dir.");
                             Player.SendChatMessage("~y~Info~w~: Dieser wird sich gleich automatisch aktualisieren.");
-                            Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                            Funktionen.AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
                             supermarkt.SupermarktGeändert = true;
@@ -2514,13 +3091,11 @@ namespace Haupt
                         }
                         else
                         {
-                            long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
-
                             autohaus.AutohausBesitzer = Player.GetData("Id");
 
                             Player.SendChatMessage("~y~Info~w~: Das Autohaus gehört jetzt dir.");
                             Player.SendChatMessage("~y~Info~w~: Dieses wird sich gleich automatisch aktualisieren.");
-                            AccountGeldSetzen(Player, GeldAbzug);
+                            AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
                             autohaus.AutohausGeändert = true;
@@ -2541,12 +3116,10 @@ namespace Haupt
                     }
                     else
                     {
-                        long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
-
                         Fahrzeuge.FahrzeugKaufen(Player, Player.Vehicle);
 
                         Player.SendChatMessage("~y~Info~w~: Das Fahrzeug gehört jetzt dir.");
-                        AccountGeldSetzen(Player, GeldAbzug);
+                        AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                         Player.TriggerEvent("kaufenabbrechen");
                     }
                 }
@@ -2564,12 +3137,10 @@ namespace Haupt
                     }
                     else
                     {
-                        long GeldAbzug = AccountGeldBekommen(Player) - Player.GetData("KaufenPreis");
-
                         Fahrzeuge.FahrzeugKaufenAutohaus(Player, Player.Vehicle);
 
                         Player.SendChatMessage("~y~Info~w~: Das Fahrzeug gehört jetzt deinem Autohaus.");
-                        AccountGeldSetzen(Player, GeldAbzug);
+                        AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                         Player.TriggerEvent("kaufenabbrechen");
                     }
                 }
@@ -2598,12 +3169,24 @@ namespace Haupt
             account.Perso = Account.Perso;
             account.Spielzeit = Account.Spielzeit;
             account.Exp = Account.Exp;
+            account.Gruppe = Account.Gruppe;
+            account.GruppenRang = Account.GruppenRang;
             account.GeburtsDatum = Account.GeburtsDatum;
             account.EinreiseDatum = Account.EinreiseDatum;
+            account.ZuletztOnline = DateTime.Now;
+            account.Verheiratet = Account.Verheiratet;
             account.FahrzeugSchlüssel = Account.FahrzeugSchlüssel;
             account.Kündigungszeit = Account.Kündigungszeit;
+            account.PositionX = Account.PositionX;
+            account.PositionY = Account.PositionY;
+            account.PositionZ = Account.PositionZ;
+            account.PositionRot = Account.PositionRot;
+            account.Dimension = Account.Dimension;
+            account.Interior = Account.Interior;
             account.BerufskraftfahrerExp = Account.BerufskraftfahrerExp;
-            account.AccountGeändert = false;
+
+            account.JobFahrzeug = null;
+            account.AccountGeändert = true;
 
             //Zur Liste adden
             AccountListe.Add(account);
@@ -2612,9 +3195,12 @@ namespace Haupt
             Timer.SetTimer(() => AccountSpielzeit(Player), 60000, 1);
 
             //Dies sind lokale Dinge bitte keine floats etc nutzen, dass buggt per SetData
+            Player.SetData("InteriorName", 0);
             Player.SetData("Eingeloggt", 1);
             Player.SetData("SiehtPerso", 0);
+            Player.SetData("IBerry", 0);
             Player.SetData("Scoreboard", 0);
+            Player.SetData("Freezed", 0);
             Player.SetData("AmTanken", 0);
             Player.SetData("TankenTankstellenId", 0);
             Player.SetData("TankRechnung", 0);
@@ -2626,15 +3212,24 @@ namespace Haupt
             Player.SetData("VerwaltungsModus", 0);
             Player.SetData("Pferderennen", 0);
             Player.SetData("NachträglicherNickname", 0);
+            Player.SetData("HeiratsAntrag", 0);
+            Player.SetData("HeiratsId", 0);
+            Player.SetData("HeiratenId", 0);
+            Player.SetData("HeiratenBrowser", 0);
+            Player.SetData("GruppenEinladungId", 0);
 
             //Job Daten
+            //Berufskraftfahrer
             Player.SetData("BerufskraftfahrerFahrzeug", 0);
+            Player.SetData("BerufskraftfahrerHolz", 0);
+            Player.SetData("BerufskraftfahrerHolzGeladen", 0);
             Player.SetData("BerufskraftfahrerJobAngenommen", 0);
             Player.SetData("BerufskraftfahrerKraftstoffTyp", 0);
             Player.SetData("BerufskraftfahrerDieselTanke", 0);
             Player.SetData("BerufskraftfahrerE10Tanke", 0);
             Player.SetData("BerufskraftfahrerSuperTanke", 0);
             Player.SetData("BerufskraftfahrerVerdienst", 0);
+            Player.SetData("BerufskraftfahrerAmAbladen", 0);
 
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
@@ -2647,6 +3242,10 @@ namespace Haupt
 
             //Spieler Online Status
             ServerSpielerGejoined(1);
+
+            //Nachrichten
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dich erfolgreich eingeloggt!");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein letzter Login war am ~r~" + DatumFormatieren(Account.ZuletztOnline));
         }
 
         public static void ServerSpielerGejoined(int Status)
@@ -2675,35 +3274,90 @@ namespace Haupt
         {
             foreach (var Spieler in NAPI.Pools.GetAllPlayers())
             {
-                foreach (AccountLokal account in AccountListe)
+                if(Spieler.GetData("Eingeloggt") == 1)
                 {
-                    if(Spieler.GetData("Id") == account.Id && account.AccountGeändert == true)
+                    AccountPositionInteriorDimensionUpdaten(Spieler);
+
+                    foreach (AccountLokal account in AccountListe)
                     {
-                        var DBAccount = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Spieler.SocialClubName).FirstOrDefault();
+                        if (Spieler.GetData("Id") == account.Id && account.AccountGeändert == true)
+                        {
+                            var DBAccount = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Spieler.SocialClubName).FirstOrDefault();
 
-                        DBAccount.NickName = account.NickName;
-                        DBAccount.AdminLevel = account.AdminLevel;
-                        DBAccount.Fraktion = account.Fraktion;
-                        DBAccount.Job = account.Job;
-                        DBAccount.Geld = account.Geld;
-                        DBAccount.BankGeld = account.BankGeld;
-                        DBAccount.Perso = account.Perso;
-                        DBAccount.Spielzeit = account.Spielzeit;
-                        DBAccount.Exp = account.Exp;
-                        DBAccount.GeburtsDatum = account.GeburtsDatum;
-                        DBAccount.EinreiseDatum = account.EinreiseDatum;
-                        DBAccount.FahrzeugSchlüssel = account.FahrzeugSchlüssel;
-                        DBAccount.Kündigungszeit = account.Kündigungszeit;
-                        DBAccount.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
+                            DBAccount.NickName = account.NickName;
+                            DBAccount.AdminLevel = account.AdminLevel;
+                            DBAccount.Fraktion = account.Fraktion;
+                            DBAccount.Job = account.Job;
+                            DBAccount.Geld = account.Geld;
+                            DBAccount.BankGeld = account.BankGeld;
+                            DBAccount.Perso = account.Perso;
+                            DBAccount.Spielzeit = account.Spielzeit;
+                            DBAccount.Exp = account.Exp;
+                            DBAccount.Gruppe = account.Gruppe;
+                            DBAccount.GruppenRang = account.GruppenRang;
+                            DBAccount.GeburtsDatum = account.GeburtsDatum;
+                            DBAccount.EinreiseDatum = account.EinreiseDatum;
+                            DBAccount.ZuletztOnline = account.ZuletztOnline;
+                            DBAccount.Verheiratet = account.Verheiratet;
+                            DBAccount.FahrzeugSchlüssel = account.FahrzeugSchlüssel;
+                            DBAccount.Kündigungszeit = account.Kündigungszeit;
+                            DBAccount.PositionX = account.PositionX;
+                            DBAccount.PositionY = account.PositionY;
+                            DBAccount.PositionZ = account.PositionZ;
+                            DBAccount.PositionRot = account.PositionRot;
+                            DBAccount.Dimension = account.Dimension;
+                            DBAccount.Interior = account.Interior;
+                            DBAccount.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
 
-                        //Query absenden
-                        ContextFactory.Instance.SaveChanges();
+                            //Query absenden
+                            ContextFactory.Instance.SaveChanges();
 
-                        //Damit er nicht dauerthaft gespeichert wird
-                        account.AccountGeändert = false;
+                            //Damit er nicht dauerthaft gespeichert wird
+                            account.AccountGeändert = false;
+                        }
                     }
                 }
             }
+        }
+
+        public static void SpielerSpeichernDisconnect(Client Player)
+        {
+            //Daten aus der SQL Datenbank ziehen
+            var Account = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Player.SocialClubName).FirstOrDefault();
+
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            //Lokale Daten abfragen und in der Datenbank ablegen
+            Account.NickName = account.NickName;
+            Account.AdminLevel = account.AdminLevel;
+            Account.Fraktion = account.Fraktion;
+            Account.Job = account.Job;
+            Account.Geld = account.Geld;
+            Account.BankGeld = account.BankGeld;
+            Account.Perso = account.Perso;
+            Account.Spielzeit = account.Spielzeit;
+            Account.Exp = account.Exp;
+            Account.Gruppe = account.Gruppe;
+            Account.GeburtsDatum = account.GeburtsDatum;
+            Account.EinreiseDatum = account.EinreiseDatum;
+            Account.ZuletztOnline = account.ZuletztOnline;
+            Account.Verheiratet = account.Verheiratet;
+            Account.FahrzeugSchlüssel = account.FahrzeugSchlüssel;
+            Account.Kündigungszeit = account.Kündigungszeit;
+            Account.PositionX = account.PositionX;
+            Account.PositionY = account.PositionY;
+            Account.PositionZ = account.PositionZ;
+            Account.PositionRot = account.PositionRot;
+            Account.Dimension = account.Dimension;
+            Account.Interior = account.Interior;
+            Account.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
+
+            //Query absenden
+            ContextFactory.Instance.SaveChanges();
+
+            //Von der Liste entfernen
+            AccountListe.Remove(account);
         }
 
         public static void SpielerSpeichern(Client Player)
@@ -2724,25 +3378,45 @@ namespace Haupt
             Account.Perso = account.Perso;
             Account.Spielzeit = account.Spielzeit;
             Account.Exp = account.Exp;
+            Account.Gruppe = account.Gruppe;
+            Account.GruppenRang = account.GruppenRang;
             Account.GeburtsDatum = account.GeburtsDatum;
             Account.EinreiseDatum = account.EinreiseDatum;
+            Account.ZuletztOnline = account.ZuletztOnline;
+            Account.Verheiratet = account.Verheiratet;
             Account.FahrzeugSchlüssel = account.FahrzeugSchlüssel;
             Account.Kündigungszeit = account.Kündigungszeit;
+            Account.PositionX = account.PositionX;
+            Account.PositionY = account.PositionY;
+            Account.PositionZ = account.PositionZ;
+            Account.PositionRot = account.PositionRot;
+            Account.Dimension = account.Dimension;
+            Account.Interior = account.Interior;
             Account.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
 
             //Query absenden
             ContextFactory.Instance.SaveChanges();
-
-            //Von der Liste entfernen
-            AccountListe.Remove(account);
         }
 
+        [RemoteEvent("JobBerufskraftfahrerHolz")]
         public static void JobBerufskraftfahrerHolz(Client Player)
         {
-            if(Player.GetData("BerufskraftfahrerJobAngenommen") == 1)
+            Player.TriggerEvent("berufskraftfahrerbrowserschliessen");
+            if (Player.GetData("BerufskraftfahrerJobAngenommen") == 1)
             {
                 NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits einen Job angenommen.");
+                return;
             }
+
+            //Das er angenommen hat
+            Player.SetData("BerufskraftfahrerHolz", 1);
+
+            //Das er angenommen hat
+            Player.SetData("BerufskraftfahrerJobAngenommen", 1);
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fahre nun zum Holz Ladepunkt.");
+            var Ladepunkt = new Vector3(-511.5431, 5241.104, 0);
+            Player.TriggerEvent("Navigation", Ladepunkt.X, Ladepunkt.Y);
         }
 
         [RemoteEvent("JobBerufskraftfahrerDiesel")]
@@ -2798,6 +3472,35 @@ namespace Haupt
             }
         }
 
+        public static void JobBerufskraftfahrerHolzLaden(Client Player)
+        {
+            if (Player.GetData("BerufskraftfahrerJobAngenommen") == 0)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst erst einen Job annehmen!");
+                return;
+            }
+            Player.SetData("BerufskraftfahrerHolzGeladen", 1);
+            FreezeAuto(Player);
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein LKW wird beladen...");
+            Ladebalken(Player, 3, 20000);
+            Timer.SetTimer(() => JobBerufskraftfahrerHolzLadenWeiterFahren(Player), 20000, 1);
+        }
+
+        public static void JobBerufskraftfahrerHolzLadenWeiterFahren(Client Player)
+        {
+            //Server crash prevention
+            if (Player.IsInVehicle == false) { Unfreeze(Player); return; }
+
+            //Ja er hat geladen
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: " + AccountBerufskraftfahrerVolumenBerechnen(Player) + " Kilogramm Holz wurden in deinen LKW geladen.");
+
+            var HolzEntladePunkt = new Vector3(1307.297, 4324.441, 38.20026);
+            Player.TriggerEvent("Navigation", HolzEntladePunkt.X, HolzEntladePunkt.Y);
+
+            UnfreezeAuto(Player);
+
+        }
+
         [RemoteEvent("JobBerufskraftfahrerKraftstoff")]
         public static void JobBerufskraftfahrerKraftstoff(Client Player, int Typ)
         {
@@ -2824,11 +3527,25 @@ namespace Haupt
         {
             Player.TriggerEvent("Berufskraftfahrer_Tankstellenbrowserschliessen");
 
-            if(Player.GetData("BerufskraftfahrerKraftstoffTyp") == 1)
+            FreezeAuto(Player);
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein LKW wird beladen...");
+            Ladebalken(Player, 3, 20000);
+            Timer.SetTimer(() => JobBerufskraftfahrerTankeBeladen(Player, Id), 20000, 1);
+
+        }
+
+        public static void JobBerufskraftfahrerTankeBeladen(Client Player, int Id)
+        {
+            //Server crash prevention
+            if (Player.IsInVehicle == false) { Unfreeze(Player); return; }
+
+            UnfreezeAuto(Player);
+
+            if (Player.GetData("BerufskraftfahrerKraftstoffTyp") == 1)
             {
                 foreach (TankstelleLokal tanke in Funktionen.TankenListe)
                 {
-                    if(tanke.Id == Id)
+                    if (tanke.Id == Id)
                     {
                         if (tanke.TankstelleJobSpieler == 0)
                         {
@@ -2994,7 +3711,7 @@ namespace Haupt
             if(Player.GetData("BerufskraftfahrerFahrzeug") == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Job Fahrzeug!"); return; }
 
             //Fahrzeug
-            String Fahrzeug = "mule4";
+            String Fahrzeug = "pounder2";
             uint AutoCode = NAPI.Util.GetHashKey(Fahrzeug);
 
             //Objekt für die Liste erzeugen
@@ -3004,7 +3721,7 @@ namespace Haupt
             auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, 113, 113, numberPlate: "Job");
 
             auto.Fahrzeug.NumberPlate = "Job";
-            auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
+            auto.Fahrzeug.Dimension = 0;
 
             auto.Fahrzeug.SetData("Id", -2);
 
@@ -3028,6 +3745,7 @@ namespace Haupt
             auto.TankVolumen = Funktionen.TankVolumenBerechnen(Fahrzeug);
             auto.TankInhalt = Funktionen.TankVolumenBerechnen(Fahrzeug) * 10 * 100;
             auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 1;
             auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
             auto.FahrzeugAbgeschlossen = 0;
             auto.FahrzeugMotor = 1;
@@ -3052,6 +3770,10 @@ namespace Haupt
             auto.Fahrzeug.SetData("GeradeGespawnt", 1);
             Timer.SetTimer(() => JobFahrzeugNichtGespawnt(auto.Fahrzeug), 2000, 1);
 
+            //Dem Spieler das Fahrzeug zuweisen
+            AccountJobFahrzeugSetzen(Player, auto.Fahrzeug);
+
+            Player.TriggerEvent("LKWSpeed");
             Player.TriggerEvent("berufskraftfahrerbrowseroeffnen");
         }
 
@@ -3134,6 +3856,7 @@ namespace Haupt
                     AktuellesFahrzeug.TankVolumen = auto.TankVolumen;
                     AktuellesFahrzeug.TankInhalt = AktuellerTank;
                     AktuellesFahrzeug.Kilometerstand = AktuellerKilometerstand;
+                    AktuellesFahrzeug.KraftstoffArt = auto.KraftstoffArt;
                     AktuellesFahrzeug.FahrzeugHU = auto.FahrzeugHU;
                     AktuellesFahrzeug.FahrzeugAbgeschlossen = auto.FahrzeugAbgeschlossen;
                     AktuellesFahrzeug.FahrzeugMotor = auto.FahrzeugMotor;
@@ -3159,6 +3882,8 @@ namespace Haupt
 
         public static void FahrzeugSpeichern(Vehicle Fahrzeuge)
         {
+            if(Fahrzeuge.GetData("Id") == 0) { return; }
+
             //Benötigte Definitionen
             int AutoId = Fahrzeuge.GetData("Id");
 
@@ -3195,6 +3920,7 @@ namespace Haupt
                 AktuellesFahrzeug.TankVolumen = auto.TankVolumen;
                 AktuellesFahrzeug.TankInhalt = AktuellerTank;
                 AktuellesFahrzeug.Kilometerstand = AktuellerKilometerstand;
+                AktuellesFahrzeug.KraftstoffArt = auto.KraftstoffArt;
                 AktuellesFahrzeug.FahrzeugHU = auto.FahrzeugHU;
                 AktuellesFahrzeug.FahrzeugAbgeschlossen = auto.FahrzeugAbgeschlossen;
                 AktuellesFahrzeug.FahrzeugMotor = auto.FahrzeugMotor;
@@ -3237,7 +3963,7 @@ namespace Haupt
                         VerkaufsText += "Autohaus~w~: " + auto.FahrzeugAutohaus + "~n~~r~";
                         VerkaufsText += "Preis~w~: " + GeldFormatieren(auto.FahrzeugKaufpreis);
 
-                        auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.Position.X, Fahrzeuge.Position.Y, Fahrzeuge.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                        auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.Position.X, Fahrzeuge.Position.Y, Fahrzeuge.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, 0);
                     }
                     else if (AutoId == auto.Id && auto.FahrzeugAutohaus < 0)
                     {
@@ -3247,7 +3973,7 @@ namespace Haupt
                         VerkaufsText += "Name~w~: " + auto.FahrzeugName + "~n~~r~";
                         VerkaufsText += "Preis~w~: " + GeldFormatieren(auto.FahrzeugKaufpreis);
 
-                        auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.Position.X, Fahrzeuge.Position.Y, Fahrzeuge.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                        auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.Position.X, Fahrzeuge.Position.Y, Fahrzeuge.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, 0);
                     }
                 }
             }
@@ -3341,7 +4067,7 @@ namespace Haupt
                     SupermarktText += "Beschreibung: " + supermarkt.SupermarktBeschreibung;
                     supermarkt.SupermarktBlip.Name = supermarkt.SupermarktBeschreibung;
                     supermarkt.SupermarktBlip.ShortRange = true;
-                    supermarkt.SupermarktBlip.Sprite = 590;
+                    supermarkt.SupermarktBlip.Sprite = 52;
                     supermarkt.SupermarktBlip.Color = 2;
                 }
                 else
@@ -3351,7 +4077,7 @@ namespace Haupt
                     SupermarktText += "Besitzer: " + BesitzerNamenBekommen(supermarkt.SupermarktBesitzer);
                     supermarkt.SupermarktBlip.Name = supermarkt.SupermarktBeschreibung;
                     supermarkt.SupermarktBlip.ShortRange = true;
-                    supermarkt.SupermarktBlip.Sprite = 590;
+                    supermarkt.SupermarktBlip.Sprite = 52;
                     supermarkt.SupermarktBlip.Color = 1;
                 }
                 //Text Updaten
@@ -3500,6 +4226,34 @@ namespace Haupt
             }
         }
 
+        public static void AlleGruppenSpeichern()
+        {
+            foreach (GruppenLokal gruppe in GruppenListe)
+            {
+                if (gruppe.GruppeGeändert == true)
+                {
+                    var Gruppe = ContextFactory.Instance.srp_gruppen.Where(x => x.Id == gruppe.Id).FirstOrDefault();
+
+                    Gruppe.GruppenName = gruppe.GruppenName;
+                    Gruppe.GruppenBesitzer = gruppe.GruppenBesitzer;
+                    Gruppe.GruppenTag = gruppe.GruppenTag;
+                    Gruppe.GruppenFarbe = gruppe.GruppenFarbe;
+                    Gruppe.GruppenGeld = gruppe.GruppenGeld;
+                    Gruppe.GruppenRang1Name = gruppe.GruppenRang1Name;
+                    Gruppe.GruppenRang2Name = gruppe.GruppenRang2Name;
+                    Gruppe.GruppenRang3Name = gruppe.GruppenRang3Name;
+                    Gruppe.GruppenRang4Name = gruppe.GruppenRang4Name;
+                    Gruppe.GruppenRang5Name = gruppe.GruppenRang5Name;
+
+                    //Query absenden
+                    ContextFactory.Instance.SaveChanges();
+
+                    //Damit Sie nicht dauerhaft gespeichert wird
+                    gruppe.GruppeGeändert = false;
+                }
+            }
+        }
+
         public static void AlleAutohäuserSpeichern()
         {
             foreach (AutohausLokal autohaus in AutohausListe)
@@ -3543,54 +4297,70 @@ namespace Haupt
         public static void TextLabelsLaden()
         {
             //Noobspawn
-            NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Hier kannst du einen Roller Mieten.~n~Preis: 30€", new Vector3(-3237.754, 969.6091, 12.94306), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Willkommen bei uns!~n~Bei Fragen nutze /support", new Vector3(-3237.508, 965.3855, 13.04449), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+            NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Hier kannst du einen Roller Mieten.~n~Preis: 30€", new Vector3(-3237.754, 969.6091, 12.94306), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Willkommen bei uns!~n~Bei Fragen nutze /support", new Vector3(-3237.508, 965.3855, 13.04449), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Stadthalle
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Eingang~g~]", new Vector3(-1285.605, -567.0062, 31.7124), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Ausgang~g~]", new Vector3(-139.473, -617.4647, 168.8204), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, Convert.ToUInt32(100000));
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Service~g~]", new Vector3(-138.8336, -632.2155, 168.8204), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, Convert.ToUInt32(100000));
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Eingang~g~]", new Vector3(337.764, -1562.13, 30.298), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Ausgang~g~]", new Vector3(334.039, -1564.35, 30.3066), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Service~g~]", new Vector3(331.347, -1569.97, 30.3076), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Heiraten
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Kirche - /heiraten~g~]", new Vector3(-329.9244, 6150.168, 32.31319), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Arbeitsamt
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Eingang~g~]", new Vector3(-837.6387, -272.0361, 38.72037), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Eingang~g~]", new Vector3(-837.6387, -272.0361, 38.72037), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Ausgang~g~]", new Vector3(-139.473, -617.4647, 168.8204), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 100001);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Service~g~]", new Vector3(-138.8336, -632.2155, 168.8204), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 100001);
 
             //Berufskraftfahrer
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Spawnpunkt~g~]", new Vector3(-1546.57, 1367.763, 126.1016), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Kraftstoff Ladepunkt~g~]", new Vector3(815.2087, -1590.846, 31.01333), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Spawnpunkt~g~]", new Vector3(-1546.57, 1367.763, 126.1016), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Kraftstoff Ladepunkt~g~]", new Vector3(815.2087, -1590.846, 31.01333), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Holz Ladepunkt~g~]", new Vector3(-511.5431, 5241.104, 80.30409), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Holz Abladepunkt~g~]", new Vector3(1307.297, 4324.441, 38.20026), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
         }
 
         public static void BlipsLaden()
         {
             Blip Noobspawn = NAPI.Blip.CreateBlip(new Vector3(-3237.754, 969.6091, 12.94306)); Noobspawn.Name = "Neulingsspawn"; Noobspawn.ShortRange = true; Noobspawn.Sprite = 162; Noobspawn.Color = 12;
-            Blip Stadthalle = NAPI.Blip.CreateBlip(new Vector3(-1285.605, -567.0062, 31.7124)); Stadthalle.Name = "Stadthalle"; Stadthalle.ShortRange = true; Stadthalle.Sprite = 120; Stadthalle.Color = 12;
-            Blip Manufaktur_Mittelklasse = NAPI.Blip.CreateBlip(new Vector3(-1073.475, -2147.839, 13.40069)); Manufaktur_Mittelklasse.Name = "Manufaktur Mittelklassefahrzeuge"; Manufaktur_Mittelklasse.ShortRange = true; Manufaktur_Mittelklasse.Sprite = 78; Manufaktur_Mittelklasse.Color = 12;
-            Blip Vespucci_Police = NAPI.Blip.CreateBlip(new Vector3(-1092.624, -809.7153, 19.27477)); Vespucci_Police.Name = "Vespucci Police Department"; Vespucci_Police.ShortRange = true; Vespucci_Police.Sprite = 60; Vespucci_Police.Color = 12;
-            Blip Arbeitsamt = NAPI.Blip.CreateBlip(new Vector3(-837.6387, -272.0361, 38.72037)); Arbeitsamt.Name = "Arbeitsamt"; Arbeitsamt.ShortRange = true; Arbeitsamt.Sprite = 76; Arbeitsamt.Color = 12;
-            Blip Berufskraftfahrer = NAPI.Blip.CreateBlip(new Vector3(-1546.57, 1367.763, 126.1016)); Berufskraftfahrer.Name = "Berufskraftfahrer"; Berufskraftfahrer.ShortRange = true; Berufskraftfahrer.Sprite = 67; Berufskraftfahrer.Color = 12;
-            Blip Berufskraftfahrer_Kraftstoff = NAPI.Blip.CreateBlip(new Vector3(815.2087, -1590.846, 31.01333)); Berufskraftfahrer_Kraftstoff.Name = "Berufskraftfahrer Kraftstoff Ladepunkt"; Berufskraftfahrer_Kraftstoff.ShortRange = true; Berufskraftfahrer_Kraftstoff.Sprite = 67; Berufskraftfahrer_Kraftstoff.Color = 12;
+            Blip Stadthalle = NAPI.Blip.CreateBlip(new Vector3(337.126, -1562.91, 30.298)); Stadthalle.Name = "Stadthalle"; Stadthalle.ShortRange = true; Stadthalle.Sprite = 498;
+            Blip Medial_Department = NAPI.Blip.CreateBlip(new Vector3(375.0317, -594.1043, 28.72511)); Medial_Department.Name = "Medical Department"; Medial_Department.ShortRange = true; Medial_Department.Sprite = 153; Medial_Department.Color = 1;
+            Blip Manufaktur_Mittelklasse = NAPI.Blip.CreateBlip(new Vector3(-1073.475, -2147.839, 13.40069)); Manufaktur_Mittelklasse.Name = "Manufaktur Mittelklassefahrzeuge"; Manufaktur_Mittelklasse.ShortRange = true; Manufaktur_Mittelklasse.Sprite = 78;
+            Blip Vespucci_Police = NAPI.Blip.CreateBlip(new Vector3(-1092.624, -809.7153, 19.27477)); Vespucci_Police.Name = "Vespucci Police Department"; Vespucci_Police.ShortRange = true; Vespucci_Police.Sprite = 60; Vespucci_Police.Color = 38;
+            Blip Liveinvader = NAPI.Blip.CreateBlip(new Vector3(-1033.761, -223.1129, 39.01439)); Liveinvader.Name = "Lifeinvador"; Liveinvader.ShortRange = true; Liveinvader.Sprite = 77; Liveinvader.Color = 1;
+            Blip Arbeitsamt = NAPI.Blip.CreateBlip(new Vector3(-837.6387, -272.0361, 38.72037)); Arbeitsamt.Name = "Arbeitsamt"; Arbeitsamt.ShortRange = true; Arbeitsamt.Sprite = 280;
+            Blip Berufskraftfahrer = NAPI.Blip.CreateBlip(new Vector3(-1546.57, 1367.763, 126.1016)); Berufskraftfahrer.Name = "Berufskraftfahrer"; Berufskraftfahrer.ShortRange = true; Berufskraftfahrer.Sprite = 67;
+            Blip Berufskraftfahrer_Kraftstoff = NAPI.Blip.CreateBlip(new Vector3(815.2087, -1590.846, 31.01333)); Berufskraftfahrer_Kraftstoff.Name = "Berufskraftfahrer Kraftstoff Ladepunkt"; Berufskraftfahrer_Kraftstoff.ShortRange = true; Berufskraftfahrer_Kraftstoff.Sprite = 67;
+            Blip Berufskraftfahrer_Holz_Einladepunkt = NAPI.Blip.CreateBlip(new Vector3(-511.5431, 5241.104, 80.30409)); Berufskraftfahrer_Holz_Einladepunkt.Name = "Berufskraftfahrer Holz Ladepunkt"; Berufskraftfahrer_Holz_Einladepunkt.ShortRange = true; Berufskraftfahrer_Holz_Einladepunkt.Sprite = 67;
+            Blip Berufskraftfahrer_Holz_Abladepunkt = NAPI.Blip.CreateBlip(new Vector3(1307.297, 4324.441, 38.20026)); Berufskraftfahrer_Holz_Abladepunkt.Name = "Berufskraftfahrer Holz Abladepunkt"; Berufskraftfahrer_Holz_Abladepunkt.ShortRange = true; Berufskraftfahrer_Holz_Abladepunkt.Sprite = 67;
+            Blip Busfahrer = NAPI.Blip.CreateBlip(new Vector3(-948.2572, -2068.304, 9.55535)); Busfahrer.Name = "Busfahrer"; Busfahrer.ShortRange = true; Busfahrer.Sprite = 513;
+            Blip Heiraten = NAPI.Blip.CreateBlip(new Vector3(-329.9244, 6150.168, 32.31319)); Heiraten.Name = "Heiraten"; Heiraten.ShortRange = true; Heiraten.Sprite = 621; Heiraten.Color = 1;
         }
 
         public static void MarkersLaden()
         {
             //Noobspawn
-            NAPI.Marker.CreateMarker(21, new Vector3(-3237.754, 969.6091, 12.94306), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
-            NAPI.Marker.CreateMarker(21, new Vector3(-3237.508, 965.3855, 13.04449), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            NAPI.Marker.CreateMarker(21, new Vector3(-3237.754, 969.6091, 12.94306), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(-3237.508, 965.3855, 13.04449), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Stadthalle
-            NAPI.Marker.CreateMarker(21, new Vector3(-1285.605, -567.0062, 31.7124), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
-            NAPI.Marker.CreateMarker(21, new Vector3(-139.473, -617.4647, 168.8204), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, Convert.ToUInt32(100000));
-            NAPI.Marker.CreateMarker(21, new Vector3(-138.8336, -632.2155, 168.8204), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, Convert.ToUInt32(100000));
+            NAPI.Marker.CreateMarker(21, new Vector3(337.764, -1562.13, 30.298), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(334.039, -1564.35, 30.3066), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(331.347, -1569.97, 30.3076), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Heiraten
+            NAPI.Marker.CreateMarker(21, new Vector3(-329.9244, 6150.168, 32.31319), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Arbeitsamt
-            NAPI.Marker.CreateMarker(21, new Vector3(-837.6387, -272.0361, 38.72037), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            NAPI.Marker.CreateMarker(21, new Vector3(-837.6387, -272.0361, 38.72037), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             NAPI.Marker.CreateMarker(21, new Vector3(-139.473, -617.4647, 168.8204), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, Convert.ToUInt32(100001));
             NAPI.Marker.CreateMarker(21, new Vector3(-138.8336, -632.2155, 168.8204), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, Convert.ToUInt32(100001));
 
             //Berufskraftfahrer
-            NAPI.Marker.CreateMarker(21, new Vector3(-1546.57, 1367.763, 126.1016), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
-            NAPI.Marker.CreateMarker(21, new Vector3(815.2087, -1590.846, 31.01333), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            NAPI.Marker.CreateMarker(21, new Vector3(-1546.57, 1367.763, 126.1016), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(815.2087, -1590.846, 31.01333), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(-511.5431, 5241.104, 80.30409), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(1307.297, 4324.441, 38.20026), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
         }
 
         [RemoteEvent("PersoSchliessen")]
@@ -3619,12 +4389,10 @@ namespace Haupt
                 }
                 else
                 {
-                    long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - GlobaleSachen.PersonalausweisPreis;
-
                     Player.SendChatMessage("~y~Info~w~: Du hast einen Personalausweis erhalten.");
                     account.Perso = 1;
                     account.AccountGeändert = true;
-                    Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                    Funktionen.AccountGeldSetzen(Player, 2, GlobaleSachen.PersonalausweisPreis);
                     Player.TriggerEvent("StadthalleWeg");
                 }
             }
@@ -3652,6 +4420,7 @@ namespace Haupt
             if(account.Job != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst deinen bisherigen Job erst kündigen!"); return; }
 
             account.Job = 1;
+            account.Kündigungszeit = 60;
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist jetzt Berufskraftfahrer.");
 
             account.AccountGeändert = true;
@@ -3676,6 +4445,7 @@ namespace Haupt
             if (account.Job != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst deinen bisherigen Job erst kündigen!"); return; }
 
             account.Job = 2;
+            account.Kündigungszeit = 60;
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist jetzt Paketlieferant.");
 
             account.AccountGeändert = true;
@@ -3697,7 +4467,7 @@ namespace Haupt
             AccountLokal account = new AccountLokal();
             account = AccountBekommen(Player);
 
-            if (account.Kündigungszeit != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst noch " + account.Kündigungszeit + " Minute(n) deinen Job ausüben."); return; }
+            if (account.Kündigungszeit != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst deinen Job noch " + account.Kündigungszeit + " Minute(n) ausüben."); return; }
 
             account.Job = 0;
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist jetzt Zivilist.");
@@ -3709,6 +4479,9 @@ namespace Haupt
         [RemoteEvent("AutoAnAus")]
         public void AutoAnAus(Client Player)
         {
+            //Freezed?
+            if(Player.GetData("Freezed") == 1) { return; }
+
             //Cooldown
             if (Player.GetData("KeyCoolDown") == 1) { return; }
             Player.SetData("KeyCoolDown", 1);
@@ -3742,6 +4515,46 @@ namespace Haupt
             }
         }
 
+        [RemoteEvent("SaveListeTeleportieren")]
+        public void SaveListeTeleportieren(Client Player, int Id)
+        {
+            foreach (SaveLokal save in Funktionen.SaveListe)
+            {
+                if(save.Id == Id)
+                {
+                    Player.Position = new Vector3(save.PositionX, save.PositionY, save.PositionZ);
+                    Player.Rotation = new Vector3(0.0, 0.0, save.PositionRot);
+                    Player.TriggerEvent("savelisteschliessen");
+
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dich zum Save Eintrag teleportiert.");
+                    break;
+                }
+            }
+        }
+
+        [RemoteEvent("SaveListeLöschen")]
+        public void SaveListeLöschen(Client Player, int Id)
+        {
+            foreach (SaveLokal save in Funktionen.SaveListe)
+            {
+                if (save.Id == Id)
+                {
+                    var Save = ContextFactory.Instance.srp_saves.Where(x => x.Id == save.Id).FirstOrDefault();
+
+                    //Query absenden
+                    ContextFactory.Instance.srp_saves.Remove(Save);
+
+                    //Saveliste entfernen
+                    SaveListe.Remove(save);
+
+                    Player.TriggerEvent("savelisteschliessen");
+
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Save Eintrag wurde gelöscht.");
+                    break;
+                }
+            }
+        }
+
         public static string ErsterBuchstabeGroß(string input)
         {
             if (String.IsNullOrEmpty(input))
@@ -3751,14 +4564,40 @@ namespace Haupt
 
         public static void Freeze(Client Player)
         {
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+
             //Freeze
             Player.TriggerEvent("Freeze");
+            Player.SetData("Freezed", 1);
         }
 
         public static void Unfreeze(Client Player)
         {
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+
             //Unfreeze
             Player.TriggerEvent("Unfreeze");
+            Player.SetData("Freezed", 0);
+        }
+
+        public static void FreezeAuto(Client Player)
+        {
+            //Freeze
+            Player.TriggerEvent("Freeze");
+            Player.SetData("Freezed", 1);
+
+            Player.Vehicle.EngineStatus = false;
+            Player.Vehicle.FreezePosition = true;
+        }
+
+        public static void UnfreezeAuto(Client Player)
+        {
+            //Unfreeze
+            Player.TriggerEvent("Unfreeze");
+            Player.SetData("Freezed", 0);
+
+            Player.Vehicle.EngineStatus = true;
+            Player.Vehicle.FreezePosition = false;
         }
 
         public static void KeyCoolDown(Client Player)
@@ -3777,16 +4616,465 @@ namespace Haupt
         {
             Player.TriggerEvent("LadenBeenden");
             Player.TriggerEvent("browseroeffnen");
+
+            var Check = ContextFactory.Instance.srp_accounts.Count(x => x.SocialClub == Player.SocialClubName);
+
+            if(Check == 0)
+            {
+                Player.TriggerEvent("HatAccount", 0, Player.SocialClubName, 0);
+            }
+            else
+            {
+                var Account = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Player.SocialClubName).FirstOrDefault();
+                Player.TriggerEvent("HatAccount", 1, Player.SocialClubName, Account.NickName);
+            }
         }
 
         public static void SpawnManager(Client Player)
         {
-            Player.Position = new Vector3(-3260.276, 967.3442, 8.832886);
-            Player.Rotation = new Vector3(0.0, 0.0, 270.343);
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            Player.Position = new Vector3(account.PositionX, account.PositionY, account.PositionZ);
+            Player.Rotation = new Vector3(0.0, 0.0, account.PositionRot);
+            Player.Dimension = Convert.ToUInt32(account.Dimension);
+            InteriorLaden(Player, account.Interior);
+            
+            LogEintrag(Player, "Gespawnt (" + account.PositionX + ", " + account.PositionY + ", " + account.PositionZ + ") Dimension: " + account.Dimension + " | Interior: " + account.Interior);
+
             Player.TriggerEvent("moveSkyCamera", Player, "down");
 
+            Ladebalken(Player, 1, 10000);
+
             //Unfreeze Timer
-            Timer.SetTimer(() => Unfreeze(Player), 2000, 1);
+            Timer.SetTimer(() => Unfreeze(Player), 10000, 1);
+        }
+
+        public static void InteriorLaden(Client Player, String InteriorName)
+        {
+            LogEintrag(Player, "Interior geladen: " + InteriorName);
+            Player.SetData("InteriorName", InteriorName);
+            Player.TriggerEvent("InteriorLaden", InteriorName);
+        }
+
+        [ServerEvent(Event.PlayerDeath)]
+        public void OnPlayerDeath(Client Player, Client Killer, uint Reason)
+        {
+            Player.TriggerEvent("moveSkyCamera", Player, "up", 1, false);
+            LogEintrag(Player, "Gestorben Killer: " + Killer.Name + " | Grund: " + Reason);
+            Timer.SetTimer(() => TotRespawn(Player), 30000, 1);
+            Ladebalken(Player, 2, 30000);
+            Player.Invincible = true;
+        }
+
+        public static void TotRespawn(Client Player)
+        {
+            if (NAPI.Player.IsPlayerConnected(Player) == false) { return; }
+
+            Player.Health = 100;
+            Player.Position = new Vector3(358.764f, -589.17f, 28.8006f);
+            Player.Rotation = new Vector3(0.0, 0.0, 270.343f);
+            Player.TriggerEvent("moveSkyCamera", Player, "down");
+            Player.Invincible = false;
+        }
+
+        public static void AlleBlipsWeg(Client Player)
+        {
+            foreach (Blip Blip in NAPI.Pools.GetAllBlips())
+            {
+                Blip.Delete();
+            }
+
+            foreach (TextLabel Textlabel in NAPI.Pools.GetAllTextLabels())
+            {
+                Textlabel.Delete();
+            }
+
+            foreach (Marker Marker in NAPI.Pools.GetAllMarkers())
+            {
+                Marker.Delete();
+            }
+        }
+
+        public static void SpielerKickenBlipsNeuladen(Client Player)
+        {
+            NAPI.Player.KickPlayer(Player, "Unser Server ist in Entwicklung!");
+            Timer.SetTimer(() => Funktionen.SpielerKickenBlipsNeuladen1(Player), 2000, 1);
+        }
+
+        public static void SpielerKickenBlipsNeuladen1(Client Player)
+        {
+            BlipsNeuladen();
+        }
+
+        public static void BlipsNeuladen()
+        {
+            //Liste löschen
+            TankenListe.Clear();
+            ImmobilienListe.Clear();
+            TankenPunktListe.Clear();
+            TankenInfoListe.Clear();
+            AutohausListe.Clear();
+            SupermarktListe.Clear();
+
+            TextLabelsLaden();
+            BlipsLaden();
+            MarkersLaden();
+
+            TankstellenLadenLokal();
+            TankstellenPunkteLadenLokal();
+            TankstellenInfoLadenLokal();
+            ImmobilienLadenLokal();
+            SupermärkteLadenLokal();
+            AutohäuserLadenLokal();
+
+        }
+
+        [RemoteEvent("GruppierungErstellen")]
+        public static void GruppierungErstellen(Client Player, String Gruppenname, String Gruppentag, String Gruppenfarbe)
+        {
+            if(AccountSpielzeitBekommen(Player) < 240) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du benötigst mindestens 4 Spielstunden."); return; }
+            if (Funktionen.AccountGeldBekommen(Player) < GlobaleSachen.GruppenPreis){ NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld."); return; }
+            if (Funktionen.AccountGeldBekommen(Player) < GlobaleSachen.GruppenPreis + GlobaleSachen.GruppenEinlage) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld."); return; }
+            if (Gruppenname.Length < 5 || Gruppenname.Length > 20) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Gruppenname benötigt min. 4 Zeichen und max. 20 Zeichen."); return; }
+            if (Gruppentag.Length < 2 || Gruppentag.Length > 3) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Gruppentag benötigt min. 2 Zeichen und max. 3 Zeichen."); return; }
+            if (Gruppenfarbe == "rot" || Gruppenfarbe == "Rot" || Gruppenfarbe == "blau" || Gruppenfarbe == "Blau" || Gruppenfarbe == "grün" || Gruppenfarbe == "Grün" || Gruppenfarbe == "gelb" || Gruppenfarbe == "Gelb" || Gruppenfarbe == "lila" || Gruppenfarbe == "Lila")
+            {
+                var Check = ContextFactory.Instance.srp_gruppen.Count(x => x.GruppenName == Gruppenname);
+                if(Check == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Diese Gruppe gibt es schon!"); return; }
+
+                var Gruppe = new Gruppen
+                {
+                    GruppenName = Gruppenname,
+                    GruppenBesitzer = Player.GetData("Id"),
+                    GruppenTag = Gruppentag,
+                    GruppenFarbe = ErsterBuchstabeGroß(Gruppenfarbe),
+                    GruppenGeld = GlobaleSachen.GruppenEinlage,
+                    GruppenRang1Name = "Rang 1",
+                    GruppenRang2Name = "Rang 2",
+                    GruppenRang3Name = "Rang 3",
+                    GruppenRang4Name = "Rang 4",
+                    GruppenRang5Name = "Rang 5"
+
+                };
+
+                //Query absenden
+                ContextFactory.Instance.srp_gruppen.Add(Gruppe);
+                ContextFactory.Instance.SaveChanges();
+
+                GruppenLokal gruppe = new GruppenLokal();
+
+                gruppe.Id = ContextFactory.Instance.srp_gruppen.Max(x => x.Id);
+                gruppe.GruppenName = Gruppenname;
+                gruppe.GruppenBesitzer = Player.GetData("Id");
+                gruppe.GruppenTag = Gruppentag;
+                gruppe.GruppenFarbe = ErsterBuchstabeGroß(Gruppenfarbe);
+                gruppe.GruppenGeld = GlobaleSachen.GruppenEinlage;
+                gruppe.GruppenRang1Name = "Rang 1";
+                gruppe.GruppenRang2Name = "Rang 2";
+                gruppe.GruppenRang3Name = "Rang 3";
+                gruppe.GruppenRang4Name = "Rang 4";
+                gruppe.GruppenRang5Name = "Rang 5";
+
+                //Dem Spieler Leader setzen
+                AccountGruppeSetzen(Player, ContextFactory.Instance.srp_gruppen.Max(x => x.Id));
+                AccountGruppeRangSetzen(Player, 5);
+                AccountGeldSetzen(Player, 2, GlobaleSachen.GruppenPreis + GlobaleSachen.GruppenEinlage);
+
+                GruppenListe.Add(gruppe);
+
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Gruppierung " + gruppe.GruppenName + " erstellt.");
+
+                SpielerSpeichern(Player);
+
+                Player.TriggerEvent("gruppenerstellenbrowserschliessen");
+            }
+            else
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Diese Farbe ist uns nicht bekannt.");
+            }
+        }
+
+        [RemoteEvent("GruppeEinladungAblehnen")]
+        public static void GruppeEinladungAblehnen(Client Player)
+        {
+            Player.SetData("GruppenEinladungId", 0);
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Einladung abgelehnt.");
+
+            Player.TriggerEvent("invitebrowserschliessen");
+        }
+
+        [RemoteEvent("GruppeEinladungAnnehmen")]
+        public static void GruppeEinladungAnnehmen(Client Player)
+        {
+            int Gruppe = Player.GetData("GruppenEinladungId");
+            AccountGruppeSetzen(Player, Gruppe);
+            Player.SetData("GruppenEinladungId", 0);
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist der Gruppe erfolgreich beigetreten.");
+
+            foreach (var GesuchterSpieler in NAPI.Pools.GetAllPlayers())
+            {
+                
+                if(AccountGruppeBekommen(GesuchterSpieler) == Gruppe)
+                {
+                    NAPI.Notification.SendNotificationToPlayer(GesuchterSpieler, "~y~Info~w~: ~r~" + Player.Name + " ~w~ist der Gruppe beigetreten!");
+                }
+            }
+
+            AccountGruppeRangSetzen(Player, 1);
+            Player.TriggerEvent("invitebrowserschliessen");
+            SpielerSpeichern(Player);
+
+            LogEintrag(Player, "Gruppen Invite angenommen");
+        }
+
+        [RemoteEvent("Gruppierung_IBerry")]
+        public static void Gruppierung_IBerry(Client Player, int Typ)
+        {
+            //Daten erfassen
+            int Gruppe = AccountGruppeBekommen(Player);
+            int Rang = AccountGruppeRangBekommen(Player);
+
+            Player.TriggerEvent("Chathiden");
+
+            if(Typ == 1)
+            {
+                //IBerry schließen und alles
+                Player.SetData("IBerry", 0);
+                Player.TriggerEvent("IBerryschliessen");
+                LogEintrag(Player, "IBerry geschlossen");
+            }
+
+            if(Player.GetData("GruppenEinladungId") != 0)
+            {
+                foreach (GruppenLokal gruppe in GruppenListe)
+                {
+                    if (Player.GetData("GruppenEinladungId") == gruppe.Id)
+                    {
+                        Player.TriggerEvent("invitebrowseroeffnen", gruppe.GruppenName);
+                        break;
+                    }
+                }
+                return;
+            }
+            
+            if(Gruppe == 0)
+            {
+                Player.TriggerEvent("gruppenerstellenbrowseroeffnen");
+                LogEintrag(Player, "Gruppen erstellen geöffnet");
+                return;
+            }
+            else if (Gruppe != 0)
+            {
+                if (Rang == 5)
+                {
+                    Player.TriggerEvent("meinegruppierungbrowseroeffnen");
+
+                    foreach (GruppenLokal gruppe in GruppenListe)
+                    {
+                        if (Gruppe == gruppe.Id)
+                        {
+                            //Alles an das CEF übergeben
+                            String Tag = null;
+                            Tag = "[" + gruppe.GruppenTag + "]";
+                            Player.TriggerEvent("GruppenDaten", gruppe.GruppenName, DatenbankSpielerNamenBekommen(gruppe.GruppenBesitzer), Tag, gruppe.GruppenFarbe, GeldFormatieren(gruppe.GruppenGeld), 1);
+                            Player.TriggerEvent("RangDaten", gruppe.GruppenRang5Name, gruppe.GruppenRang4Name, gruppe.GruppenRang3Name, gruppe.GruppenRang2Name, gruppe.GruppenRang1Name);
+
+                            foreach (var Account in ContextFactory.Instance.srp_accounts.Where(x => x.Gruppe == Gruppe).OrderByDescending(y => y.GruppenRang).ToList())
+                            {
+                                Player.TriggerEvent("Mitglieder_Eintragen", Account.Id, Account.NickName, DatumFormatieren(Account.ZuletztOnline), AccountGruppenRangNamenBekommen(Gruppe, Account.GruppenRang), Account.GruppenRang, 1);
+                            }
+                        }
+                    }
+                }
+                else if(Rang != 5)
+                {
+                    Player.TriggerEvent("meinegruppierungbrowseroeffnen");
+
+                    foreach (GruppenLokal gruppe in GruppenListe)
+                    {
+                        if (Gruppe == gruppe.Id)
+                        {
+                            //Alles an das CEF übergeben
+                            String Tag = null;
+                            Tag = "[" + gruppe.GruppenTag + "]";
+                            Player.TriggerEvent("GruppenDaten", gruppe.GruppenName, DatenbankSpielerNamenBekommen(gruppe.GruppenBesitzer), Tag, gruppe.GruppenFarbe, GeldFormatieren(gruppe.GruppenGeld), 0);
+
+                            foreach (var Account in ContextFactory.Instance.srp_accounts.Where(x => x.Gruppe == Gruppe).OrderByDescending(y => y.GruppenRang).ToList())
+                            {
+                                Player.TriggerEvent("Mitglieder_Eintragen", Account.Id, Account.NickName, DatumFormatieren(Account.ZuletztOnline), AccountGruppenRangNamenBekommen(Gruppe, Account.GruppenRang), Account.GruppenRang, 0);
+                            }
+                        }
+                    }
+                }
+
+                //Log Eintrag
+                LogEintrag(Player, "Meine Gruppe geöffnet");
+            }
+        }
+
+        [RemoteEvent("GruppenRaengeSpeichern")]
+        public static void GruppenRaengeSpeichern(Client Player, String Rang5, String Rang4, String Rang3, String Rang2, String Rang1)
+        {
+            if(Rang1.Length < 3 || Rang1.Length > 12 || Rang2.Length < 3 || Rang2.Length > 12 || Rang3.Length < 3 || Rang3.Length > 12 || Rang4.Length < 3 || Rang4.Length > 12 || Rang5.Length < 3 || Rang5.Length > 12) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ein Rangname benötigt min. 3 und max. 12 Zeichen."); return; }
+            int Gruppe = AccountGruppeBekommen(Player);
+
+            foreach (GruppenLokal gruppe in GruppenListe)
+            {
+                if (Gruppe == gruppe.Id)
+                {
+                    gruppe.GruppenRang1Name = Rang1;
+                    gruppe.GruppenRang2Name = Rang2;
+                    gruppe.GruppenRang3Name = Rang3;
+                    gruppe.GruppenRang4Name = Rang4;
+                    gruppe.GruppenRang5Name = Rang5;
+
+                    gruppe.GruppeGeändert = true;
+                }
+            }
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Ränge wurden gespeichert.");
+            Player.TriggerEvent("meinegruppierungbrowserschliessen");
+            Gruppierung_IBerry(Player, 0);
+
+            //Log Eintrag
+            LogEintrag(Player, "Gruppen Ränge geändert");
+        }
+
+        [RemoteEvent("GruppenSpielerSpeichern")]
+        public static void GruppenSpielerSpeichern(Client Player, int SpielerID, int Rang)
+        {
+            if(Rang < 1 || Rang > 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Rang muss zwischen 1 und 5 sein.");  return; }
+
+            //Benötigte Definitionen
+            Client Spieler = null;
+            String Name = null;
+
+            foreach (var GesuchterSpieler in NAPI.Pools.GetAllPlayers())
+            {
+                if(GesuchterSpieler.GetData("Id") == SpielerID)
+                {
+                    Spieler = GesuchterSpieler;
+                }
+            }
+
+            if(Spieler == null)
+            {
+                var Account = ContextFactory.Instance.srp_accounts.Where(x => x.Id == SpielerID).FirstOrDefault();
+                Account.GruppenRang = Rang;
+
+                //Nickname holen
+                Name = Account.NickName;
+
+                //Speichern
+                ContextFactory.Instance.SaveChanges();
+            }
+            else
+            {
+                AccountGruppeRangSetzen(Spieler, Rang);
+                Name = Spieler.Name;
+                NAPI.Notification.SendNotificationToPlayer(Spieler, "~y~Info~w~: ~r~" + Player.Name + " ~w~hat deinen Rang auf ~r~" + Rang + " ~w~geändert.");
+                SpielerSpeichern(Spieler);
+            }
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast den Rang von ~r~" + Name + " ~w~auf ~r~" + Rang + " ~w~geändert.");
+            Player.TriggerEvent("meinegruppierungbrowserschliessen");
+            Gruppierung_IBerry(Player, 0);
+
+            //Log Eintrag
+            LogEintrag(Player, "Gruppe Spieler Rang geändert");
+        }
+
+        [RemoteEvent("GruppeSpielerInviten")]
+        public static void GruppeSpielerInviten(Client Player, String Name)
+        {
+            //Den Spieler über den Namen ermitteln
+            Client Spieler1 = NAPI.Player.GetPlayerFromName(Name);
+            if (Spieler1 == null)
+            {
+                if (Funktionen.SpielerSuchen(Name) == null)
+                {
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler ist uns nicht bekannt. Er muss online sein.");
+                    return;
+                }
+                else
+                {
+                    Spieler1 = Funktionen.SpielerSuchen(Name);
+                }
+            }
+
+            if(Spieler1.GetData("GruppenEinladungId") != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler wurde bereits in eine Gruppe eingeladen.");  return; }
+            if(AccountGruppeBekommen(Spieler1) != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler kann keiner weiteren Gruppe beitreten."); return; }
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast ~r~" + Spieler1.Name + " ~w~erfolgreich eingeladen.");
+            NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Du hast eine Gruppeneinladung erhalten. (F8 -> Gruppierung)");
+
+            Spieler1.SetData("GruppenEinladungId", AccountGruppeBekommen(Player));
+
+            //Log Eintrag
+            LogEintrag(Player, "Gruppe Spieler invitet");
+        }
+
+        public static String DatumFormatieren(DateTime Datum)
+        {
+            String DatumFormatiert = null;
+
+            DateTime Datum1 = Datum;
+            DatumFormatiert = Datum1.ToString("dd.MM.yyyy HH:mm");
+
+            return DatumFormatiert;
+        }
+
+        [RemoteEvent("GruppeSpielerUninviten")]
+        public static void GruppeSpielerUninviten(Client Player, int SpielerID)
+        {
+            //Benötigte Definitionen
+            Client Spieler = null;
+            String Name = null;
+
+            foreach (var GesuchterSpieler in NAPI.Pools.GetAllPlayers())
+            {
+                if (GesuchterSpieler.GetData("Id") == SpielerID)
+                {
+                    Spieler = GesuchterSpieler;
+                }
+            }
+
+            if (Spieler == null)
+            {
+                var Account = ContextFactory.Instance.srp_accounts.Where(x => x.Id == SpielerID).FirstOrDefault();
+                Account.Gruppe = 0;
+
+                //Nickname holen
+                Name = Account.NickName;
+
+                //Speichern
+                ContextFactory.Instance.SaveChanges();
+            }
+            else
+            {
+                AccountGruppeSetzen(Spieler, 0);
+                Name = Spieler.Name;
+                NAPI.Notification.SendNotificationToPlayer(Spieler, "~y~Info~w~: Du wurdest von ~r~" + Player.Name + " ~w~aus der Gruppe gekickt.");
+
+                SpielerSpeichern(Spieler);
+            }
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast den ~r~" + Name + " ~w~aus der Gruppe gekickt.");
+            Player.TriggerEvent("meinegruppierungbrowserschliessen");
+            Gruppierung_IBerry(Player, 0);
+
+            //Log Eintrag
+            LogEintrag(Player, "Gruppe Spieler uninvited");
+        }
+
+        public static String DatenbankSpielerNamenBekommen(int Id)
+        {
+            String Name = null;
+            var Account = ContextFactory.Instance.srp_accounts.Where(x => x.Id == Id).FirstOrDefault();
+            Name = Account.NickName;
+
+            return Name;
         }
     }
 }

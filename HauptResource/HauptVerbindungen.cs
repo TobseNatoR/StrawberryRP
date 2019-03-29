@@ -3,6 +3,7 @@ using Datenbank;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Fahrzeug;
 using System.Text;
 using System.IO;
 
@@ -20,18 +21,24 @@ namespace Haupt
         [ServerEvent(Event.PlayerConnected)]
         public void OnPlayerConnected(Client Player)
         {
+            //Eingeloggt auf 0 für Command Check
+            Player.SetData("Eingeloggt", 0);
+
             //Whitelist Check
             var Check = ContextFactory.Instance.srp_whitelist.Count(x => x.SocialClub == Player.SocialClubName);
             {
                 if (Check == 0)
                 {
+                    Funktionen.AlleBlipsWeg(Player);
                     Player.SendChatMessage("~r~Unser Server ist noch in Entwicklung. Melde dich auf www.strawberry-rp.de");
-                    NAPI.Player.KickPlayer(Player, "Unser Server ist in Entwicklung!");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~r~Unser Server ist noch in Entwicklung. Melde dich auf www.strawberry-rp.de");
+                    Timer.SetTimer(() => Funktionen.SpielerKickenBlipsNeuladen(Player), 2000, 1);
+
+                    //Log Eintrag
+                    Funktionen.LogEintrag(Player, "Nicht auf der Whitelist");
+                    return;
                 }
             }
-
-            //Dimension
-            Player.Dimension = NAPI.GlobalDimension;
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Verbunden");
@@ -41,13 +48,6 @@ namespace Haupt
 
             //Chat entfernen
             Player.TriggerEvent("Chathiden");
-
-            //Eingeloggt auf 0 für Command Check
-            Player.SetData("Eingeloggt", 0);
-
-            //Nachrichten für den Spieler
-            Player.SendChatMessage("~y~Info~w~: Hallo " + Player.SocialClubName + "!");
-            Player.SendChatMessage("~y~Info~w~: Wir wünschen dir viel Spaß bei uns!");
 
             //Laden und danach Login/Register
             Player.TriggerEvent("Laden");
@@ -69,7 +69,9 @@ namespace Haupt
             //Nur speichern wenn er Eingeloggt war
             if(Player.GetData("Eingeloggt") == 1)
             {
-                Funktionen.SpielerSpeichern(Player);
+                Fahrzeuge.JobFahrzeugLöschen(Player, Funktionen.AccountJobFahrzeugBekommen(Player));
+                Funktionen.AccountPositionInteriorDimensionUpdaten(Player);
+                Funktionen.SpielerSpeichernDisconnect(Player);
 
                 //Spieler Online Status
                 Funktionen.ServerSpielerGejoined(2);
@@ -77,8 +79,11 @@ namespace Haupt
 
             //Daten zur Sicherheit zurücksetzen
             //Generelle Daten
+            Player.SetData("InteriorName", 0);
             Player.SetData("SiehtPerso", 0);
+            Player.SetData("IBerry", 0);
             Player.SetData("Scoreboard", 0);
+            Player.SetData("Freezed", 0);
             Player.SetData("AmTanken", 0);
             Player.SetData("TankenTankstellenId", 0);
             Player.SetData("TankRechnung", 0);
@@ -89,15 +94,25 @@ namespace Haupt
             Player.SetData("MenuCoolDown", 0);
             Player.SetData("Verwaltungsmodus", 0);
             Player.SetData("Pferderennen", 0);
+            Player.SetData("NachträglicherNickname", 0);
+            Player.SetData("HeiratsAntrag", 0);
+            Player.SetData("HeiratsId", 0);
+            Player.SetData("HeiratenId", 0);
+            Player.SetData("HeiratenBrowser", 0);
+            Player.SetData("GruppenEinladungId", 0);
+            Player.SetData("StadthalleInt", 0);
 
-            //Job Daten
+            //Job Daten Berufskraftfahrer
             Player.SetData("BerufskraftfahrerFahrzeug", 0);
+            Player.SetData("BerufskraftfahrerHolz", 0);
+            Player.SetData("BerufskraftfahrerHolzGeladen", 0);
             Player.SetData("BerufskraftfahrerJobAngenommen", 0);
             Player.SetData("BerufskraftfahrerKraftstoffTyp", 0);
             Player.SetData("BerufskraftfahrerDieselTanke", 0);
             Player.SetData("BerufskraftfahrerE10Tanke", 0);
             Player.SetData("BerufskraftfahrerSuperTanke", 0);
             Player.SetData("BerufskraftfahrerVerdienst", 0);
+            Player.SetData("BerufskraftfahrerAmAbladen", 0);
 
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);

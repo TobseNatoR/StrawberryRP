@@ -28,10 +28,8 @@ namespace Fahrzeug
             }
             else
             {
-                long GeldAbzug = Funktionen.AccountGeldBekommen(Player) - auto.FahrzeugMietpreis;
-
                 Player.SendChatMessage("~y~Info~w~: Du hast das Fahrzeug gemietet.");
-                Funktionen.AccountGeldSetzen(Player, GeldAbzug);
+                Funktionen.AccountGeldSetzen(Player, 2, auto.FahrzeugMietpreis);
                 Player.TriggerEvent("rollermietenpopupschliessen");
 
                 //Chat an
@@ -89,8 +87,12 @@ namespace Fahrzeug
                 {
                     Player.TriggerEvent("RollerSpeed");
                 }
+                else if (NameBekommen(Player.Vehicle) == "pounder2")
+                {
+                    Player.TriggerEvent("LKWSpeed");
+                }
 
-                if(Player.GetData("VerwaltungsModus") == 0)
+                if (Player.GetData("VerwaltungsModus") == 0)
                 {
                     //Chat weg
                     Player.TriggerEvent("Chathiden");
@@ -152,8 +154,7 @@ namespace Fahrzeug
 
             if(auto.FahrzeugJob == 1 && vehicle.GetData("GeradeGespawnt") == 0)
             {
-                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Gehe zurück in dein Job Fahrzeug!");
-                Timer.SetTimer(() => JobFahrzeugLöschen(Player, vehicle), 240000, 1);
+                Player.SendChatMessage("~y~Info~w~: Fertig mit jobben? /beenden");
             }
             else
             {
@@ -163,19 +164,15 @@ namespace Fahrzeug
 
         public static void JobFahrzeugLöschen(Client Player, Vehicle Fahrzeug)
         {
-            if(Player.Vehicle == Fahrzeug)
-            {
-                return;
-            }
-            else
+            if (Funktionen.AccountJobFahrzeugBekommen(Player) != null)
             {
                 if (Player.GetData("BerufskraftfahrerDieselTanke") != 0 || Player.GetData("BerufskraftfahrerE10Tanke") != 0 || Player.GetData("BerufskraftfahrerSuperTanke") != 0)
                 {
-                    if(Player.GetData("BerufskraftfahrerDieselTanke") != 0)
+                    if (Player.GetData("BerufskraftfahrerDieselTanke") != 0)
                     {
                         foreach (TankstelleLokal tanke in Funktionen.TankenListe)
                         {
-                            if(tanke.Id == Player.GetData("BerufskraftfahrerDieselTanke"))
+                            if (tanke.Id == Player.GetData("BerufskraftfahrerDieselTanke"))
                             {
                                 tanke.TankstelleJobSpieler = 0;
                             }
@@ -202,17 +199,26 @@ namespace Fahrzeug
                         }
                     }
                 }
+
                 AutoLokal auto = new AutoLokal();
                 auto = Funktionen.AutoBekommen(Fahrzeug);
                 NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job Fahrzeug wurde gelöscht.");
                 NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job Auftrag wurde abgebrochen.");
                 Player.SetData("BerufskraftfahrerFahrzeug", 0);
+                Player.SetData("BerufskraftfahrerHolz", 0);
+                Player.SetData("BerufskraftfahrerHolzGeladen", 0);
                 Player.SetData("BerufskraftfahrerJobAngenommen", 0);
+                Player.SetData("BerufskraftfahrerKraftstoffTyp", 0);
                 Player.SetData("BerufskraftfahrerDieselTanke", 0);
                 Player.SetData("BerufskraftfahrerE10Tanke", 0);
                 Player.SetData("BerufskraftfahrerSuperTanke", 0);
-
+                Player.SetData("BerufskraftfahrerVerdienst", 0);
+                Player.SetData("BerufskraftfahrerAmAbladen", 0);
                 auto.Fahrzeug.Delete();
+
+                Funktionen.AutoListe.Remove(auto);
+
+                Funktionen.AccountJobFahrzeugSetzen(Player, null);
             }
         }
 
@@ -233,7 +239,7 @@ namespace Fahrzeug
                 //ID Lokal setzen damit man das Fahrzeug erkennen kann
                 auto.Fahrzeug.SetData("Id", Fahrzeuge.Id);
 
-                auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
+                auto.Fahrzeug.Dimension = 0;
 
                 auto.Id = Fahrzeuge.Id;
                 auto.FahrzeugBeschreibung = Fahrzeuge.FahrzeugBeschreibung;
@@ -254,6 +260,7 @@ namespace Fahrzeug
                 auto.TankVolumen = Fahrzeuge.TankVolumen;
                 auto.TankInhalt = Fahrzeuge.TankInhalt * 10 * 100;
                 auto.Kilometerstand = Fahrzeuge.Kilometerstand * 10 * 100;
+                auto.KraftstoffArt = Fahrzeuge.KraftstoffArt;
                 auto.FahrzeugHU = Fahrzeuge.FahrzeugHU;
                 auto.FahrzeugAbgeschlossen = Fahrzeuge.FahrzeugAbgeschlossen;
                 auto.FahrzeugMotor = Fahrzeuge.FahrzeugMotor;
@@ -289,7 +296,7 @@ namespace Fahrzeug
                     VerkaufsText += "Autohaus~w~: " + auto.FahrzeugAutohaus + "~n~~r~";
                     VerkaufsText += "Preis:~w~ " + Funktionen.GeldFormatieren(auto.FahrzeugKaufpreis);
 
-                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, 0);
                 }
                 if (auto.FahrzeugAutohaus < 0)
                 {
@@ -297,7 +304,7 @@ namespace Fahrzeug
                     VerkaufsText += "Name~w~: " + auto.FahrzeugName + "~n~~r~";
                     VerkaufsText += "Preis:~w~ " + Funktionen.GeldFormatieren(auto.FahrzeugKaufpreis);
 
-                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Fahrzeuge.FahrzeugX, Fahrzeuge.FahrzeugY, Fahrzeuge.FahrzeugZ), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, 0);
                 }
             }
             return AutoListe;
@@ -402,7 +409,7 @@ namespace Fahrzeug
                     VerkaufsText += "Autohaus~w~: " + auto.FahrzeugAutohaus + "~n~~r~";
                     VerkaufsText += "Preis:~w~ " + Funktionen.GeldFormatieren(auto.FahrzeugKaufpreis);
 
-                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(auto.FahrzeugX, auto.FahrzeugY, auto.FahrzeugZ), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(auto.FahrzeugX, auto.FahrzeugY, auto.FahrzeugZ), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, 0);
 
                     auto.FahrzeugGeändert = true;
                 }
@@ -551,7 +558,7 @@ namespace Fahrzeug
                         VerkaufsText += "Preis~w~: " + Funktionen.GeldFormatieren(auto.FahrzeugKaufpreis);
                     }
 
-                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Auto.Position.X, Auto.Position.Y, Auto.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
+                    auto.AutohausTextLabel = NAPI.TextLabel.CreateTextLabel(VerkaufsText, new Vector3(Auto.Position.X, Auto.Position.Y, Auto.Position.Z), 18.0f, 1.00f, 4, new Color(255, 255, 255), false, 0);
                 }
             }
         }

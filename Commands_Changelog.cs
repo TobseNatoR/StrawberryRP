@@ -1,5 +1,14 @@
 ﻿/*
 
+23.03.2019
++ /saveliste (Mit Teleport zum klicken)
++ /tpcoord (Zu Coordinaten teleportieren)
+
+16.03.2019
++ /acar
+
+15.03.2019
++ /beenden
 
 12.03.2019
 + Taste Y: Scoreboard

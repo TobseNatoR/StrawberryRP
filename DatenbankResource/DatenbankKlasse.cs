@@ -50,12 +50,23 @@ namespace Datenbank
         public int Perso { get; set; }
         public int Spielzeit { get; set; }
         public int Exp { get; set; }
+        public int Gruppe { get; set; }
+        public int GruppenRang { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime GeburtsDatum { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime EinreiseDatum { get; set; }
+        [Column(TypeName = "datetime")]
+        public DateTime ZuletztOnline { get; set; }
+        public String Verheiratet { get; set; }
         public int FahrzeugSchlüssel { get; set; }
         public int Kündigungszeit { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+        public float PositionRot { get; set; }
+        public Int64 Dimension { get; set; }
+        public string Interior { get; set; }
         public int BerufskraftfahrerExp { get; set; }
     }
 
@@ -75,12 +86,23 @@ namespace Datenbank
         public int Perso { get; set; }
         public int Spielzeit { get; set; }
         public int Exp { get; set; }
+        public int Gruppe { get; set; }
+        public int GruppenRang { get; set; }
         public DateTime GeburtsDatum { get; set; }
         public DateTime EinreiseDatum { get; set; }
+        public DateTime ZuletztOnline { get; set; }
+        public String Verheiratet { get; set; }
         public int FahrzeugSchlüssel { get; set; }
         public int Kündigungszeit { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+        public float PositionRot { get; set; }
+        public Int64 Dimension { get; set; }
+        public string Interior { get; set; }
         public int BerufskraftfahrerExp { get; set; }
 
+        public Vehicle JobFahrzeug { get; set; }
         public Boolean AccountGeändert { get; set; }
     }
 
@@ -93,6 +115,32 @@ namespace Datenbank
         public string SocialClub { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime Wann { get; set; }
+    }
+
+    public class Save
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public string Beschreibung { get; set; }
+        public string Von { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+        public float PositionRot { get; set; }
+    }
+
+    public class SaveLokal
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public string Beschreibung { get; set; }
+        public string Von { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+        public float PositionRot { get; set; }
     }
 
     public class Immobilien
@@ -255,6 +303,7 @@ namespace Datenbank
         public float TankVolumen { get; set; }
         public float TankInhalt { get; set; }
         public float Kilometerstand { get; set; }
+        public int KraftstoffArt { get; set; }
         [Column(TypeName = "datetime")]
         public DateTime FahrzeugHU { get; set; }
         public int FahrzeugAbgeschlossen { get; set; }
@@ -286,6 +335,7 @@ namespace Datenbank
         public float TankVolumen { get; set; }
         public float TankInhalt { get; set; }
         public float Kilometerstand { get; set; }
+        public int KraftstoffArt { get; set; }
         public DateTime FahrzeugHU { get; set; }
         public int FahrzeugAbgeschlossen { get; set; }
         public int FahrzeugMotor { get; set; }
@@ -398,5 +448,41 @@ namespace Datenbank
         public Ped Bot { get; set; }
 
         public Boolean BotGeändert { get; set; }
+    }
+
+    public class Gruppen
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public string GruppenName { get; set; }
+        public int GruppenBesitzer { get; set; }
+        public string GruppenTag { get; set; }
+        public string GruppenFarbe { get; set; }
+        public long GruppenGeld { get; set; }
+        public string GruppenRang1Name { get; set; }
+        public string GruppenRang2Name { get; set; }
+        public string GruppenRang3Name { get; set; }
+        public string GruppenRang4Name { get; set; }
+        public string GruppenRang5Name { get; set; }
+    }
+
+    public class GruppenLokal
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public string GruppenName { get; set; }
+        public int GruppenBesitzer { get; set; }
+        public string GruppenTag { get; set; }
+        public string GruppenFarbe { get; set; }
+        public long GruppenGeld { get; set; }
+        public string GruppenRang1Name { get; set; }
+        public string GruppenRang2Name { get; set; }
+        public string GruppenRang3Name { get; set; }
+        public string GruppenRang4Name { get; set; }
+        public string GruppenRang5Name { get; set; }
+
+        public Boolean GruppeGeändert { get; set; }
     }
 }

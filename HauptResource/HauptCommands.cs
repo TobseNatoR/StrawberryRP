@@ -64,6 +64,7 @@ namespace Haupt
                     TankVolumen = Funktionen.TankVolumenBerechnen(Name),
                     TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100,
                     Kilometerstand = 0.0f,
+                    KraftstoffArt = 3,
                     FahrzeugHU = DateTime.Now.AddMonths(+1),
                     FahrzeugAbgeschlossen = 0,
                     FahrzeugMotor = 1,
@@ -82,7 +83,7 @@ namespace Haupt
             auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, Farbe1, Farbe2, numberPlate: Funktionen.FahrzeugTypNamen(Typ));
 
             auto.Fahrzeug.NumberPlate = Funktionen.FahrzeugTypNamen(Typ);
-            auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
+            auto.Fahrzeug.Dimension = 0;
 
             //Dem Fahrzeug die Werte lokal übergeben
             if(Typ != 0)
@@ -111,6 +112,7 @@ namespace Haupt
             auto.TankVolumen = Funktionen.TankVolumenBerechnen(Name);
             auto.TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100;
             auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 3;
             auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
             auto.FahrzeugAbgeschlossen = 0;
             auto.FahrzeugMotor = 1;
@@ -147,6 +149,81 @@ namespace Haupt
             if (Typ == 5) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Autohaus zugewiesen werden."); }
 
             Funktionen.LogEintrag(Player, Funktionen.FahrzeugTypNamen(Typ) + "(s) Fahrzeug erstellt");
+
+            auto.Fahrzeug.EngineStatus = true;
+        }
+
+        [Command("acar", "Nutze: /acar")]
+        public void AdminCar(Client Player)
+        {
+            //Definitionen
+            uint AutoCode = NAPI.Util.GetHashKey("oppressor2");
+
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminFahrzeugErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            
+            //Objekt für die Liste erzeugen
+            AutoLokal auto = new AutoLokal();
+
+            //Das Fahrzeug spawnen
+            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, 0, 0, numberPlate: Funktionen.FahrzeugTypNamen(0));
+
+            auto.Fahrzeug.NumberPlate = Funktionen.FahrzeugTypNamen(0);
+            auto.Fahrzeug.Dimension = 0;
+
+            
+            auto.Id = -1;
+            auto.FahrzeugBeschreibung = Funktionen.FahrzeugTypNamen(0);
+            auto.FahrzeugName = "Oppressor2";
+            auto.FahrzeugTyp = 0;
+            auto.FahrzeugFraktion = 0;
+            auto.FahrzeugJob = 0;
+            auto.FahrzeugSpieler = 0;
+            auto.FahrzeugMietpreis = 0;
+            auto.FahrzeugKaufpreis = 0;
+            auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugX = Player.Position.X;
+            auto.FahrzeugY = Player.Position.Y;
+            auto.FahrzeugZ = Player.Position.Z;
+            auto.FahrzeugRot = Player.Rotation.Z;
+            auto.FahrzeugFarbe1 = 0;
+            auto.FahrzeugFarbe2 = 0;
+            auto.TankVolumen = Funktionen.TankVolumenBerechnen("Oppressor2");
+            auto.TankInhalt = Funktionen.TankVolumenBerechnen("Oppressor2") * 10 * 100;
+            auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 3;
+            auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
+            auto.FahrzeugAbgeschlossen = 0;
+            auto.FahrzeugMotor = 1;
+            auto.FahrzeugGespawnt = 1;
+
+            //Diese Sachen nur lokal
+            auto.FahrzeugAltePositionX = Player.Position.X;
+            auto.FahrzeugAltePositionY = Player.Position.Y;
+            auto.FahrzeugAltePositionZ = Player.Position.Z;
+            auto.FahrzeugNeuePositionX = 0;
+            auto.FahrzeugNeuePositionY = 0;
+            auto.FahrzeugNeuePositionZ = 0;
+
+            //Fahrzeug in der Liste ablegen
+            Funktionen.AutoListe.Add(auto);
+
+            //Den Spieler in das Auto setzen
+            Player.SetIntoVehicle(auto.Fahrzeug, -1);
+
+            //ID Setzen
+            auto.Fahrzeug.SetData("Id", -1);
+
+            Funktionen.LogEintrag(Player, "Admin Fahrzeug erstellen");
+        }
+
+        [Command("interior", "Nutze: /interior")]
+        public void Interior(Client Player)
+        {
+            Player.SendChatMessage("Dein Interior: " + Player.GetData("InteriorName"));
+            Player.SendChatMessage("Dein Dimension: " + Player.Dimension);
+            Player.Dimension = 0;
         }
 
         [Command("mfferstellen", "Nutze: /mfferstellen [Name]")]
@@ -185,6 +262,7 @@ namespace Haupt
                 TankVolumen = Funktionen.TankVolumenBerechnen(Name),
                 TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100,
                 Kilometerstand = 0.0f,
+                KraftstoffArt = 3,
                 FahrzeugHU = DateTime.Now.AddMonths(+3),
                 FahrzeugAbgeschlossen = 0,
                 FahrzeugMotor = 1,
@@ -202,7 +280,7 @@ namespace Haupt
             auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, Farbe1, Farbe2, numberPlate: "Neuwagen");
 
             auto.Fahrzeug.NumberPlate = "Neuwagen";
-            auto.Fahrzeug.Dimension = NAPI.GlobalDimension;
+            auto.Fahrzeug.Dimension = 0;
 
             //Dem Fahrzeug die Werte lokal übergeben
             auto.Id = ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id);
@@ -224,6 +302,7 @@ namespace Haupt
             auto.TankVolumen = Funktionen.TankVolumenBerechnen(Name);
             auto.TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100;
             auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 3;
             auto.FahrzeugHU = DateTime.Now.AddMonths(+3);
             auto.FahrzeugAbgeschlossen = 0;
             auto.FahrzeugMotor = 1;
@@ -250,14 +329,16 @@ namespace Haupt
             Fahrzeuge.AutohausSetzen(Player.Vehicle, -1);
 
             Funktionen.LogEintrag(Player, "Manufaktur Fahrzeug erstellt");
+
+            auto.Fahrzeug.EngineStatus = true;
         }
 
-        [Command("herstellen", "Nutze: /herstellen [Interior 1 - 24] [Kaufpreis]")]
+        [Command("herstellen", "Nutze: /herstellen [Interior 1 - 25] [Kaufpreis]")]
         public void ImmobilieErstellen(Client Player, int Interior, long Kaufpreis)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if(Interior <= 0 || Interior > 24) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; } 
+            if(Interior <= 0 || Interior > 25) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; } 
 
             //Benötigte Definitionen
             String InteriorName = null;
@@ -288,6 +369,7 @@ namespace Haupt
             else if (Interior == 22) { InteriorName = "apa_v_mp_h_08_a"; EingangX = -786.9469f; EingangY = 315.5655f; EingangZ = 217.6383f; }
             else if (Interior == 23) { InteriorName = "apa_v_mp_h_08_c"; EingangX = -786.9756f; EingangY = 315.723f; EingangZ = 187.9134f; }
             else if (Interior == 24) { InteriorName = "apa_v_mp_h_08_b"; EingangX = -774.0349f; EingangY = 342.0296f; EingangZ = 196.6862f; }
+            else if (Interior == 25) { InteriorName = "low_budged"; EingangX = 318.2038f; EingangY = -2041.698f; EingangZ = -4.74618f; }
 
 
             //Ein neues Objekt erzeugen
@@ -336,8 +418,8 @@ namespace Haupt
 
 
             //TextLabel, Marker, Blip erstellen
-            haus.ImmobilienLabel = NAPI.TextLabel.CreateTextLabel(ImmobilienText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            haus.ImmobilienMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ImmobilienMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            haus.ImmobilienLabel = NAPI.TextLabel.CreateTextLabel(ImmobilienText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            haus.ImmobilienMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ImmobilienMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             haus.ImmobilienBlip = NAPI.Blip.CreateBlip(new Vector3(haus.ImmobilienX, haus.ImmobilienY, haus.ImmobilienZ));
             haus.ImmobilienBlip.Name = haus.ImmobilienBeschreibung;
             haus.ImmobilienBlip.ShortRange = true;
@@ -393,12 +475,12 @@ namespace Haupt
 
 
             //TextLabel, Marker, Blip erstellen
-            supermarkt.SupermarktLabel = NAPI.TextLabel.CreateTextLabel(SupermarktText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            supermarkt.SupermarktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            supermarkt.SupermarktLabel = NAPI.TextLabel.CreateTextLabel(SupermarktText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            supermarkt.SupermarktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             supermarkt.SupermarktBlip = NAPI.Blip.CreateBlip(new Vector3(supermarkt.SupermarktX, supermarkt.SupermarktY, supermarkt.SupermarktZ));
             supermarkt.SupermarktBlip.Name = supermarkt.SupermarktBeschreibung;
             supermarkt.SupermarktBlip.ShortRange = true;
-            supermarkt.SupermarktBlip.Sprite = 590;
+            supermarkt.SupermarktBlip.Sprite = 52;
             supermarkt.SupermarktBlip.Color = 2;
 
             //Supermarkt in der Liste Lokal speichern
@@ -450,8 +532,8 @@ namespace Haupt
 
 
             //TextLabel, Marker, Blip erstellen
-            autohaus.AutohausLabel = NAPI.TextLabel.CreateTextLabel(AutohausText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            autohaus.AutohausMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            autohaus.AutohausLabel = NAPI.TextLabel.CreateTextLabel(AutohausText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            autohaus.AutohausMarker = NAPI.Marker.CreateMarker(GlobaleSachen.SupermarktMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             autohaus.AutohausBlip = NAPI.Blip.CreateBlip(new Vector3(autohaus.AutohausX, autohaus.AutohausY, autohaus.AutohausZ));
             autohaus.AutohausBlip.Name = autohaus.AutohausBeschreibung;
             autohaus.AutohausBlip.ShortRange = true;
@@ -602,8 +684,8 @@ namespace Haupt
 
 
             //TextLabel, Marker, Blip erstellen
-            tanke.TankstellenLabel = NAPI.TextLabel.CreateTextLabel(TankstellenText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            tanke.TankstellenMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            tanke.TankstellenLabel = NAPI.TextLabel.CreateTextLabel(TankstellenText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            tanke.TankstellenMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             tanke.TankstellenBlip = NAPI.Blip.CreateBlip(new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z));
             tanke.TankstellenBlip.Name = "Zu verkaufen";
             tanke.TankstellenBlip.ShortRange = true;
@@ -739,8 +821,8 @@ namespace Haupt
 
 
             //TextLabel und Marker erstellen
-            tankstellenpunkt.TankstellenPunktLabel = NAPI.TextLabel.CreateTextLabel(TankstellenPunktText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            tankstellenpunkt.TankstellenPunktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenZapfsäuleMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            tankstellenpunkt.TankstellenPunktLabel = NAPI.TextLabel.CreateTextLabel(TankstellenPunktText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            tankstellenpunkt.TankstellenPunktMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenZapfsäuleMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Tanke in der Liste Lokal speichern
             Funktionen.TankenPunktListe.Add(tankstellenpunkt);
@@ -804,8 +886,8 @@ namespace Haupt
 
 
             //TextLabel und Marker erstellen
-            tankinfo.TankstellenInfoLabel = NAPI.TextLabel.CreateTextLabel(TankstellenInfoText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, NAPI.GlobalDimension);
-            tankinfo.TankstellenInfoMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenInfoMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, NAPI.GlobalDimension);
+            tankinfo.TankstellenInfoLabel = NAPI.TextLabel.CreateTextLabel(TankstellenInfoText, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            tankinfo.TankstellenInfoMarker = NAPI.Marker.CreateMarker(GlobaleSachen.TankstellenInfoMarker, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Tanke in der Liste Lokal speichern
             Funktionen.TankenInfoListe.Add(tankinfo);
@@ -1077,6 +1159,31 @@ namespace Haupt
             }
         }
 
+        [Command("beenden", "Nutze: /beenden")]
+        public void JobBeenden(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+
+            //Benötigte Definitionen
+            int Job = Funktionen.AccountJobBekommen(Player);
+
+            if(Player.IsInVehicle == false)
+            {
+                if (Job == 1)
+                {
+                    if (Player.GetData("BerufskraftfahrerFahrzeug") == 1)
+                    {
+                        Fahrzeuge.JobFahrzeugLöschen(Player, Funktionen.AccountJobFahrzeugBekommen(Player));
+                    }
+                }
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Das geht nur außerhalb eines Fahrzeugs.");
+            }
+        }
+
         [Command("tinfolöschen", "Nutze: /tinfolöschen")]
         public void TankstellenInfoLöschen(Client Player)
         {
@@ -1185,6 +1292,155 @@ namespace Haupt
             }
         }
 
+        [Command("heiraten", "Nutze /heiraten [Name]")]
+        public void Heiraten(Client Player, String Spieler)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+
+            if (Funktionen.AccountVerheiratetBekommen(Player) != "Nein") { Player.SendChatMessage("~y~Info~w~: Du bist bereits verheiratet."); return; }
+
+            if (Player.Position.DistanceTo(new Vector3(-329.9244, 6150.168, 32.31319)) < 10.0f)
+            {
+                if(GlobaleSachen.Heiraten == 1) { Player.SendChatMessage("~y~Info~w~: Es heiratet bereits jemand."); return; }
+
+                if (Funktionen.AccountGeldBekommen(Player) < GlobaleSachen.HeiratenPreis)
+                {
+                    Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld. (" + Funktionen.GeldFormatieren(GlobaleSachen.HeiratenPreis) + ")");
+                    return;
+                }
+
+                //Den Spieler über den Namen ermitteln
+                Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
+                if (Spieler1 == null)
+                {
+                    if (Funktionen.SpielerSuchen(Spieler) == null)
+                    {
+                        Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                        return;
+                    }
+                    else
+                    {
+                        Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                    }
+                }
+                if(Spieler1 != null)
+                {
+                    Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                    if (Spieler1 == Player) { Player.SendChatMessage("~y~Info~w~: Du kannst dich nicht selbst heiraten!"); return; }
+                    if (Funktionen.AccountVerheiratetBekommen(Spieler1) != "Nein") { Player.SendChatMessage("~y~Info~w~: Der Spieler ist bereits verheiratet."); return; }
+                    if (Spieler1.GetData("HeiratsId") != 0) { Player.SendChatMessage("~y~Info~w~: Der Spieler ist bereits am heiraten."); return; }
+                    if (Spieler1.GetData("HeiratenId") != 0) { Player.SendChatMessage("~y~Info~w~: Der Spieler ist bereits am heiraten."); return; }
+
+                    if (Spieler1.Position.DistanceTo(new Vector3(-329.9244, 6150.168, 32.31319)) < 10.0f)
+                    {
+                        GlobaleSachen.Heiraten = 1;
+                        Spieler1.SendChatMessage("~y~Info~w~: Möchtest du " + Player.Name + " heiraten? Nutze /ja oder /nein");
+                        Spieler1.SetData("HeiratsAntrag", 1);
+                        Spieler1.SetData("HeiratsId", Player.GetData("Id"));
+                        Player.SetData("HeiratenId", Spieler1.GetData("Id"));
+                        Timer.SetTimer(() => Funktionen.HeiratenBeenden(Player), 80000, 1);
+
+                        Funktionen.LogEintrag(Player, Spieler1 + " einen Antrag gemacht");
+
+                        Funktionen.AccountGeldSetzen(Player, 2, GlobaleSachen.HeiratenPreis);
+                    }
+                    else
+                    {
+                        Player.SendChatMessage("~y~Info~w~: Der Spieler ist nicht am Heiraten Punkt.");
+                    }
+                }
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Du bist nicht am Heiraten Punkt.");
+            }
+
+        }
+
+        [Command("ja", "Nutze /ja")]
+        public void HeiratenJa(Client Player)
+        {
+            if(Player.GetData("HeiratsAntrag") == 1)
+            {
+                //Benötigte Definitionen
+                String HeiratsName = null;
+
+                foreach (AccountLokal account in Funktionen.AccountListe)
+                {
+                    if (Player.GetData("HeiratsId") == account.Id)
+                    {
+                        account.Verheiratet = Player.Name;
+                        HeiratsName = account.NickName;
+                        account.AccountGeändert = true;
+                    }
+                }
+                foreach (AccountLokal account in Funktionen.AccountListe)
+                {
+                    if (Player.GetData("Id") == account.Id)
+                    {
+                        account.Verheiratet = HeiratsName;
+                        account.AccountGeändert = true;
+                    }
+                }
+
+                foreach (var Spieler in NAPI.Pools.GetAllPlayers())
+                {
+                    if(Spieler.GetData("HeiratenId") == Player.GetData("Id"))
+                    {
+                        Spieler.SetData("HeiratenId", 0);
+                        Player.SetData("HeiratsId", 0);
+                        Player.SetData("HeiratsAntrag", 0);
+                        Spieler.SetData("HeiratsAntrag", 0);
+                    }
+                }
+
+                Client Spieler1 = NAPI.Player.GetPlayerFromName(HeiratsName);
+                Funktionen.HeiratenSound();
+                NAPI.Notification.SendNotificationToAll("~r~GLÜCKWUNSCH~w~: " + Spieler1.Name + " und " + Player.Name + " haben sich das Ja Wort gegeben!");
+                Funktionen.LogEintrag(Player, "Antrag von " + Spieler1.Name + " angenommen");
+
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Du hast keinen Antrag erhalten.");
+            }
+            
+        }
+        
+        [Command("nein", "Nutze /nein")]
+        public void HeiratenNein(Client Player)
+        {
+            if (Player.GetData("HeiratsAntrag") == 1)
+            {
+                //Benötigte Definitionen
+                String HeiratsName = null;
+
+                foreach (AccountLokal account in Funktionen.AccountListe)
+                {
+                    if (Player.GetData("HeiratsId") == account.Id)
+                    {
+                        HeiratsName = account.NickName;
+                    }
+                }
+
+                Client Spieler1 = NAPI.Player.GetPlayerFromName(HeiratsName);
+
+                Player.SendChatMessage("~y~Info~w~: Du hast den Antrag von " + HeiratsName + " abgelehnt.");
+                Spieler1.SendChatMessage("~y~Info~w~: " + Player.Name + " hat deinen Antrag abgelehnt.");
+
+                Player.SetData("HeiratsAntrag", 0);
+                Player.SetData("HeiratsId", 0);
+
+                GlobaleSachen.Heiraten = 0;
+
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Du hast keinen Antrag erhalten.");
+            }
+        }
+
         [Command("fmietpreis", "Nutze /fmietpreis")]
         public void FahrzeugMietPreis(Client Player, long Mietpreis)
         {
@@ -1289,6 +1545,9 @@ namespace Haupt
                 //Falls es ein Admin Fahrzeug ist
                 if(auto.FahrzeugTyp == 0) { Funktionen.AdminFahrzeugLöschen(Player, Player.Vehicle); return; }
 
+                //Damit es nicht wieder gespeichert wird
+                auto.Fahrzeug.SetData("Id", 0);
+
                 var Fahrzeug = ContextFactory.Instance.srp_fahrzeuge.Where(x => x.Id == auto.Id).FirstOrDefault();
 
                 //Query absenden
@@ -1329,7 +1588,7 @@ namespace Haupt
             }
         }
 
-        [Command("teleporten", "Nutze: /teleporten [Spielername] [1 = Zu ihm, 2 = Zu mir]")]
+        [Command("tp", "Nutze: /tp [Spielername] [1 = Zu ihm, 2 = Zu mir]")]
         public void AdminTeleport(Client Player, String Spieler, int Typ)
         {
             //Benötigte Abfragen
@@ -1370,7 +1629,7 @@ namespace Haupt
                 Spieler1.Position = Player.Position;
 
                 //Nachricht an beide Spieler
-                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " zu dit teleportiert!");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " zu dir teleportiert!");
                 NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: " + Player.Name + " hat dich zu sich teleportiert!");
 
                 //Log eintrag
@@ -1402,7 +1661,7 @@ namespace Haupt
             Player.SetData("SiehtPerso", 1);
         }
 
-        [Command("teleports", "Nutze: /teleports [Name]")]
+        [Command("tport", "Nutze: /tport [Name]")]
         public void AdminTeleports(Client Player, String Name)
         {
             //Benötigte Abfragen
@@ -1410,21 +1669,25 @@ namespace Haupt
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Teleporten) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Die Teleport Orte mit Abfrage
-            if(Name == "Stadthalle")
+            if(Name == "Stadthalle" || Name == "stadthalle")
             {
-                Player.Position = new Vector3(-1277.161, -560.1884, 30.22556);
+                Player.Position = new Vector3(337.126, -1562.91, 30.298);
             }
-            else if (Name == "Noobspawn")
+            else if (Name == "Noobspawn" || Name == "noobspawn")
             {
                 Player.Position = new Vector3(-3245.707, 967.6216, 12.73052);
             }
-            else if (Name == "Arbeitsamt")
+            else if (Name == "Arbeitsamt" || Name == "arbeitsamt")
             {
                 Player.Position = new Vector3(-837.6387, -272.0361, 38.72037);
             }
-            else if (Name == "Berufskraftfahrer")
+            else if (Name == "Berufskraftfahrer" || Name == "berufskraftfahrer")
             {
                 Player.Position = new Vector3(-1546.57, 1367.763, 126.1016);
+            }
+            else if(Name == "Kirche" || Name == "kirche")
+            {
+                Player.Position = new Vector3(-329.9244, 6150.168, 32.31319);
             }
             else
             {
@@ -1442,7 +1705,18 @@ namespace Haupt
 
             //Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
-            if (Spieler1 == null) { Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden."); return; }
+            if (Spieler1 == null)
+            {
+                if (Funktionen.SpielerSuchen(Spieler) == null)
+                {
+                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    return;
+                }
+                else
+                {
+                    Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                }
+            }
 
             //Dem Spieler das Admin Level setzen
             Funktionen.AccountAdminLevelSetzen(Spieler1, Level);
@@ -1478,7 +1752,7 @@ namespace Haupt
             }
 
             //Dem Spieler das Admin Level setzen
-            Funktionen.AccountGeldSetzen(Spieler1, Geld);
+            Funktionen.AccountGeldSetzen(Spieler1, 1, Geld);
 
             //Beiden eine Nachricht senden
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " " + Funktionen.GeldFormatieren(Geld) + " gegeben!");
@@ -1599,7 +1873,18 @@ namespace Haupt
                 {
                     //Schauen ob der Spieler überhaupt existiert
                     Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
-                    if (Spieler1 == null) { Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden."); return; }
+                    if (Spieler1 == null)
+                    {
+                        if (Funktionen.SpielerSuchen(Spieler) == null)
+                        {
+                            Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                            return;
+                        }
+                        else
+                        {
+                            Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                        }
+                    }
 
                     //Dem Fahrzeug den Job zuweisen
                     Fahrzeug.FahrzeugSpieler = Spieler1.GetData("Id");
@@ -1757,7 +2042,70 @@ namespace Haupt
             }
         }
 
-        [Command("save", "Use /save [Position Name]", GreedyArg = true)]
+        [Command("tpcoord", "Nutze /tpcoord")]
+        public void CoordinatenTeleport(Client Player, float posX, float posY, float posZ)
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.CoordinatenTeleport) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            Player.Position = new Vector3(posX, posY, posZ);
+        }
+
+        [Command("save", "Nutze /save [Beschreibung]", GreedyArg = true)]
+        public void SavePosition(Client Player, String PosBeschreibung = "Nicht gesetzt")
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PositionSpeichern) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            var Save = new Save
+            {
+                Beschreibung = PosBeschreibung,
+                Von = Player.Name, 
+                PositionX = Player.Position.X,
+                PositionY = Player.Position.Y,
+                PositionZ = Player.Position.Z,
+                PositionRot = Player.Rotation.Z
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_saves.Add(Save);
+            ContextFactory.Instance.SaveChanges();
+
+            SaveLokal save = new SaveLokal();
+
+            save.Id = ContextFactory.Instance.srp_saves.Max(x => x.Id);
+            save.Beschreibung = PosBeschreibung;
+            save.Von = Player.Name;
+            save.PositionX = Player.Position.X;
+            save.PositionY = Player.Position.Y;
+            save.PositionZ = Player.Position.Z;
+            save.PositionRot = Player.Rotation.Z;
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Position wurde mit dem Namen ~r~" + PosBeschreibung + " ~w~gespeichert!");
+
+            Funktionen.SaveListe.Add(save);
+        }
+
+        [Command("saveliste", "Nutze /saveliste")]
+        public void SavePositionListe(Client Player, String PosBeschreibung = "Nicht gesetzt")
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SaveListe) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            Player.TriggerEvent("savelisteoeffnen");
+
+            foreach (SaveLokal save in Funktionen.SaveListe.OrderByDescending(y => y.Id))
+            {
+                String SaveX = NAPI.Util.ToJson(Math.Round(save.PositionX, 2));
+                String SaveY = NAPI.Util.ToJson(Math.Round(save.PositionY, 2));
+                String SaveZ = NAPI.Util.ToJson(Math.Round(save.PositionZ, 2));
+                String SaveRot = NAPI.Util.ToJson(Math.Round(save.PositionRot, 2));
+
+                Player.TriggerEvent("Saveliste_Eintragen", save.Id, save.Beschreibung, save.Von, SaveX, SaveY, SaveZ);
+            }
+        }
+
+        /*[Command("save", "Use /save [Position Name]", GreedyArg = true)]
         public void CMD_SavePosition(Client player, String PosName = "No Set")
         {
             var pos = (player.IsInVehicle) ? player.Vehicle.Position : player.Position;
@@ -1778,7 +2126,7 @@ namespace Haupt
                     stream.Close();
                 }
             }
-        }
+        }*/
     }
 }
 

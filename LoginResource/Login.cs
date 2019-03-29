@@ -44,7 +44,6 @@ namespace Login
                         }
 
                         NAPI.Player.SetPlayerName(player, Account.NickName);
-                        NAPI.Notification.SendNotificationToPlayer(player, "~y~Info~w~: ~w~Du hast dich erfolgreich als " + player.SocialClubName + " angemeldet!");
                     }
                     else
                     {
@@ -84,10 +83,19 @@ namespace Login
                         Perso = 0,
                         Spielzeit = 0,
                         Exp = 0,
+                        Gruppe = 0,
                         GeburtsDatum = DateTime.Parse("01/01/1900"),
                         EinreiseDatum = DateTime.Now,
+                        ZuletztOnline = DateTime.Now,
+                        Verheiratet = "Nein",
                         FahrzeugSchlüssel = 0,
                         Kündigungszeit = 0,
+                        PositionX = -3260.276f,
+                        PositionY = 967.3442f,
+                        PositionZ = 8.832886f,
+                        PositionRot = 270.343f,
+                        Dimension = 0,
+                        Interior = "0",
                         BerufskraftfahrerExp = 0
                     };
 
@@ -147,7 +155,7 @@ namespace Login
                     Player.TriggerEvent("nicknamebrowserschliessen");
                     Player.TriggerEvent("geburtstagbrowseroeffnen");
 
-                    Funktionen.LogEintrag(Player, "Nickname gesetzt");
+                    Funktionen.LogEintrag(Player, "Nickname gesetzt: " + nickname);
 
                     ContextFactory.Instance.SaveChanges();
                     
@@ -171,7 +179,7 @@ namespace Login
 
             Funktionen.SpielerLaden(Player);
             Funktionen.SpawnManager(Player);
-            Funktionen.LogEintrag(Player, "Geburtstag gesetzt");
+            Funktionen.LogEintrag(Player, "Geburtstag gesetzt: " + Geburtstag);
 
             ContextFactory.Instance.SaveChanges();
 
