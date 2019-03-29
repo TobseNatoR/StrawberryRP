@@ -43,9 +43,13 @@ namespace Haupt
         public const int GruppenPreis = 100000;
         public const int GruppenEinlage = 25000;
 
+        //Limits
+        public const int GruppenMemberLimit = 25;
+
         //Dinge die am laufen sind
         public static int Pferderennen = 0;
         public static int Heiraten = 0;
+        public static int BerufskraftFahrerFahrzeugGespawnt = 0;
     }
 
     public class AdminBefehle
@@ -3709,6 +3713,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if(Player.GetData("BerufskraftfahrerFahrzeug") == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Job Fahrzeug!"); return; }
+            if(GlobaleSachen.BerufskraftFahrerFahrzeugGespawnt == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde gerade erst ein LKW gespawnt. Warte kurz."); return; }
 
             //Fahrzeug
             String Fahrzeug = "pounder2";
@@ -3775,6 +3780,15 @@ namespace Haupt
 
             Player.TriggerEvent("LKWSpeed");
             Player.TriggerEvent("berufskraftfahrerbrowseroeffnen");
+
+            //Damit niemand anderes ein Fahrzeug spawnen kann
+            GlobaleSachen.BerufskraftFahrerFahrzeugGespawnt = 1;
+            Timer.SetTimer(() => JobBerufskraftFahrerFahrzeugSpawnPause(), 20000, 1);
+        }
+
+        public static void JobBerufskraftFahrerFahrzeugSpawnPause()
+        {
+            GlobaleSachen.BerufskraftFahrerFahrzeugGespawnt = 0;
         }
 
         public static void JobFahrzeugNichtGespawnt(Vehicle Fahrzeug)
@@ -4664,7 +4678,8 @@ namespace Haupt
             LogEintrag(Player, "Gestorben Killer: " + Killer.Name + " | Grund: " + Reason);
             Timer.SetTimer(() => TotRespawn(Player), 30000, 1);
             Ladebalken(Player, 2, 30000);
-            Player.Invincible = true;
+            Player.Position = new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z - 10);
+            Freeze(Player);
         }
 
         public static void TotRespawn(Client Player)
@@ -4675,7 +4690,7 @@ namespace Haupt
             Player.Position = new Vector3(358.764f, -589.17f, 28.8006f);
             Player.Rotation = new Vector3(0.0, 0.0, 270.343f);
             Player.TriggerEvent("moveSkyCamera", Player, "down");
-            Player.Invincible = false;
+            Unfreeze(Player);
         }
 
         public static void AlleBlipsWeg(Client Player)
@@ -5003,7 +5018,9 @@ namespace Haupt
                 }
             }
 
-            if(Spieler1.GetData("GruppenEinladungId") != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler wurde bereits in eine Gruppe eingeladen.");  return; }
+            var Count = ContextFactory.Instance.srp_accounts.Count(x => x.Gruppe == AccountGruppeBekommen(Spieler1));
+            if (Count >= GlobaleSachen.GruppenMemberLimit) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es sind maximal " + GlobaleSachen.GruppenMemberLimit + " möglich!"); return; }
+            if (Spieler1.GetData("GruppenEinladungId") != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler wurde bereits in eine Gruppe eingeladen.");  return; }
             if(AccountGruppeBekommen(Spieler1) != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler kann keiner weiteren Gruppe beitreten."); return; }
 
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast ~r~" + Spieler1.Name + " ~w~erfolgreich eingeladen.");

@@ -1,5 +1,10 @@
 ﻿/*
 
+29.03.2019
++ Es sind maxmimal 25 Mitglieder pro Gruppe möglich
++ Wenn jemand als Berufskraftfahrer einen LKW spawnt, kann niemand anderes für 20 Sekunden einen spawnen
+
+
 28.03.2019
 + Fehler das man beim Respawnen sterben kann wurde behoben
 + Krankenhaus Respawn Punkt ist nun auch am Krankenhaus
