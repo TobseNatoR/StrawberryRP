@@ -1,5 +1,7 @@
 ﻿/*
 
+Kleine Änderung.
+
 30.03.2019
 + Wenn man /beenden nutzt wird auch das Navi resettet
 + Neue Arbeitsamt Map von @Presh eingefügt
