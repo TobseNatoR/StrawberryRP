@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "StrawberryRP": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Users\\Toby\\Desktop\\StrawberryRP\\server.exe",
+      "workingDirectory": "C:\\Users\\Toby\\Desktop\\StrawberryRP"
+    }
+  }
+}

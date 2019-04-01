@@ -12,7 +12,7 @@ using System.Timers;
 
 namespace Haupt
 {
-    public class GlobaleSachen
+    public class GlobaleSachenss
     {
         //Datenbankverbindung
         public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp_server; Uid=strawberryrpserver; Pwd=rElciatks7Pn7DpH";
