@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<meta>
+  <info name="StrawberryRP" author="Toby Gallenkamp / Torben Kläner" type="gamemode"/>
+  <script src="bin/Debug/netcoreapp2.0/StrawberryRP.dll" />
+</meta>

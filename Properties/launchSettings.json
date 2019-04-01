@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "StrawberryRP": {
+      "commandName": "Executable",
+      "executablePath": "H:\\Gallenkamp\\Projekte\\Projekte GIT Repos\\StrawberryRP\\server.exe",
+      "workingDirectory": "H:\\Gallenkamp\\Projekte\\Projekte GIT Repos\\StrawberryRP\\bridge\\resources\\StrawberryRP"
+    }
+  }
+}
