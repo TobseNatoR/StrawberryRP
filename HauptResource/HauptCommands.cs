@@ -1679,7 +1679,7 @@ namespace Haupt
             }
             else if (Name == "Arbeitsamt" || Name == "arbeitsamt")
             {
-                Player.Position = new Vector3(-837.6387, -272.0361, 38.72037);
+                Player.Position = new Vector3(250.553, -1594.62, 31.5322);
             }
             else if (Name == "Berufskraftfahrer" || Name == "berufskraftfahrer")
             {

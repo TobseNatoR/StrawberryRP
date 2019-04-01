@@ -1858,12 +1858,14 @@ namespace Haupt
                     auto.FahrzeugAbgeschlossen = 1;
                     NAPI.Vehicle.SetVehicleLocked(auto.Fahrzeug, true);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dein Fahrzeug abgeschlossen.");
+                    auto.FahrzeugGeändert = true;
                 }
                 else
                 {
                     auto.FahrzeugAbgeschlossen = 0;
                     NAPI.Vehicle.SetVehicleLocked(auto.Fahrzeug, false);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dein Fahrzeug aufgeschlossen.");
+                    auto.FahrzeugGeändert = true;
                 }
             }
         }
@@ -1903,22 +1905,20 @@ namespace Haupt
                     return;
                 }
                 //Arbeitsamt Eingang
-                else if (Player.Position.DistanceTo(new Vector3(-837.6387, -272.0361, 38.72037)) < 4.0f)
+                else if (Player.Position.DistanceTo(new Vector3(250.553, -1594.62, 31.5322)) < 4.0f)
                 {
-                    InteriorLaden(Player, "ex_dt1_02_office_02c");
-                    NAPI.Entity.SetEntityDimension(Player, 100001);
-                    Player.Position = new Vector3(-141.5429, -620.9524, 168.8204);
+                    InteriorLaden(Player, "ArbeitsamtINT");
+                    Player.Position = new Vector3(249.744, -1597.58, 25.5466);
                     Freeze(Player);
                     Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                     return;
                 }
                 //Arbeitsamt Ausgang
-                else if (Player.Position.DistanceTo(new Vector3(-139.473, -617.4647, 168.8204)) < 4.0f && Player.Dimension == Convert.ToUInt32(100001))
+                else if (Player.Position.DistanceTo(new Vector3(249.744, -1597.58, 25.5466)) < 4.0f)
                 {
                     InteriorLaden(Player, "0");
-                    Player.Position = new Vector3(-837.6387, -272.0361, 38.72037);
+                    Player.Position = new Vector3(250.553, -1594.62, 31.5322);
                     Player.Rotation = new Vector3(0.0, 0.0, 309.4669);
-                    Player.Dimension = 0;
                     Freeze(Player);
                     Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                     return;
@@ -2287,7 +2287,7 @@ namespace Haupt
                     return;
                 }
                 //Arbeitsamt
-                else if (Player.Position.DistanceTo(new Vector3(-138.8336, -632.2155, 168.8204)) < 3.0f && Player.Dimension == Convert.ToUInt32(100001))
+                else if (Player.Position.DistanceTo(new Vector3(246.22, -1603.7, 25.5601)) < 3.0f)
                 {
                     Player.TriggerEvent("Arbeitsamt");
                     return;
@@ -4323,9 +4323,9 @@ namespace Haupt
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Kirche - /heiraten~g~]", new Vector3(-329.9244, 6150.168, 32.31319), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Arbeitsamt
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Eingang~g~]", new Vector3(-837.6387, -272.0361, 38.72037), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Ausgang~g~]", new Vector3(-139.473, -617.4647, 168.8204), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 100001);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Service~g~]", new Vector3(-138.8336, -632.2155, 168.8204), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 100001);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Eingang~g~]", new Vector3(250.553, -1594.62, 31.5322), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Ausgang~g~]", new Vector3(249.744, -1597.58, 25.5466), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Arbeitsamt - Service~g~]", new Vector3(246.22, -1603.7, 25.5601), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Berufskraftfahrer
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Spawnpunkt~g~]", new Vector3(-1546.57, 1367.763, 126.1016), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
@@ -4342,7 +4342,7 @@ namespace Haupt
             Blip Manufaktur_Mittelklasse = NAPI.Blip.CreateBlip(new Vector3(-1073.475, -2147.839, 13.40069)); Manufaktur_Mittelklasse.Name = "Manufaktur Mittelklassefahrzeuge"; Manufaktur_Mittelklasse.ShortRange = true; Manufaktur_Mittelklasse.Sprite = 78;
             Blip Vespucci_Police = NAPI.Blip.CreateBlip(new Vector3(-1092.624, -809.7153, 19.27477)); Vespucci_Police.Name = "Vespucci Police Department"; Vespucci_Police.ShortRange = true; Vespucci_Police.Sprite = 60; Vespucci_Police.Color = 38;
             Blip Liveinvader = NAPI.Blip.CreateBlip(new Vector3(-1033.761, -223.1129, 39.01439)); Liveinvader.Name = "Lifeinvador"; Liveinvader.ShortRange = true; Liveinvader.Sprite = 77; Liveinvader.Color = 1;
-            Blip Arbeitsamt = NAPI.Blip.CreateBlip(new Vector3(-837.6387, -272.0361, 38.72037)); Arbeitsamt.Name = "Arbeitsamt"; Arbeitsamt.ShortRange = true; Arbeitsamt.Sprite = 280;
+            Blip Arbeitsamt = NAPI.Blip.CreateBlip(new Vector3(250.553, -1594.62, 31.5322)); Arbeitsamt.Name = "Arbeitsamt"; Arbeitsamt.ShortRange = true; Arbeitsamt.Sprite = 280;
             Blip Berufskraftfahrer = NAPI.Blip.CreateBlip(new Vector3(-1546.57, 1367.763, 126.1016)); Berufskraftfahrer.Name = "Berufskraftfahrer"; Berufskraftfahrer.ShortRange = true; Berufskraftfahrer.Sprite = 67;
             Blip Berufskraftfahrer_Kraftstoff = NAPI.Blip.CreateBlip(new Vector3(815.2087, -1590.846, 31.01333)); Berufskraftfahrer_Kraftstoff.Name = "Berufskraftfahrer Kraftstoff Ladepunkt"; Berufskraftfahrer_Kraftstoff.ShortRange = true; Berufskraftfahrer_Kraftstoff.Sprite = 67;
             Blip Berufskraftfahrer_Holz_Einladepunkt = NAPI.Blip.CreateBlip(new Vector3(-511.5431, 5241.104, 80.30409)); Berufskraftfahrer_Holz_Einladepunkt.Name = "Berufskraftfahrer Holz Ladepunkt"; Berufskraftfahrer_Holz_Einladepunkt.ShortRange = true; Berufskraftfahrer_Holz_Einladepunkt.Sprite = 67;
@@ -4366,9 +4366,9 @@ namespace Haupt
             NAPI.Marker.CreateMarker(21, new Vector3(-329.9244, 6150.168, 32.31319), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Arbeitsamt
-            NAPI.Marker.CreateMarker(21, new Vector3(-837.6387, -272.0361, 38.72037), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
-            NAPI.Marker.CreateMarker(21, new Vector3(-139.473, -617.4647, 168.8204), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, Convert.ToUInt32(100001));
-            NAPI.Marker.CreateMarker(21, new Vector3(-138.8336, -632.2155, 168.8204), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, Convert.ToUInt32(100001));
+            NAPI.Marker.CreateMarker(21, new Vector3(250.553, -1594.62, 31.5322), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(249.744, -1597.58, 25.5466), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            NAPI.Marker.CreateMarker(21, new Vector3(246.22, -1603.7, 25.5601), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Berufskraftfahrer
             NAPI.Marker.CreateMarker(21, new Vector3(-1546.57, 1367.763, 126.1016), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);

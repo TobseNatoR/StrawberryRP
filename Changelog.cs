@@ -1,5 +1,10 @@
 ﻿/*
 
+30.03.2019
++ Wenn man /beenden nutzt wird auch das Navi resettet
++ Neue Arbeitsamt Map von @Presh eingefügt
++ Fahrzeug abschließen wurde nicht gespeichert. Jetzt schon
+
 29.03.2019
 + Es sind maxmimal 25 Mitglieder pro Gruppe möglich
 + Wenn jemand als Berufskraftfahrer einen LKW spawnt, kann niemand anderes für 20 Sekunden einen spawnen

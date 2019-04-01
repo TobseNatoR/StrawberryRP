@@ -219,6 +219,10 @@ namespace Fahrzeug
                 Funktionen.AutoListe.Remove(auto);
 
                 Funktionen.AccountJobFahrzeugSetzen(Player, null);
+
+                //Navi resetten
+                var EigenerPunkt = new Vector3(Player.Position.X, Player.Position.Y, 0);
+                Player.TriggerEvent("Navigation", EigenerPunkt.X, EigenerPunkt.Y);
             }
         }
 
