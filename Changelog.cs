@@ -1,6 +1,8 @@
 ﻿/*
 
-Kleine Änderung.
+01.04.2019
++ TÜV Blip eingefügt
++ Busfahrer Job fertiggestellt mit einer Route (Danke an @MajorSnow für die Routen)
 
 30.03.2019
 + Wenn man /beenden nutzt wird auch das Navi resettet

@@ -202,8 +202,8 @@ namespace Fahrzeug
 
                 AutoLokal auto = new AutoLokal();
                 auto = Funktionen.AutoBekommen(Fahrzeug);
-                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job Fahrzeug wurde gelöscht.");
-                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job Auftrag wurde abgebrochen.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Job wurde beendet.");
+                //Berufskraftfahrer
                 Player.SetData("BerufskraftfahrerFahrzeug", 0);
                 Player.SetData("BerufskraftfahrerHolz", 0);
                 Player.SetData("BerufskraftfahrerHolzGeladen", 0);
@@ -214,6 +214,13 @@ namespace Fahrzeug
                 Player.SetData("BerufskraftfahrerSuperTanke", 0);
                 Player.SetData("BerufskraftfahrerVerdienst", 0);
                 Player.SetData("BerufskraftfahrerAmAbladen", 0);
+
+                //Busfahrer
+                Player.SetData("BusfahrerFahrzeug", 0);
+                Player.SetData("BusfahrerJobAngenommen", 0);
+                Player.SetData("BusfahrerRoute", 0);
+                Player.SetData("BusfahrerRoutePosition", 0);
+
                 auto.Fahrzeug.Delete();
 
                 Funktionen.AutoListe.Remove(auto);
