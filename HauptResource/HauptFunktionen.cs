@@ -22,7 +22,7 @@ namespace Haupt
         public const float Verbrauch = 0.7f;
 
         //Wetter
-        public static int ServerWetter = 0;
+        public static int ServerWetter = 0;gg
 
         //Cooldown
         public static uint KeyCoolDownZeit = 5000;
