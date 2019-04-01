@@ -12,7 +12,7 @@ using System.Timers;
 
 namespace Haupt
 {
-    public class GlobaleSachenss
+    public class GlobaleSachen
     {
         //Datenbankverbindung
         public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp_server; Uid=strawberryrpserver; Pwd=rElciatks7Pn7DpH";
@@ -5064,8 +5064,7 @@ namespace Haupt
 
                 //Nickname holen
                 Name = Account.NickName;
-                zz
-                    abcdefg
+
                 //Speichern
                 ContextFactory.Instance.SaveChanges();
             }

@@ -117,7 +117,8 @@ ipch/
 
 # Visual Studio Trace Files
 *.e2e
-slnx.sqlite
+*.sqlite
+*.json
 
 # TFS 2012 Local Workspace
 $tf/
