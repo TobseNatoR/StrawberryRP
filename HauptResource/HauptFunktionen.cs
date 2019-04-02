@@ -58,16 +58,26 @@ namespace Haupt
         public static long Berufskraftfahrer_Holz_KiloBonus = 2;
         public static long Busfahrer_Route1_HaltestellenLohn = 50;
         public static long Busfahrer_Route1_EndBonus = 150;
+        public static long Busfahrer_Route2_HaltestellenLohn = 50;
+        public static long Busfahrer_Route2_EndBonus = 150;
+        public static long Busfahrer_Route3_HaltestellenLohn = 50;
+        public static long Busfahrer_Route3_EndBonus = 150;
+        public static long Busfahrer_Route4_HaltestellenLohn = 50;
+        public static long Busfahrer_Route4_EndBonus = 150;
 
         //Busfahrer Route Blips
-        public static Marker Route1_1;
-        public static Marker Route1_2;
-        public static Marker Route1_3;
-        public static Marker Route1_4;
-        public static Marker Route1_5;
-        public static Marker Route1_6;
-        public static Marker Route1_7;
-        public static Marker Route1_8;
+        public static Marker Route1_1, Route2_1, Route3_1, Route4_1;
+        public static Marker Route1_2, Route2_2, Route3_2, Route4_2;
+        public static Marker Route1_3, Route2_3, Route3_3, Route4_3;
+        public static Marker Route1_4, Route2_4, Route3_4, Route4_4;
+        public static Marker Route1_5, Route2_5, Route3_5;
+        public static Marker Route1_6, Route2_6, Route3_6;
+        public static Marker Route1_7, Route2_7, Route3_7;
+        public static Marker Route1_8, Route2_8;
+        public static Marker Route2_9;
+        public static Marker Route2_10;
+        public static Marker Route2_11;
+        public static Marker Route2_12;
     }
 
     public class AdminBefehle
@@ -2299,7 +2309,10 @@ namespace Haupt
                     //Busfahrer Routen Check
                     else if (Player.GetData("BusfahrerJobAngenommen") != 0 && Player.GetData("BusfahrerRoute") != 0)
                     {
-                        JobBusfahrerRoutenCheck(Player);
+                        if(AccountJobFahrzeugBekommen(Player) == Player.Vehicle)
+                        {
+                            JobBusfahrerRoutenCheck(Player);
+                        }
                     }
                 }
             }
@@ -3466,9 +3479,81 @@ namespace Haupt
             Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
         }
 
+        [RemoteEvent("JobBusfahrerRoute2")]
+        public static void JobBusfahrerRoute2(Client Player)
+        {
+            Player.TriggerEvent("busfahrerbrowserschliessen");
+            if (Player.GetData("BusfahrerJobAngenommen") == 1)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits eine Route angenommen.");
+                return;
+            }
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerRoute", 2);
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerJobAngenommen", 1);
+
+            //Route setzen
+            Player.SetData("BusfahrerRoutePosition", 1);
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fahre nun die Route ab.");
+            var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_1.Position.X, GlobaleSachen.Route2_1.Position.Y, 0);
+            Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+        }
+
+        [RemoteEvent("JobBusfahrerRoute3")]
+        public static void JobBusfahrerRoute3(Client Player)
+        {
+            Player.TriggerEvent("busfahrerbrowserschliessen");
+            if (Player.GetData("BusfahrerJobAngenommen") == 1)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits eine Route angenommen.");
+                return;
+            }
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerRoute", 3);
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerJobAngenommen", 1);
+
+            //Route setzen
+            Player.SetData("BusfahrerRoutePosition", 1);
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fahre nun die Route ab.");
+            var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_1.Position.X, GlobaleSachen.Route3_1.Position.Y, 0);
+            Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+        }
+
+        [RemoteEvent("JobBusfahrerRoute4")]
+        public static void JobBusfahrerRoute4(Client Player)
+        {
+            Player.TriggerEvent("busfahrerbrowserschliessen");
+            if (Player.GetData("BusfahrerJobAngenommen") == 1)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits eine Route angenommen.");
+                return;
+            }
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerRoute", 4);
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerJobAngenommen", 1);
+
+            //Route setzen
+            Player.SetData("BusfahrerRoutePosition", 1);
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fahre nun die Route ab.");
+            var BusfahrerPunkt = new Vector3(GlobaleSachen.Route4_1.Position.X, GlobaleSachen.Route4_1.Position.Y, 0);
+            Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+        }
+
         public static void JobBusfahrerRoutenCheck(Client Player)
         {
-            if(Player.GetData("BusfahrerRoute") == 1)
+            if (Player.GetData("BusfahrerRoute") == 1)
             {
                 if (Player.GetData("BusfahrerRoutePosition") == 1)
                 {
@@ -3504,7 +3589,7 @@ namespace Haupt
                         return;
                     }
                 }
-                if (Player.GetData("BusfahrerRoutePosition") == 3)
+                else if (Player.GetData("BusfahrerRoutePosition") == 3)
                 {
                     if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_3.Position.X, GlobaleSachen.Route1_3.Position.Y, GlobaleSachen.Route1_3.Position.Z)) < 10.0f)
                     {
@@ -3521,7 +3606,7 @@ namespace Haupt
                         return;
                     }
                 }
-                if (Player.GetData("BusfahrerRoutePosition") == 4)
+                else if (Player.GetData("BusfahrerRoutePosition") == 4)
                 {
                     if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_4.Position.X, GlobaleSachen.Route1_4.Position.Y, GlobaleSachen.Route1_4.Position.Z)) < 10.0f)
                     {
@@ -3538,7 +3623,7 @@ namespace Haupt
                         return;
                     }
                 }
-                if (Player.GetData("BusfahrerRoutePosition") == 5)
+                else if (Player.GetData("BusfahrerRoutePosition") == 5)
                 {
                     if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_5.Position.X, GlobaleSachen.Route1_5.Position.Y, GlobaleSachen.Route1_5.Position.Z)) < 10.0f)
                     {
@@ -3555,7 +3640,7 @@ namespace Haupt
                         return;
                     }
                 }
-                if (Player.GetData("BusfahrerRoutePosition") == 6)
+                else if (Player.GetData("BusfahrerRoutePosition") == 6)
                 {
                     if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_6.Position.X, GlobaleSachen.Route1_6.Position.Y, GlobaleSachen.Route1_6.Position.Z)) < 10.0f)
                     {
@@ -3572,7 +3657,7 @@ namespace Haupt
                         return;
                     }
                 }
-                if (Player.GetData("BusfahrerRoutePosition") == 7)
+                else if (Player.GetData("BusfahrerRoutePosition") == 7)
                 {
                     if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_7.Position.X, GlobaleSachen.Route1_7.Position.Y, GlobaleSachen.Route1_7.Position.Z)) < 10.0f)
                     {
@@ -3589,7 +3674,7 @@ namespace Haupt
                         return;
                     }
                 }
-                if (Player.GetData("BusfahrerRoutePosition") == 8)
+                else if (Player.GetData("BusfahrerRoutePosition") == 8)
                 {
                     if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_8.Position.X, GlobaleSachen.Route1_8.Position.Y, GlobaleSachen.Route1_8.Position.Z)) < 10.0f)
                     {
@@ -3597,6 +3682,422 @@ namespace Haupt
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
                         AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_EndBonus);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 0);
+                        Player.SetData("BusfahrerJobAngenommen", 0);
+                        Player.SetData("BusfahrerRoute", 0);
+
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Route erfolgreich beendet.");
+
+                        var BusfahrerPunkt = new Vector3(403.169, -642.016, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+            }
+            else if (Player.GetData("BusfahrerRoute") == 2)
+            {
+                if (Player.GetData("BusfahrerRoutePosition") == 1)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_1.Position.X, GlobaleSachen.Route2_1.Position.Y, GlobaleSachen.Route2_1.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 2);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_2.Position.X, GlobaleSachen.Route2_2.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 2)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_2.Position.X, GlobaleSachen.Route2_2.Position.Y, GlobaleSachen.Route2_2.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 3);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_3.Position.X, GlobaleSachen.Route2_3.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 3)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_3.Position.X, GlobaleSachen.Route2_3.Position.Y, GlobaleSachen.Route2_3.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 4);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_4.Position.X, GlobaleSachen.Route2_4.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 4)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_4.Position.X, GlobaleSachen.Route2_4.Position.Y, GlobaleSachen.Route2_4.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 5);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_5.Position.X, GlobaleSachen.Route2_5.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 5)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_5.Position.X, GlobaleSachen.Route2_5.Position.Y, GlobaleSachen.Route2_5.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 6);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_6.Position.X, GlobaleSachen.Route2_6.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 6)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_6.Position.X, GlobaleSachen.Route2_6.Position.Y, GlobaleSachen.Route2_6.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 7);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_7.Position.X, GlobaleSachen.Route2_7.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 7)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_7.Position.X, GlobaleSachen.Route2_7.Position.Y, GlobaleSachen.Route2_7.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 8);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_8.Position.X, GlobaleSachen.Route2_8.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 8)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_8.Position.X, GlobaleSachen.Route2_8.Position.Y, GlobaleSachen.Route2_8.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 9);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_9.Position.X, GlobaleSachen.Route2_9.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 9)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_9.Position.X, GlobaleSachen.Route2_9.Position.Y, GlobaleSachen.Route2_9.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 10);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_10.Position.X, GlobaleSachen.Route2_10.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 10)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_10.Position.X, GlobaleSachen.Route2_10.Position.Y, GlobaleSachen.Route2_10.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 11);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_11.Position.X, GlobaleSachen.Route2_11.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 11)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_11.Position.X, GlobaleSachen.Route2_11.Position.Y, GlobaleSachen.Route2_11.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 12);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_12.Position.X, GlobaleSachen.Route2_12.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 12)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_12.Position.X, GlobaleSachen.Route2_12.Position.Y, GlobaleSachen.Route2_12.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_HaltestellenLohn);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route2_EndBonus);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 0);
+                        Player.SetData("BusfahrerJobAngenommen", 0);
+                        Player.SetData("BusfahrerRoute", 0);
+
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Route erfolgreich beendet.");
+
+                        var BusfahrerPunkt = new Vector3(403.169, -642.016, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+            }
+            else if (Player.GetData("BusfahrerRoute") == 3)
+            {
+                if (Player.GetData("BusfahrerRoutePosition") == 1)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_1.Position.X, GlobaleSachen.Route3_1.Position.Y, GlobaleSachen.Route3_1.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 2);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_2.Position.X, GlobaleSachen.Route3_2.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 2)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_2.Position.X, GlobaleSachen.Route3_2.Position.Y, GlobaleSachen.Route3_2.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 3);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_3.Position.X, GlobaleSachen.Route3_3.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 3)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_3.Position.X, GlobaleSachen.Route3_3.Position.Y, GlobaleSachen.Route3_3.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 4);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_4.Position.X, GlobaleSachen.Route3_4.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 4)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_4.Position.X, GlobaleSachen.Route3_4.Position.Y, GlobaleSachen.Route3_4.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 5);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_5.Position.X, GlobaleSachen.Route3_5.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 5)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_5.Position.X, GlobaleSachen.Route3_5.Position.Y, GlobaleSachen.Route3_5.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 6);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_6.Position.X, GlobaleSachen.Route3_6.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 6)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_6.Position.X, GlobaleSachen.Route3_6.Position.Y, GlobaleSachen.Route3_6.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 7);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route3_7.Position.X, GlobaleSachen.Route3_7.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 7)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route3_7.Position.X, GlobaleSachen.Route3_7.Position.Y, GlobaleSachen.Route3_7.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_HaltestellenLohn);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route3_EndBonus);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 0);
+                        Player.SetData("BusfahrerJobAngenommen", 0);
+                        Player.SetData("BusfahrerRoute", 0);
+
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Route erfolgreich beendet.");
+
+                        var BusfahrerPunkt = new Vector3(403.169, -642.016, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+            }
+            else if (Player.GetData("BusfahrerRoute") == 4)
+            {
+                if (Player.GetData("BusfahrerRoutePosition") == 1)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route4_1.Position.X, GlobaleSachen.Route4_1.Position.Y, GlobaleSachen.Route4_1.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route4_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 2);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route4_2.Position.X, GlobaleSachen.Route4_2.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 2)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route4_2.Position.X, GlobaleSachen.Route4_2.Position.Y, GlobaleSachen.Route4_2.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route4_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 3);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route4_3.Position.X, GlobaleSachen.Route4_3.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 3)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route4_3.Position.X, GlobaleSachen.Route4_3.Position.Y, GlobaleSachen.Route4_3.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route4_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 4);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route4_4.Position.X, GlobaleSachen.Route4_4.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 4)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route4_4.Position.X, GlobaleSachen.Route4_4.Position.Y, GlobaleSachen.Route4_4.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route4_HaltestellenLohn);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route4_EndBonus);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 0);
@@ -4628,7 +5129,7 @@ namespace Haupt
             //Busfahrer
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Busfahrer - Spawnpunkt~g~]", new Vector3(403.169, -642.016, 28.5002), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
-            //Busfahrer Routen
+            //Busfahrer Route 1
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(306.639, -765.855, 28.7369), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(112.742, -783.588, 30.8554), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-244.619, -715.44, 32.9559), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
@@ -4637,6 +5138,35 @@ namespace Haupt
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-689.944, -668.301, 30.3546), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-506.123, -668.609, 32.5175), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(224.769, -853.519, 29.5364), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Busfahrer Route 2
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(308.392, -763.204, 29.24), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(275.028, -585.099, 43.1406), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(269.834, -358.579, 44.7709), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(334.736, 160.639, 103.246), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-247.98, 30.9539, 56.751), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-499.74, 20.2629, 44.7918), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-688.621, -6.3535, 38.2303), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-753.362, -34.1787, 37.6805), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-927.927, -125.374, 37.5825), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-989.048, -399.978, 37.7187), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-694.916, -667.582, 30.7562), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-506.212, -667.342, 33.0357), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Busfahrer Route 3
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(61.4772, -652.598, 31.0374), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-173.5, -820.069, 30.5454), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1277.57, -1224.05, 3.95632), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1668.04, -543.493, 34.45), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1940.37, -305.581, 43.7902), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1476.76, -632.458, 30.0296), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1272.07, -560.944, 29.3496), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Busfahrer Route 4
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-929.049, -124.358, 37.1177), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1167.17, -401.918, 34.9337), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1409.08, -569.181, 29.8156), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1516.2, -373.59, 41.7262), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
         }
 
         public static void BlipsLaden()
@@ -4685,7 +5215,7 @@ namespace Haupt
             //Busfahrer
             NAPI.Marker.CreateMarker(21, new Vector3(403.169, -642.016, 28.5002), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
-            //Busfahrer Routen
+            //Busfahrer Route 1
             GlobaleSachen.Route1_1 = NAPI.Marker.CreateMarker(21, new Vector3(306.639, -765.855, 28.7369), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route1_2 = NAPI.Marker.CreateMarker(21, new Vector3(112.742, -783.588, 30.8554), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route1_3 = NAPI.Marker.CreateMarker(21, new Vector3(-244.619, -715.44, 32.9559), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
@@ -4694,6 +5224,36 @@ namespace Haupt
             GlobaleSachen.Route1_6 = NAPI.Marker.CreateMarker(21, new Vector3(-689.944, -668.301, 30.3546), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route1_7 = NAPI.Marker.CreateMarker(21, new Vector3(-506.123, -668.609, 32.5175), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route1_8 = NAPI.Marker.CreateMarker(21, new Vector3(224.769, -853.519, 29.5364), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Busfahrer Route 2
+            GlobaleSachen.Route2_1 = NAPI.Marker.CreateMarker(21, new Vector3(308.392, -763.204, 29.24), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_2 = NAPI.Marker.CreateMarker(21, new Vector3(275.028, -585.099, 43.1406), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_3 = NAPI.Marker.CreateMarker(21, new Vector3(269.834, -358.579, 44.7709), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_4 = NAPI.Marker.CreateMarker(21, new Vector3(334.736, 160.639, 103.246), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_5 = NAPI.Marker.CreateMarker(21, new Vector3(-247.98, 30.9539, 56.751), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_6 = NAPI.Marker.CreateMarker(21, new Vector3(-499.74, 20.2629, 44.7918), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_7 = NAPI.Marker.CreateMarker(21, new Vector3(-688.621, -6.3535, 38.2303), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_8 = NAPI.Marker.CreateMarker(21, new Vector3(-753.362, -34.1787, 37.6805), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_9 = NAPI.Marker.CreateMarker(21, new Vector3(-927.927, -125.374, 37.5825), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_10 = NAPI.Marker.CreateMarker(21, new Vector3(-989.048, -399.978, 37.7187), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_11 = NAPI.Marker.CreateMarker(21, new Vector3(-694.916, -667.582, 30.7562), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route2_12 = NAPI.Marker.CreateMarker(21, new Vector3(-506.212, -667.342, 33.0357), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Busfahrer Route 3
+            GlobaleSachen.Route3_1 = NAPI.Marker.CreateMarker(21, new Vector3(61.4772, -652.598, 31.0374), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route3_2 = NAPI.Marker.CreateMarker(21, new Vector3(-173.5, -820.069, 30.5454), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route3_3 = NAPI.Marker.CreateMarker(21, new Vector3(-1277.57, -1224.05, 3.95632), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route3_4 = NAPI.Marker.CreateMarker(21, new Vector3(-1668.04, -543.493, 34.45), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route3_5 = NAPI.Marker.CreateMarker(21, new Vector3(-1940.37, -305.581, 43.7902), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route3_6 = NAPI.Marker.CreateMarker(21, new Vector3(-1476.76, -632.458, 30.0296), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route3_7 = NAPI.Marker.CreateMarker(21, new Vector3(-1272.07, -560.944, 29.3496), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Busfahrer Route 4
+            GlobaleSachen.Route4_1 = NAPI.Marker.CreateMarker(21, new Vector3(-929.049, -124.358, 37.1177), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route4_2 = NAPI.Marker.CreateMarker(21, new Vector3(-1167.17, -401.918, 34.9337), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route4_3 = NAPI.Marker.CreateMarker(21, new Vector3(-1409.08, -569.181, 29.8156), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route4_4 = NAPI.Marker.CreateMarker(21, new Vector3(-1516.2, -373.59, 41.7262), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
         }
 
         [RemoteEvent("PersoSchliessen")]
