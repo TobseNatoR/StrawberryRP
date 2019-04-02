@@ -52,6 +52,13 @@ namespace Haupt
         public static int BerufskraftFahrerFahrzeugGespawnt = 0;
         public static int BusfahrerFahrzeugGespawnt = 0;
 
+        //Löhne
+        public static long Berufskraftfahrer_Benzin_Entfernungsbonus = 100;
+        public static long Berufskraftfahrer_Benzin_LiterBonus = 2;
+        public static long Berufskraftfahrer_Holz_KiloBonus = 2;
+        public static long Busfahrer_Route1_HaltestellenLohn = 50;
+        public static long Busfahrer_Route1_EndBonus = 150;
+
         //Busfahrer Route Blips
         public static Marker Route1_1;
         public static Marker Route1_2;
@@ -2450,7 +2457,7 @@ namespace Haupt
                 {
                     int Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
                     AccountBerufskraftfahrerExpSetzen(Player, 1, 40);
-                    AccountGeldSetzen(Player, 1, Volumen * 10);
+                    AccountGeldSetzen(Player, 1, Volumen * GlobaleSachen.Berufskraftfahrer_Holz_KiloBonus);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Holz erfolgreich abgeladen.");
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun neues Holz holen.");
                     var Ladepunkt = new Vector3(-511.5431, 5241.104, 0);
@@ -3470,7 +3477,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 2);
@@ -3487,7 +3494,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 3);
@@ -3504,7 +3511,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 4);
@@ -3521,7 +3528,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 5);
@@ -3538,7 +3545,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 6);
@@ -3555,7 +3562,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 7);
@@ -3572,7 +3579,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 8);
@@ -3589,7 +3596,7 @@ namespace Haupt
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
                         Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
-                        AccountGeldSetzen(Player, 1, 25);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
 
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 0);
@@ -3646,7 +3653,7 @@ namespace Haupt
                 if (tanke.TankstelleJobSpieler == 0 && tanke.TankstelleDiesel <= 1800)
                 {
                     //Benötigte Definitionen
-                    int Kraftstoff = 0, EntfernungsBonus = 0, SpritBonus = 0, GesamtBonus = 0;
+                    long Kraftstoff = 0, EntfernungsBonus = 0, SpritBonus = 0, GesamtBonus = 0;
                     float Distanz = 0.0f;
 
                     Distanz = Vector3.Distance(new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ));
@@ -3654,17 +3661,17 @@ namespace Haupt
                     //EntfernungsBonus berechnen
                     EntfernungsBonus = (int)Math.Round(Distanz, 0);
                     EntfernungsBonus = EntfernungsBonus / 200;
-                    EntfernungsBonus = EntfernungsBonus * 100;
+                    EntfernungsBonus = EntfernungsBonus * GlobaleSachen.Berufskraftfahrer_Benzin_Entfernungsbonus;
 
                     //Kraftstoff der übergeben wird
                     Kraftstoff = 2000 - tanke.TankstelleDiesel;
                     if(tanke.TankstelleDiesel + Volumen > 2000)
                     {
-                        SpritBonus = Kraftstoff * 2;
+                        SpritBonus = Kraftstoff * GlobaleSachen.Berufskraftfahrer_Benzin_LiterBonus;
                     }
                     else
                     {
-                        SpritBonus = Volumen * 2;
+                        SpritBonus = Volumen * GlobaleSachen.Berufskraftfahrer_Benzin_LiterBonus;
                     }
 
                     //Der Gesamte Gewinn

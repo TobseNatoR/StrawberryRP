@@ -31,6 +31,7 @@ namespace Datenbank
         public DbSet<Log> srp_log { get; set; }
         public DbSet<Save> srp_saves { get; set; }
         public DbSet<Gruppen> srp_gruppen { get; set; }
+        public DbSet<JobLohn> srp_joblohn { get; set; }
 
     }
 
