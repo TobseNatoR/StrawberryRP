@@ -114,6 +114,12 @@ namespace Haupt
             Player.SetData("BerufskraftfahrerVerdienst", 0);
             Player.SetData("BerufskraftfahrerAmAbladen", 0);
 
+            //Job Daten Busfahrer
+            Player.SetData("BusfahrerFahrzeug", 0);
+            Player.SetData("BusfahrerJobAngenommen", 0);
+            Player.SetData("BusfahrerRoute", 0);
+            Player.SetData("BusfahrerRoutePosition", 0);
+
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
 

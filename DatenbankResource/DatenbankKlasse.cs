@@ -117,6 +117,18 @@ namespace Datenbank
         public DateTime Wann { get; set; }
     }
 
+    public class JobLohn
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public int JobId { get; set; }
+        public long Lohn1 { get; set; }
+        public long Lohn2 { get; set; }
+        public long Lohn3 { get; set; }
+        public long Lohn4 { get; set; }
+    }
+
     public class Save
     {
         [Key]

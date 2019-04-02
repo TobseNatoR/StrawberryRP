@@ -1177,6 +1177,13 @@ namespace Haupt
                         Fahrzeuge.JobFahrzeugLöschen(Player, Funktionen.AccountJobFahrzeugBekommen(Player));
                     }
                 }
+                if (Job == 2)
+                {
+                    if (Player.GetData("BusfahrerFahrzeug") == 1)
+                    {
+                        Fahrzeuge.JobFahrzeugLöschen(Player, Funktionen.AccountJobFahrzeugBekommen(Player));
+                    }
+                }
             }
             else
             {

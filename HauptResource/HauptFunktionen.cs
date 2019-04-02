@@ -50,6 +50,24 @@ namespace Haupt
         public static int Pferderennen = 0;
         public static int Heiraten = 0;
         public static int BerufskraftFahrerFahrzeugGespawnt = 0;
+        public static int BusfahrerFahrzeugGespawnt = 0;
+
+        //Löhne
+        public static long Berufskraftfahrer_Benzin_Entfernungsbonus = 100;
+        public static long Berufskraftfahrer_Benzin_LiterBonus = 2;
+        public static long Berufskraftfahrer_Holz_KiloBonus = 2;
+        public static long Busfahrer_Route1_HaltestellenLohn = 50;
+        public static long Busfahrer_Route1_EndBonus = 150;
+
+        //Busfahrer Route Blips
+        public static Marker Route1_1;
+        public static Marker Route1_2;
+        public static Marker Route1_3;
+        public static Marker Route1_4;
+        public static Marker Route1_5;
+        public static Marker Route1_6;
+        public static Marker Route1_7;
+        public static Marker Route1_8;
     }
 
     public class AdminBefehle
@@ -1124,6 +1142,9 @@ namespace Haupt
                     break;
                 case 1:
                     JobName = "Berufskraftfahrer";
+                    break;
+                case 2:
+                    JobName = "Busfahrer";
                     break;
                 default:
                     JobName = "Unbekannter Job";
@@ -2275,6 +2296,11 @@ namespace Haupt
                     {
                         JobBerufskraftFahrerSuperTankeCheck(Player);
                     }
+                    //Busfahrer Routen Check
+                    else if (Player.GetData("BusfahrerJobAngenommen") != 0 && Player.GetData("BusfahrerRoute") != 0)
+                    {
+                        JobBusfahrerRoutenCheck(Player);
+                    }
                 }
             }
             //Alles ohne Fahrzeuge
@@ -2293,10 +2319,17 @@ namespace Haupt
                     return;
                 }
                 //Berufskraftfahrer
-                else if (Player.Position.DistanceTo(new Vector3(-1546.57, 1367.763, 126.1016)) < 20.0f)
+                else if (Player.Position.DistanceTo(new Vector3(-1546.57, 1367.763, 126.1016)) < 5.0f)
                 {
                     if (AccountJobBekommen(Player) != 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
                     JobBerufskraftfahrerFahrzeugSpawnen(Player);
+                    return;
+                }
+                //Busfahrer
+                else if (Player.Position.DistanceTo(new Vector3(403.169, -642.016, 28.5002)) < 5.0f)
+                {
+                    if (AccountJobBekommen(Player) != 2) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
+                    JobBusfahrerFahrzeugSpawnen(Player);
                     return;
                 }
 
@@ -2424,7 +2457,7 @@ namespace Haupt
                 {
                     int Volumen = AccountBerufskraftfahrerVolumenBerechnen(Player);
                     AccountBerufskraftfahrerExpSetzen(Player, 1, 40);
-                    AccountGeldSetzen(Player, 1, Volumen * 10);
+                    AccountGeldSetzen(Player, 1, Volumen * GlobaleSachen.Berufskraftfahrer_Holz_KiloBonus);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Holz erfolgreich abgeladen.");
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst nun neues Holz holen.");
                     var Ladepunkt = new Vector3(-511.5431, 5241.104, 0);
@@ -3235,6 +3268,12 @@ namespace Haupt
             Player.SetData("BerufskraftfahrerVerdienst", 0);
             Player.SetData("BerufskraftfahrerAmAbladen", 0);
 
+            //Job Daten Busfahrer
+            Player.SetData("BusfahrerFahrzeug", 0);
+            Player.SetData("BusfahrerJobAngenommen", 0);
+            Player.SetData("BusfahrerRoute", 0);
+            Player.SetData("BusfahrerRoutePosition", 0);
+
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
 
@@ -3402,6 +3441,178 @@ namespace Haupt
             ContextFactory.Instance.SaveChanges();
         }
 
+
+        [RemoteEvent("JobBusfahrerRoute1")]
+        public static void JobBusfahrerRoute1(Client Player)
+        {
+            Player.TriggerEvent("busfahrerbrowserschliessen");
+            if (Player.GetData("BusfahrerJobAngenommen") == 1)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits eine Route angenommen.");
+                return;
+            }
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerRoute", 1);
+
+            //Das er angenommen hat
+            Player.SetData("BusfahrerJobAngenommen", 1);
+
+            //Route setzen
+            Player.SetData("BusfahrerRoutePosition", 1);
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fahre nun die Route ab.");
+            var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_1.Position.X, GlobaleSachen.Route1_1.Position.Y, 0);
+            Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+        }
+
+        public static void JobBusfahrerRoutenCheck(Client Player)
+        {
+            if(Player.GetData("BusfahrerRoute") == 1)
+            {
+                if (Player.GetData("BusfahrerRoutePosition") == 1)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_1.Position.X, GlobaleSachen.Route1_1.Position.Y, GlobaleSachen.Route1_1.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 2);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_2.Position.X, GlobaleSachen.Route1_2.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                else if (Player.GetData("BusfahrerRoutePosition") == 2)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_2.Position.X, GlobaleSachen.Route1_2.Position.Y, GlobaleSachen.Route1_2.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 3);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_3.Position.X, GlobaleSachen.Route1_3.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 3)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_3.Position.X, GlobaleSachen.Route1_3.Position.Y, GlobaleSachen.Route1_3.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 4);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_4.Position.X, GlobaleSachen.Route1_4.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 4)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_4.Position.X, GlobaleSachen.Route1_4.Position.Y, GlobaleSachen.Route1_4.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 5);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_5.Position.X, GlobaleSachen.Route1_5.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 5)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_5.Position.X, GlobaleSachen.Route1_5.Position.Y, GlobaleSachen.Route1_5.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 6);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_6.Position.X, GlobaleSachen.Route1_6.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 6)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_6.Position.X, GlobaleSachen.Route1_6.Position.Y, GlobaleSachen.Route1_6.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 7);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_7.Position.X, GlobaleSachen.Route1_7.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 7)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_7.Position.X, GlobaleSachen.Route1_7.Position.Y, GlobaleSachen.Route1_7.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 8);
+
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_8.Position.X, GlobaleSachen.Route1_8.Position.Y, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+                if (Player.GetData("BusfahrerRoutePosition") == 8)
+                {
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_8.Position.X, GlobaleSachen.Route1_8.Position.Y, GlobaleSachen.Route1_8.Position.Z)) < 10.0f)
+                    {
+                        Ladebalken(Player, 4, 10000);
+                        FreezeAuto(Player);
+                        Timer.SetTimer(() => UnfreezeAuto(Player), 10000, 1);
+                        AccountGeldSetzen(Player, 1, GlobaleSachen.Busfahrer_Route1_HaltestellenLohn);
+
+                        //Route setzen
+                        Player.SetData("BusfahrerRoutePosition", 0);
+                        Player.SetData("BusfahrerJobAngenommen", 0);
+                        Player.SetData("BusfahrerRoute", 0);
+
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Route erfolgreich beendet.");
+
+                        var BusfahrerPunkt = new Vector3(403.169, -642.016, 0);
+                        Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
+                        return;
+                    }
+                }
+            }
+        }
+
         [RemoteEvent("JobBerufskraftfahrerHolz")]
         public static void JobBerufskraftfahrerHolz(Client Player)
         {
@@ -3442,7 +3653,7 @@ namespace Haupt
                 if (tanke.TankstelleJobSpieler == 0 && tanke.TankstelleDiesel <= 1800)
                 {
                     //Benötigte Definitionen
-                    int Kraftstoff = 0, EntfernungsBonus = 0, SpritBonus = 0, GesamtBonus = 0;
+                    long Kraftstoff = 0, EntfernungsBonus = 0, SpritBonus = 0, GesamtBonus = 0;
                     float Distanz = 0.0f;
 
                     Distanz = Vector3.Distance(new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), new Vector3(tanke.TankstelleX, tanke.TankstelleY, tanke.TankstelleZ));
@@ -3450,17 +3661,17 @@ namespace Haupt
                     //EntfernungsBonus berechnen
                     EntfernungsBonus = (int)Math.Round(Distanz, 0);
                     EntfernungsBonus = EntfernungsBonus / 200;
-                    EntfernungsBonus = EntfernungsBonus * 100;
+                    EntfernungsBonus = EntfernungsBonus * GlobaleSachen.Berufskraftfahrer_Benzin_Entfernungsbonus;
 
                     //Kraftstoff der übergeben wird
                     Kraftstoff = 2000 - tanke.TankstelleDiesel;
                     if(tanke.TankstelleDiesel + Volumen > 2000)
                     {
-                        SpritBonus = Kraftstoff * 2;
+                        SpritBonus = Kraftstoff * GlobaleSachen.Berufskraftfahrer_Benzin_LiterBonus;
                     }
                     else
                     {
-                        SpritBonus = Volumen * 2;
+                        SpritBonus = Volumen * GlobaleSachen.Berufskraftfahrer_Benzin_LiterBonus;
                     }
 
                     //Der Gesamte Gewinn
@@ -3786,9 +3997,90 @@ namespace Haupt
             Timer.SetTimer(() => JobBerufskraftFahrerFahrzeugSpawnPause(), 20000, 1);
         }
 
+        public static void JobBusfahrerFahrzeugSpawnen(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("BusfahrerFahrzeug") == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Job Fahrzeug!"); return; }
+            if (GlobaleSachen.BusfahrerFahrzeugGespawnt == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde gerade erst ein Bus gespawnt. Warte kurz."); return; }
+
+            //Fahrzeug
+            String Fahrzeug = "bus";
+            uint AutoCode = NAPI.Util.GetHashKey(Fahrzeug);
+
+            //Objekt für die Liste erzeugen
+            AutoLokal auto = new AutoLokal();
+
+            //Das Fahrzeug spawnen
+            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, 44, 44, numberPlate: "Job");
+
+            auto.Fahrzeug.NumberPlate = "Job";
+            auto.Fahrzeug.Dimension = 0;
+
+            auto.Fahrzeug.SetData("Id", -2);
+
+            //Daten setzen
+            auto.Id = -2;
+            auto.FahrzeugBeschreibung = "Job";
+            auto.FahrzeugName = Fahrzeug;
+            auto.FahrzeugTyp = 1;
+            auto.FahrzeugFraktion = 0;
+            auto.FahrzeugJob = 1;
+            auto.FahrzeugSpieler = 0;
+            auto.FahrzeugMietpreis = 0;
+            auto.FahrzeugKaufpreis = 0;
+            auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugX = Player.Position.X;
+            auto.FahrzeugY = Player.Position.Y;
+            auto.FahrzeugZ = Player.Position.Z;
+            auto.FahrzeugRot = Player.Rotation.Z;
+            auto.FahrzeugFarbe1 = 44;
+            auto.FahrzeugFarbe2 = 44;
+            auto.TankVolumen = Funktionen.TankVolumenBerechnen(Fahrzeug);
+            auto.TankInhalt = Funktionen.TankVolumenBerechnen(Fahrzeug) * 10 * 100;
+            auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 1;
+            auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
+            auto.FahrzeugAbgeschlossen = 0;
+            auto.FahrzeugMotor = 1;
+            auto.FahrzeugGespawnt = 1;
+
+            //Diese Sachen nur lokal
+            auto.FahrzeugAltePositionX = Player.Position.X;
+            auto.FahrzeugAltePositionY = Player.Position.Y;
+            auto.FahrzeugAltePositionZ = Player.Position.Z;
+            auto.FahrzeugNeuePositionX = 0;
+            auto.FahrzeugNeuePositionY = 0;
+            auto.FahrzeugNeuePositionZ = 0;
+
+            //Fahrzeug in der Liste ablegen
+            AutoListe.Add(auto);
+
+            //Spieler in das Job Fahrzeug setzen
+            Player.SetIntoVehicle(auto.Fahrzeug, -1);
+
+            //Lokal setzen das er ein Fahrzeug hat
+            Player.SetData("BusfahrerFahrzeug", 1);
+            auto.Fahrzeug.SetData("GeradeGespawnt", 1);
+            Timer.SetTimer(() => JobFahrzeugNichtGespawnt(auto.Fahrzeug), 2000, 1);
+
+            //Dem Spieler das Fahrzeug zuweisen
+            AccountJobFahrzeugSetzen(Player, auto.Fahrzeug);
+
+            Player.TriggerEvent("busfahrerbrowseroeffnen");
+
+            //Damit niemand anderes ein Fahrzeug spawnen kann
+            GlobaleSachen.BusfahrerFahrzeugGespawnt = 1;
+            Timer.SetTimer(() => JobBusfahrerFahrzeugSpawnPause(), 20000, 1);
+        }
+
         public static void JobBerufskraftFahrerFahrzeugSpawnPause()
         {
             GlobaleSachen.BerufskraftFahrerFahrzeugGespawnt = 0;
+        }
+
+        public static void JobBusfahrerFahrzeugSpawnPause()
+        {
+            GlobaleSachen.BusfahrerFahrzeugGespawnt = 0;
         }
 
         public static void JobFahrzeugNichtGespawnt(Vehicle Fahrzeug)
@@ -4332,6 +4624,19 @@ namespace Haupt
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Kraftstoff Ladepunkt~g~]", new Vector3(815.2087, -1590.846, 31.01333), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Holz Ladepunkt~g~]", new Vector3(-511.5431, 5241.104, 80.30409), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Berufskraftfahrer - Holz Abladepunkt~g~]", new Vector3(1307.297, 4324.441, 38.20026), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Busfahrer
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Busfahrer - Spawnpunkt~g~]", new Vector3(403.169, -642.016, 28.5002), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Busfahrer Routen
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(306.639, -765.855, 28.7369), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(112.742, -783.588, 30.8554), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-244.619, -715.44, 32.9559), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-712.426, -827.37, 22.952), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-740.321, -750.287, 26.2996), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-689.944, -668.301, 30.3546), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-506.123, -668.609, 32.5175), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(224.769, -853.519, 29.5364), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
         }
 
         public static void BlipsLaden()
@@ -4347,8 +4652,9 @@ namespace Haupt
             Blip Berufskraftfahrer_Kraftstoff = NAPI.Blip.CreateBlip(new Vector3(815.2087, -1590.846, 31.01333)); Berufskraftfahrer_Kraftstoff.Name = "Berufskraftfahrer Kraftstoff Ladepunkt"; Berufskraftfahrer_Kraftstoff.ShortRange = true; Berufskraftfahrer_Kraftstoff.Sprite = 67;
             Blip Berufskraftfahrer_Holz_Einladepunkt = NAPI.Blip.CreateBlip(new Vector3(-511.5431, 5241.104, 80.30409)); Berufskraftfahrer_Holz_Einladepunkt.Name = "Berufskraftfahrer Holz Ladepunkt"; Berufskraftfahrer_Holz_Einladepunkt.ShortRange = true; Berufskraftfahrer_Holz_Einladepunkt.Sprite = 67;
             Blip Berufskraftfahrer_Holz_Abladepunkt = NAPI.Blip.CreateBlip(new Vector3(1307.297, 4324.441, 38.20026)); Berufskraftfahrer_Holz_Abladepunkt.Name = "Berufskraftfahrer Holz Abladepunkt"; Berufskraftfahrer_Holz_Abladepunkt.ShortRange = true; Berufskraftfahrer_Holz_Abladepunkt.Sprite = 67;
-            Blip Busfahrer = NAPI.Blip.CreateBlip(new Vector3(-948.2572, -2068.304, 9.55535)); Busfahrer.Name = "Busfahrer"; Busfahrer.ShortRange = true; Busfahrer.Sprite = 513;
+            Blip Busfahrer = NAPI.Blip.CreateBlip(new Vector3(403.169, -642.016, 28.5002)); Busfahrer.Name = "Busfahrer"; Busfahrer.ShortRange = true; Busfahrer.Sprite = 513;
             Blip Heiraten = NAPI.Blip.CreateBlip(new Vector3(-329.9244, 6150.168, 32.31319)); Heiraten.Name = "Heiraten"; Heiraten.ShortRange = true; Heiraten.Sprite = 621; Heiraten.Color = 1;
+            Blip TUEV = NAPI.Blip.CreateBlip(new Vector3(533.015, -178.646, 54.4207)); TUEV.Name = "TÜV"; TUEV.ShortRange = true; TUEV.Sprite = 544;
         }
 
         public static void MarkersLaden()
@@ -4375,6 +4681,19 @@ namespace Haupt
             NAPI.Marker.CreateMarker(21, new Vector3(815.2087, -1590.846, 31.01333), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             NAPI.Marker.CreateMarker(21, new Vector3(-511.5431, 5241.104, 80.30409), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             NAPI.Marker.CreateMarker(21, new Vector3(1307.297, 4324.441, 38.20026), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Busfahrer
+            NAPI.Marker.CreateMarker(21, new Vector3(403.169, -642.016, 28.5002), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Busfahrer Routen
+            GlobaleSachen.Route1_1 = NAPI.Marker.CreateMarker(21, new Vector3(306.639, -765.855, 28.7369), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_2 = NAPI.Marker.CreateMarker(21, new Vector3(112.742, -783.588, 30.8554), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_3 = NAPI.Marker.CreateMarker(21, new Vector3(-244.619, -715.44, 32.9559), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_4 = NAPI.Marker.CreateMarker(21, new Vector3(-712.426, -827.37, 22.952), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_5 = NAPI.Marker.CreateMarker(21, new Vector3(-740.321, -750.287, 26.2996), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_6 = NAPI.Marker.CreateMarker(21, new Vector3(-689.944, -668.301, 30.3546), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_7 = NAPI.Marker.CreateMarker(21, new Vector3(-506.123, -668.609, 32.5175), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            GlobaleSachen.Route1_8 = NAPI.Marker.CreateMarker(21, new Vector3(224.769, -853.519, 29.5364), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
         }
 
         [RemoteEvent("PersoSchliessen")]
@@ -4441,8 +4760,8 @@ namespace Haupt
 
         }
 
-        [RemoteEvent("Arbeitsamt_Paketlieferant")]
-        public void Arbeitsamt_Paketlieferant(Client Player)
+        [RemoteEvent("Arbeitsamt_Busfahrer")]
+        public void Arbeitsamt_Busfahrer(Client Player)
         {
             //Perso
             if (AccountPersoBekommen(Player) == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast keinen gültigen Personalausweis!"); return; }
@@ -4460,7 +4779,7 @@ namespace Haupt
 
             account.Job = 2;
             account.Kündigungszeit = 60;
-            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist jetzt Paketlieferant.");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist jetzt Busfahrer.");
 
             account.AccountGeändert = true;
 
