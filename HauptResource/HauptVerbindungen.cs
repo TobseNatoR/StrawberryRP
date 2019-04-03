@@ -1,6 +1,6 @@
 ﻿/************************************************************************************************************************************************************************************************
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Dieser Gamemode wurde von Toby Gallenkamp Wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
+        @@ Dieser Gamemode wurde von Toby Gallenkamp wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
         @@ Die Entwicklung dieses Gamemodes wurde im Januar 2019 aufgenommen.                                                                                                   @@
         @@ Es dürfen nur von Toby Gallenkamp bestimmte Entwickler an diesem Gamemode arbeiten.                                                                                  @@
         @@ Alle Arbeiten an diesem Gamemode gehören automatisch Strawberry Roleplay und dürfen auch nur von Strawberry Roleplay genutzt werden.                                 @@
@@ -94,6 +94,8 @@ namespace Haupt
             //Daten zur Sicherheit zurücksetzen
             //Generelle Daten
             Player.SetData("InteriorName", 0);
+            Player.SetData("Eingeloggt", 1);
+            Player.SetData("BewegtSichMitFahrzeug", 0);
             Player.SetData("SiehtPerso", 0);
             Player.SetData("IBerry", 0);
             Player.SetData("Scoreboard", 0);

@@ -7,8 +7,8 @@ mp.events.add('busfahreranzeigeschliessen', () => {
     busfahrerAnzeige.destroy();
 });
 
-mp.events.add('busdaten', (passwort) => {
-    mp.events.callRemote('LoginVersuch', passwort);
+mp.events.add('busdaten', (Linie, Haltestelle) => {
+    busfahrerAnzeige.execute(`BusDaten('${Linie}', '${Haltestelle}');`);
 });
 
 

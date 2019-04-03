@@ -1,7 +1,7 @@
 ﻿/*
 /************************************************************************************************************************************************************************************************
         @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Dieser Gamemode wurde von Toby Gallenkamp Wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
+        @@ Dieser Gamemode wurde von Toby Gallenkamp wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
         @@ Die Entwicklung dieses Gamemodes wurde im Januar 2019 aufgenommen.                                                                                                   @@
         @@ Es dürfen nur von Toby Gallenkamp bestimmte Entwickler an diesem Gamemode arbeiten.                                                                                  @@
         @@ Alle Arbeiten an diesem Gamemode gehören automatisch Strawberry Roleplay und dürfen auch nur von Strawberry Roleplay genutzt werden.                                 @@
@@ -16,6 +16,9 @@
 03.04.2019
 + Alle CEFs angepasst (Logo war teilweise nicht proportional)
 + Busfahrer Routen wurden in Linien umbenannt
++ Man kann E beim fahren im Bus neben einer Haltestelle nicht mehr triggern
++ An den Haltestellen stehen jetzt die Linien, man sieht also welche wo fährt
++ Ein CEF wurde eingebaut was die Informationen der Linie anzeigt (Wie viele Haltestellen etc.)
 
 02.04.2019
 + Haltestellen anfahren geht jetzt nur noch mit dem Bus

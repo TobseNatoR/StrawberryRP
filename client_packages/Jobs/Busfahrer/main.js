@@ -13,6 +13,10 @@ mp.events.add('busfahrerbrowserschliessen', () => {
 	mp.gui.chat.show(true);
 });
 
+mp.events.add('busdateneintragen', () => {
+	mp.events.callRemote('JobBusfahrerRoute1');
+});
+
 mp.events.add('route1zumserver', () => {
 	mp.events.callRemote('JobBusfahrerRoute1');
 });

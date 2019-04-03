@@ -1,6 +1,7 @@
-function BusDaten(Linie, Haltestelle) {
-		//document.getElementById('loginnickName').innerHTML = 'Nicht vorhanden';
-	}
+function BusDaten(Linie, Haltestelle) 
+{
+	document.getElementById('linie').innerHTML = Linie;
+	document.getElementById('haltestelle').innerHTML = Haltestelle;
 }
 
 
