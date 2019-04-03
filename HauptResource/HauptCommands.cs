@@ -1,4 +1,18 @@
-﻿using GTANetworkAPI;
+﻿/************************************************************************************************************************************************************************************************
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@ Dieser Gamemode wurde von Toby Gallenkamp Wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
+        @@ Die Entwicklung dieses Gamemodes wurde im Januar 2019 aufgenommen.                                                                                                   @@
+        @@ Es dürfen nur von Toby Gallenkamp bestimmte Entwickler an diesem Gamemode arbeiten.                                                                                  @@
+        @@ Alle Arbeiten an diesem Gamemode gehören automatisch Strawberry Roleplay und dürfen auch nur von Strawberry Roleplay genutzt werden.                                 @@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@ Sollte dieser Gamemode in Hände dritter gelangen, so ist Toby Gallenkamp unter folgender Telefonnummer zu kontaktieren: 0160/1144521                                 @@
+        @@ Sollte Toby Gallenkamp in diesem Fall nicht kontaktiert werden, so macht sich die Person nach § 106 Urheberrechtsgesetz strafbar.                                    @@
+        @@ In einem solchen Fall wird nicht gezögert mit einem Anwalt gegen die Person vor zu gehen.                                                                            @@
+        @@ Sollte Toby Gallenkamp durch einen Unfall oder sonstige Umstände sterben, so gehört dieser Gamemode Jakob Pritschmann wohnhaft in der Straße Hunteaue 1 in Hatten.   @@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+************************************************************************************************************************************************************************************************/
+
+using GTANetworkAPI;
 using Datenbank;
 using Fahrzeug;
 using System;
@@ -15,16 +29,11 @@ namespace Haupt
 {    
     public class Commands : Script
     {
-        [Command("fire", "")]
+
+        [Command("test", "")]
         public void Feuer(Client Player)
         {
-            Player.TriggerEvent("StartFire", -3237.754f, 969.6091f, 12.94306f, 25, true);
-
-            foreach (AutoLokal auto in Funktionen.AutoListe)
-            {
-                Player.SendChatMessage(auto.Id + " | " + auto.FahrzeugTyp + " | " + auto.FahrzeugName);
-            }
-
+            Player.TriggerEvent("busfahreranzeigeoeffnen");
         }
 
         [Command("ferstellen", "Nutze: /ferstellen [Name] [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus] [Farbe 1] [Farbe 2]")]

@@ -29,6 +29,7 @@ require('./Server/IBerry/main.js');
 require('./Server/Ladebalken/main.js');
 require('./Server/Saveliste/main.js');
 require('./Server/Gruppensystem/main.js');
+require('./Server/Busfahrer_Anzeige/main.js');
 
 
 
