@@ -31,3 +31,24 @@ function LoginRegisterEnter() {
 		document.getElementById("registrierenpasswort").reset();
 	}
 }
+
+function HatAccount(Typ, SocialClub, Nickname) {
+	if(Typ == 1)
+	{
+		$('.nav-tabs a[href="#loginTab"]').tab('show');
+		document.getElementById('loginsocialClub').innerHTML = SocialClub;
+		document.getElementById('loginnickName').innerHTML = Nickname;
+		document.getElementById('registersocialClub').innerHTML = SocialClub;
+		document.getElementById('registernickName').innerHTML = Nickname;
+	}
+	else
+	{
+		$('.nav-tabs a[href="#registerTab"]').tab('show');
+		document.getElementById('registersocialClub').innerHTML = SocialClub;
+		document.getElementById('registernickName').innerHTML = 'Nicht vorhanden';
+		document.getElementById('loginsocialClub').innerHTML = SocialClub;
+		document.getElementById('loginnickName').innerHTML = 'Nicht vorhanden';
+	}
+}
+
+

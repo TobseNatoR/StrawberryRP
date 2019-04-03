@@ -61,19 +61,6 @@ namespace Fahrzeug
         [ServerEvent(Event.PlayerEnterVehicle)]
         public void OnPlayerEnterVehicle(Client Player, Vehicle vehicle, sbyte seatID)
         {
-            //Motor Starten/Stoppen
-            if(FahrzeugMotorStatus(vehicle) == 1)
-            {
-                vehicle.EngineStatus = true;
-            }
-            else
-            {
-                Player.TriggerEvent("NichtFahrbar");
-                vehicle.EngineStatus = false;
-                Funktionen.Freeze(Player);
-                Timer.SetTimer(() => Funktionen.Unfreeze(Player), 3000, 1);
-            }
-
             //Abfragen damit niemand mit den autos rumfahren kann
             if (Player.GetData("VerwaltungsModus") == 0)
             {

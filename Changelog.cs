@@ -1,10 +1,13 @@
 ﻿/*
+
+
 02.04.2019
 + Haltestellen anfahren geht jetzt nur noch mit dem Bus
 + Man erhält am Ende einer Route einen Bonus von 150$
 + Route Nummer 2 hinzugefügt
 + Route Nummer 3 hinzugefügt
 + Route Nummer 4 hinzugefügt
++ Man kann nun mit E wieder eine neue Route starten ohne ein neues Fahrzeug zu erstellen
 
 01.04.2019
 + TÜV Blip eingefügt

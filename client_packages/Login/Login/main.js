@@ -20,3 +20,7 @@ mp.events.add('registrierenzumserver', (passwort) => {
 mp.events.add('LoginEnterTaste', () => {
     loginBrowser.execute(`LoginRegisterEnter();`);
 });
+
+mp.events.add('HatAccount', (Typ, SocialClub, Nickname) => {
+	loginBrowser.execute(`HatAccount('${Typ}', '${SocialClub}', '${Nickname}');`);
+});

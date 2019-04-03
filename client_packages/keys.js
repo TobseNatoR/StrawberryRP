@@ -33,6 +33,11 @@ mp.keys.bind(0x71, true, function () {
     mp.events.callRemote('Fahrzeug_Privat_Abschliessen');
 });
 
+//Taste F8
+mp.keys.bind(0x77, true, function () {
+    mp.events.callRemote('IBerry');
+});
+
 //Taste L
 mp.keys.bind(0x4C, true, function () {
     let localVeh = mp.players.local.vehicle;

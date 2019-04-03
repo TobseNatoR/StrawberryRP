@@ -1,5 +1,5 @@
 let Player = mp.players.local;
-const NativeUI = require("./Nativeui");
+const NativeUI = require("Menus/Nativeui");
 const Menu = NativeUI.Menu;
 const UIMenuItem = NativeUI.UIMenuItem;
 const UIMenuListItem = NativeUI.UIMenuListItem;

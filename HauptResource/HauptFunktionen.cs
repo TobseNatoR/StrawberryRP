@@ -56,17 +56,17 @@ namespace Haupt
         public static long Berufskraftfahrer_Benzin_Entfernungsbonus = 100;
         public static long Berufskraftfahrer_Benzin_LiterBonus = 2;
         public static long Berufskraftfahrer_Holz_KiloBonus = 2;
-        public static long Busfahrer_Route1_HaltestellenLohn = 50;
+        public static long Busfahrer_Route1_HaltestellenLohn = 25;
         public static long Busfahrer_Route1_EndBonus = 150;
-        public static long Busfahrer_Route2_HaltestellenLohn = 50;
-        public static long Busfahrer_Route2_EndBonus = 150;
-        public static long Busfahrer_Route3_HaltestellenLohn = 50;
-        public static long Busfahrer_Route3_EndBonus = 150;
-        public static long Busfahrer_Route4_HaltestellenLohn = 50;
-        public static long Busfahrer_Route4_EndBonus = 150;
+        public static long Busfahrer_Route2_HaltestellenLohn = 25;
+        public static long Busfahrer_Route2_EndBonus = 300;
+        public static long Busfahrer_Route3_HaltestellenLohn = 25;
+        public static long Busfahrer_Route3_EndBonus = 140;
+        public static long Busfahrer_Route4_HaltestellenLohn = 25;
+        public static long Busfahrer_Route4_EndBonus = 100;
 
         //Busfahrer Route Blips
-        public static Marker Route1_1, Route2_1, Route3_1, Route4_1;
+        public static Marker Route1_1, Route3_1, Route4_1;
         public static Marker Route1_2, Route2_2, Route3_2, Route4_2;
         public static Marker Route1_3, Route2_3, Route3_3, Route4_3;
         public static Marker Route1_4, Route2_4, Route3_4, Route4_4;
@@ -77,7 +77,6 @@ namespace Haupt
         public static Marker Route2_9;
         public static Marker Route2_10;
         public static Marker Route2_11;
-        public static Marker Route2_12;
     }
 
     public class AdminBefehle
@@ -2311,7 +2310,20 @@ namespace Haupt
                     {
                         if(AccountJobFahrzeugBekommen(Player) == Player.Vehicle)
                         {
+                            if (AccountJobBekommen(Player) != 2) { return; }
                             JobBusfahrerRoutenCheck(Player);
+                            return;
+                        }
+                    }
+                    //Busfahrer wenn er nochmal fahren will
+                    else if (Player.Position.DistanceTo(new Vector3(403.169, -642.016, 28.5002)) < 5.0f && Player.GetData("BusfahrerJobAngenommen") == 0 && Player.GetData("BusfahrerRoute") == 0 && Player.GetData("BusfahrerFahrzeug") == 1)
+                    {
+                        if (AccountJobBekommen(Player) != 2) { return; }
+
+                        if (AccountJobFahrzeugBekommen(Player) == Player.Vehicle)
+                        {
+                            Player.TriggerEvent("busfahrerbrowseroeffnen");
+                            return;
                         }
                     }
                 }
@@ -2334,14 +2346,14 @@ namespace Haupt
                 //Berufskraftfahrer
                 else if (Player.Position.DistanceTo(new Vector3(-1546.57, 1367.763, 126.1016)) < 5.0f)
                 {
-                    if (AccountJobBekommen(Player) != 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
+                    if (AccountJobBekommen(Player) != 1) { return; }
                     JobBerufskraftfahrerFahrzeugSpawnen(Player);
                     return;
                 }
                 //Busfahrer
                 else if (Player.Position.DistanceTo(new Vector3(403.169, -642.016, 28.5002)) < 5.0f)
                 {
-                    if (AccountJobBekommen(Player) != 2) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist kein Berufskraftfahrer!"); return; }
+                    if (AccountJobBekommen(Player) != 2) { return; }
                     JobBusfahrerFahrzeugSpawnen(Player);
                     return;
                 }
@@ -3499,7 +3511,7 @@ namespace Haupt
             Player.SetData("BusfahrerRoutePosition", 1);
 
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fahre nun die Route ab.");
-            var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_1.Position.X, GlobaleSachen.Route2_1.Position.Y, 0);
+            var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_1.Position.X, GlobaleSachen.Route1_1.Position.Y, 0);
             Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
         }
 
@@ -3701,7 +3713,7 @@ namespace Haupt
             {
                 if (Player.GetData("BusfahrerRoutePosition") == 1)
                 {
-                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_1.Position.X, GlobaleSachen.Route2_1.Position.Y, GlobaleSachen.Route2_1.Position.Z)) < 10.0f)
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_1.Position.X, GlobaleSachen.Route1_1.Position.Y, GlobaleSachen.Route1_1.Position.Z)) < 10.0f)
                     {
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
@@ -3881,14 +3893,14 @@ namespace Haupt
                         //Route setzen
                         Player.SetData("BusfahrerRoutePosition", 12);
 
-                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route2_12.Position.X, GlobaleSachen.Route2_12.Position.Y, 0);
+                        var BusfahrerPunkt = new Vector3(GlobaleSachen.Route1_7.Position.X, GlobaleSachen.Route1_7.Position.Y, 0);
                         Player.TriggerEvent("Navigation", BusfahrerPunkt.X, BusfahrerPunkt.Y);
                         return;
                     }
                 }
                 if (Player.GetData("BusfahrerRoutePosition") == 12)
                 {
-                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route2_12.Position.X, GlobaleSachen.Route2_12.Position.Y, GlobaleSachen.Route2_12.Position.Z)) < 10.0f)
+                    if (Player.Position.DistanceTo(new Vector3(GlobaleSachen.Route1_7.Position.X, GlobaleSachen.Route1_7.Position.Y, GlobaleSachen.Route1_7.Position.Z)) < 10.0f)
                     {
                         Ladebalken(Player, 4, 10000);
                         FreezeAuto(Player);
@@ -5130,43 +5142,41 @@ namespace Haupt
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Busfahrer - Spawnpunkt~g~]", new Vector3(403.169, -642.016, 28.5002), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Busfahrer Route 1
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(306.639, -765.855, 28.7369), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(112.742, -783.588, 30.8554), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-244.619, -715.44, 32.9559), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-712.426, -827.37, 22.952), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-740.321, -750.287, 26.2996), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-689.944, -668.301, 30.3546), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-506.123, -668.609, 32.5175), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(224.769, -853.519, 29.5364), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~1Bushaltestelle~g~]", new Vector3(306.639, -765.855, 28.7369), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~2Bushaltestelle~g~]", new Vector3(112.742, -783.588, 30.8554), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~3Bushaltestelle~g~]", new Vector3(-244.619, -715.44, 32.9559), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~4Bushaltestelle~g~]", new Vector3(-712.426, -827.37, 22.952), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~5Bushaltestelle~g~]", new Vector3(-740.321, -750.287, 26.2996), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~6Bushaltestelle~g~]", new Vector3(-689.944, -668.301, 30.3546), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~7Bushaltestelle~g~]", new Vector3(-506.123, -668.609, 32.5175), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~8Bushaltestelle~g~]", new Vector3(224.769, -853.519, 29.5364), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Busfahrer Route 2
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(308.392, -763.204, 29.24), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(275.028, -585.099, 43.1406), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(269.834, -358.579, 44.7709), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(334.736, 160.639, 103.246), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-247.98, 30.9539, 56.751), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-499.74, 20.2629, 44.7918), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-688.621, -6.3535, 38.2303), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-753.362, -34.1787, 37.6805), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-927.927, -125.374, 37.5825), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-989.048, -399.978, 37.7187), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-694.916, -667.582, 30.7562), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-506.212, -667.342, 33.0357), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~9 Bushaltestelle~g~]", new Vector3(275.028, -585.099, 43.1406), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~10 Bushaltestelle~g~]", new Vector3(269.834, -358.579, 44.7709), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~11 Bushaltestelle~g~]", new Vector3(334.736, 160.639, 103.246), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~12 Bushaltestelle~g~]", new Vector3(-247.98, 30.9539, 56.751), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~13 Bushaltestelle~g~]", new Vector3(-499.74, 20.2629, 44.7918), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~14 Bushaltestelle~g~]", new Vector3(-688.621, -6.3535, 38.2303), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~15 Bushaltestelle~g~]", new Vector3(-753.362, -34.1787, 37.6805), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~16 Bushaltestelle~g~]", new Vector3(-927.927, -125.374, 37.5825), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~17 Bushaltestelle~g~]", new Vector3(-989.048, -399.978, 37.7187), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~18 Bushaltestelle~g~]", new Vector3(-694.916, -667.582, 30.7562), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Busfahrer Route 3
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(61.4772, -652.598, 31.0374), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-173.5, -820.069, 30.5454), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1277.57, -1224.05, 3.95632), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1668.04, -543.493, 34.45), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1940.37, -305.581, 43.7902), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1476.76, -632.458, 30.0296), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1272.07, -560.944, 29.3496), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~19 Bushaltestelle~g~]", new Vector3(61.4772, -652.598, 31.0374), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~20 Bushaltestelle~g~]", new Vector3(-173.5, -820.069, 30.5454), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~21 Bushaltestelle~g~]", new Vector3(-1277.57, -1224.05, 3.95632), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~22 Bushaltestelle~g~]", new Vector3(-1668.04, -543.493, 34.45), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~23 Bushaltestelle~g~]", new Vector3(-1940.37, -305.581, 43.7902), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~24 Bushaltestelle~g~]", new Vector3(-1476.76, -632.458, 30.0296), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~25 Bushaltestelle~g~]", new Vector3(-1272.07, -560.944, 29.3496), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Busfahrer Route 4
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-929.049, -124.358, 37.1177), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1167.17, -401.918, 34.9337), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1409.08, -569.181, 29.8156), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~g~[~w~Innenstadt - Bushaltestelle~g~]", new Vector3(-1516.2, -373.59, 41.7262), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~26 Bushaltestelle~g~]", new Vector3(-929.049, -124.358, 37.1177), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~27 Bushaltestelle~g~]", new Vector3(-1167.17, -401.918, 34.9337), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~28 Bushaltestelle~g~]", new Vector3(-1409.08, -569.181, 29.8156), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~29 Bushaltestelle~g~]", new Vector3(-1516.2, -373.59, 41.7262), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
         }
 
         public static void BlipsLaden()
@@ -5226,7 +5236,6 @@ namespace Haupt
             GlobaleSachen.Route1_8 = NAPI.Marker.CreateMarker(21, new Vector3(224.769, -853.519, 29.5364), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Busfahrer Route 2
-            GlobaleSachen.Route2_1 = NAPI.Marker.CreateMarker(21, new Vector3(308.392, -763.204, 29.24), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route2_2 = NAPI.Marker.CreateMarker(21, new Vector3(275.028, -585.099, 43.1406), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route2_3 = NAPI.Marker.CreateMarker(21, new Vector3(269.834, -358.579, 44.7709), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route2_4 = NAPI.Marker.CreateMarker(21, new Vector3(334.736, 160.639, 103.246), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
@@ -5237,7 +5246,6 @@ namespace Haupt
             GlobaleSachen.Route2_9 = NAPI.Marker.CreateMarker(21, new Vector3(-927.927, -125.374, 37.5825), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route2_10 = NAPI.Marker.CreateMarker(21, new Vector3(-989.048, -399.978, 37.7187), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             GlobaleSachen.Route2_11 = NAPI.Marker.CreateMarker(21, new Vector3(-694.916, -667.582, 30.7562), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
-            GlobaleSachen.Route2_12 = NAPI.Marker.CreateMarker(21, new Vector3(-506.212, -667.342, 33.0357), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Busfahrer Route 3
             GlobaleSachen.Route3_1 = NAPI.Marker.CreateMarker(21, new Vector3(61.4772, -652.598, 31.0374), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);

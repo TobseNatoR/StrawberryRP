@@ -1,7 +1,7 @@
-//mp.game.vehicle.defaultEngineBehaviour = false;
+mp.game.vehicle.defaultEngineBehaviour = true;
 let Player = mp.players.local;
 let Fahrzeug = mp.players.local.vehicle;
-mp.nametags.enabled = false;
+mp.nametags.enabled = true;
 
 mp.events.add('FahrzeugVerlassen', () => {
 	let localVeh = mp.players.local.vehicle;
@@ -37,6 +37,10 @@ mp.events.add('FahrzeugReparieren', () => {
 
 mp.events.add('RollerSpeed', () => {
 	Player.vehicle.setEnginePowerMultiplier(25);
+});
+
+mp.events.add('LKWSpeed', () => {
+	Player.vehicle.setEnginePowerMultiplier(-30);
 });
 
 mp.events.add('Chathiden', () => {

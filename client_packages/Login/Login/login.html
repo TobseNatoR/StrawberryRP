@@ -1,33 +1,34 @@
-﻿<!-- Erstellt von Toby Gallenkamp für StrawberryRP -->
+﻿<!-- Erstellt von Toby Gallenkamp für Strawberry Roleplay -->
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/css/bootstrap.min.css">
-    <script src="https://filebase.strawberry-rp.de/server/Dependences/jquery-3.3.1.min.js"></script>
-    <script src="https://filebase.strawberry-rp.de/server/Dependences/bootstrap-3.3.7/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
-    <link rel="stylesheet" href="login.css" />
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://filebase.strawberry-rp.de/server/css/style_login.css" />
     <meta charset="utf-8" />
-	<!--
-	<audio loop="loop" autoplay="autoplay" controls="controls">   
-		<source src="https://filebase.strawberry-rp.de/Login.mp3" />  
-	</audio> 
-	-->
 </head>
 <body>
     <div class="jumbotron">
 		<center>
             <img src="https://filebase.strawberry-rp.de/server/img/logo.png" class="img-responsive" style="height: 6%; width: 13%;">
-        <h4>StrawberryRP</h4>
+        <h6>Strawberry Roleplay</h6>
 		</center>
         <hr />
-        <ul class="nav nav-tabs nav-justified">
-            <li class="active"><a data-toggle="tab" href="#loginTab">Anmelden</a></li>
-            <li><a data-toggle="tab" href="#registerTab">Registrieren</a></li>
-        </ul>
+        
+		<ul class="nav nav-tabs justify-content-center">
+		  <li class="nav-item">
+			<a class="nav-link active" href="#loginTab" aria-controls="loginTab" role="tab" data-toggle="tab">Anmelden</a>
+		  </li>
+		  <li class="nav-item">
+			<a class="nav-link" href="#registerTab" aria-controls="registerTab" role="tab" data-toggle="tab">Registrieren</a>
+		  </li>
+		</ul>
         <div class="tab-content">
-            <div id="loginTab" class="tab-pane active">
+            <div id="logintab" class="tab-pane active">
                 <form>
-					<center><br>Solltest du einen Account haben, kannst du dich hier anmelden.<br><p></center>
+					<center><br>Social-Club: <div id="loginsocialClub" style="display:inline; font-weight: bold;"></div><br>
+					Nickname: <div id="loginnickName" style="display:inline; font-weight: bold;"></div><p></center>
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fas fa-lock"></i></i></span>
                         <input id="loginpasswort" type="password" class="form-control" placeholder="Passwort">
@@ -36,9 +37,10 @@
                 </form>
             </div>
 
-            <div id="registerTab" class="tab-pane fade">
+            <div id="registertab" class="tab-pane fade">
                 <form>
-					<center><br>Deinen Namen kannst du später von deinem Social-Club Namen in einen anderen Namen ändern.<br><p></center>
+					<center><br>Social-Club: <div id="registersocialClub" style="display:inline; font-weight: bold;"></div><br>
+					Nickname: <div id="registernickName" style="display:inline; font-weight: bold;"></div><p></center>
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fas fa-lock"></i></i></span>
                         <input id="registrierenpasswort" type="password" class="form-control" placeholder="Passwort">
