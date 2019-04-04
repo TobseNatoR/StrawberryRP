@@ -110,6 +110,13 @@ namespace Login
                         PositionRot = 270.343f,
                         Dimension = 0,
                         Interior = "0",
+                        Component1Drawable = 0,
+                        Component3Drawable = 0,
+                        Component4Drawable = 0,
+                        Component6Drawable = 0,
+                        Component7Drawable = 0,
+                        Component8Drawable = 0,
+                        Component11Drawable = 0,
                         BerufskraftfahrerExp = 0
                     };
 

@@ -81,6 +81,13 @@ namespace Datenbank
         public float PositionRot { get; set; }
         public Int64 Dimension { get; set; }
         public string Interior { get; set; }
+        public int Component1Drawable { get; set; }
+        public int Component3Drawable { get; set; }
+        public int Component4Drawable { get; set; }
+        public int Component6Drawable { get; set; }
+        public int Component7Drawable { get; set; }
+        public int Component8Drawable { get; set; }
+        public int Component11Drawable { get; set; }
         public int BerufskraftfahrerExp { get; set; }
     }
 
@@ -114,6 +121,13 @@ namespace Datenbank
         public float PositionRot { get; set; }
         public Int64 Dimension { get; set; }
         public string Interior { get; set; }
+        public int Component1Drawable { get; set; }
+        public int Component3Drawable { get; set; }
+        public int Component4Drawable { get; set; }
+        public int Component6Drawable { get; set; }
+        public int Component7Drawable { get; set; }
+        public int Component8Drawable { get; set; }
+        public int Component11Drawable { get; set; }
         public int BerufskraftfahrerExp { get; set; }
 
         public Vehicle JobFahrzeug { get; set; }

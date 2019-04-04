@@ -14,20 +14,24 @@ let player = mp.players.local;
 
 let todosMenus = [];
 
-let menuRoupas = new Menu("Clothes", "", new Point(50, 50));
-menuRoupas.AddItem(menuRoupasItem1 = new UIMenuItem("Masks", "Select your mask."));
-menuRoupas.AddItem(menuRoupasItem2 = new UIMenuItem("Hats", "Select your hat."));
-menuRoupas.AddItem(menuRoupasItem3 = new UIMenuItem("Jackets", "Select your jacket."));
-menuRoupas.AddItem(menuRoupasItem4 = new UIMenuItem("Shirts", "Select your shirt."));
-menuRoupas.AddItem(menuRoupasItem5 = new UIMenuItem("Legs", "Select your pant."));
-menuRoupas.AddItem(menuRoupasItem6 = new UIMenuItem("Shoes", "Select your shoes."));
-menuRoupas.AddItem(menuRoupasItem7 = new UIMenuItem("Hands", "Select your hands."));
-menuRoupas.AddItem(menuRoupasItem8 = new UIMenuItem("Glasses", "Select your glasses."));
-menuRoupas.AddItem(menuRoupasItem9 = new UIMenuItem("Acessories", "Select your acessories."));
-menuRoupas.AddItem(menuRoupasItem10 = new UIMenuItem("Bags", "Select your bag."));
+let menuRoupas = new Menu("Kleidung", "", new Point(50, 50));
+menuRoupas.AddItem(menuRoupasItem1 = new UIMenuItem("Masken", "Wähle deine Maske."));
+menuRoupas.AddItem(menuRoupasItem2 = new UIMenuItem("Hüte", "Wähle deine Hut."));
+menuRoupas.AddItem(menuRoupasItem3 = new UIMenuItem("Jacken", "Wähle deine Jacke."));
+menuRoupas.AddItem(menuRoupasItem4 = new UIMenuItem("Shirts", "Wähle dein Shirt."));
+menuRoupas.AddItem(menuRoupasItem5 = new UIMenuItem("Hosen", "Wähle deine Hose."));
+menuRoupas.AddItem(menuRoupasItem6 = new UIMenuItem("Schuhe", "Wähle deine Schuhe."));
+menuRoupas.AddItem(menuRoupasItem7 = new UIMenuItem("Handschuhe", "Wähle deine Handschuhe."));
+menuRoupas.AddItem(menuRoupasItem8 = new UIMenuItem("Brillen", "Wähle deine Brille."));
+menuRoupas.AddItem(menuRoupasItem9 = new UIMenuItem("Accessoires", "Wähle deine Accessoires."));
+menuRoupas.AddItem(menuRoupasItem10 = new UIMenuItem("Rucksäcke", "Wähle deinen Rucksack."));
 
 menuRoupas.Visible = false;
 todosMenus.push(menuRoupas);
+
+mp.events.add('KleidungZuJava', (componentId, drawable) => {
+	mp.events.callRemote('setClothes', componentId, drawable, 0);
+});
 
 ///////////////////////////////////////////////////////
 // MENU MASCARAS COMPONENT 1
@@ -40,9 +44,9 @@ let mascarasTextureArray = [];
 let mascarasTextureLimite = player.getNumberOfTextureVariations(1, player.getDrawableVariation(1));
 for (i = 0; i < mascarasTextureLimite + 1; i++) mascarasTextureArray.push(i.toString());
 
-const menuRoupasMascaras = new Menu("Masks", "", new Point(50, 50));
-let mascarasItem = new UIMenuListItem("Masks", "Select your mask.", new ItemsCollection(mascarasDrawable), player.getDrawableVariation(1));
-let mascarasTextureItem = new UIMenuListItem("Color", "Select your mask's color.", new ItemsCollection(mascarasTextureArray), player.getTextureVariation(1));
+const menuRoupasMascaras = new Menu("Masken", "", new Point(50, 50));
+let mascarasItem = new UIMenuListItem("Masken", "Wähle deine Maske..", new ItemsCollection(mascarasDrawable), player.getDrawableVariation(1));
+let mascarasTextureItem = new UIMenuListItem("Farbe", "Wähle deinen Masken Farbe", new ItemsCollection(mascarasTextureArray), player.getTextureVariation(1));
 menuRoupasMascaras.AddItem(mascarasItem);
 menuRoupasMascaras.AddItem(mascarasTextureItem);
 menuRoupasMascaras.Visible = false;
@@ -54,6 +58,7 @@ menuRoupasMascaras.ListChange.on((item, listIndex) => {
     switch (item) {
         case mascarasItem:
             mp.events.callRemote('setClothes', 1, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 1, drawable, 0);
             mascarasTextureNewArray = [];
             for (i = 0; i < player.getNumberOfTextureVariations(1, player.getDrawableVariation(1)) + 1; i++) mascarasTextureNewArray.push(i.toString());
             mascarasTextureItem.Collection = new NativeUI.ItemsCollection(mascarasTextureNewArray).getListItems();
@@ -77,9 +82,9 @@ let chapeusTexture = [];
 let chapeusTextureLimite = player.getNumberOfPropTextureVariations(0, player.getPropIndex(0));
 for (i = 0; i < chapeusTextureLimite + 1; i++) chapeusTexture.push(i.toString());
 
-const menuRoupasChapeus = new Menu("Hats", "", new Point(50, 50));
-let chapeusItem = new UIMenuListItem("Hats", "Select your hat.", new ItemsCollection(chapeusDrawable), player.getPropIndex(0));
-let chapeusTextureItem = new UIMenuListItem("Color", "Select your hat's color.", new ItemsCollection(chapeusTexture), player.getPropTextureIndex(0));
+const menuRoupasChapeus = new Menu("Hüte", "", new Point(50, 50));
+let chapeusItem = new UIMenuListItem("Hüte", "Wähle deinen Hut.", new ItemsCollection(chapeusDrawable), player.getPropIndex(0));
+let chapeusTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe des Huts.", new ItemsCollection(chapeusTexture), player.getPropTextureIndex(0));
 menuRoupasChapeus.AddItem(chapeusItem);
 menuRoupasChapeus.AddItem(chapeusTextureItem);
 menuRoupasChapeus.Visible = false;
@@ -113,9 +118,9 @@ let jaquetasTextureArray = [];
 let jaquetasTextureLimite = player.getNumberOfTextureVariations(11, player.getDrawableVariation(11));
 for (i = 0; i < jaquetasTextureLimite + 1; i++) jaquetasTextureArray.push(i.toString());
 
-const menuRoupasJaquetas = new Menu("Jackets", "", new Point(50, 50));
-let jaquetasItem = new UIMenuListItem("Jackets", "Select your jacket.", new ItemsCollection(jaquetasDrawable), player.getDrawableVariation(11));
-let jaquetasTextureItem = new UIMenuListItem("Color", "Select your jacket's color.", new ItemsCollection(jaquetasTextureArray), player.getTextureVariation(11));
+const menuRoupasJaquetas = new Menu("Jacken", "", new Point(50, 50));
+let jaquetasItem = new UIMenuListItem("Jacken", "Wähle deine Jacke.", new ItemsCollection(jaquetasDrawable), player.getDrawableVariation(11));
+let jaquetasTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe deiner Jacke.", new ItemsCollection(jaquetasTextureArray), player.getTextureVariation(11));
 menuRoupasJaquetas.AddItem(jaquetasItem);
 menuRoupasJaquetas.AddItem(jaquetasTextureItem);
 menuRoupasJaquetas.Visible = false;
@@ -127,6 +132,7 @@ menuRoupasJaquetas.ListChange.on((item, listIndex) => {
     switch (item) {
     	case jaquetasItem:
     		mp.events.callRemote('setClothes', 11, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 11, drawable, 0);
     		jaquetasTextureNewArray = [];
 			for (i = 0; i < player.getNumberOfTextureVariations(11, player.getDrawableVariation(11)) + 1; i++) jaquetasTextureNewArray.push(i.toString());
     		jaquetasTextureItem.Collection = new NativeUI.ItemsCollection(jaquetasTextureNewArray).getListItems();
@@ -150,8 +156,8 @@ let camisasTextureLimite = player.getNumberOfTextureVariations(8, player.getDraw
 for (i = 0; i < camisasTextureLimite + 1; i++) camisasTextureArray.push(i.toString());
 
 const menuRoupasCamisas = new Menu("Shirts", "", new Point(50, 50));
-let camisasItem = new UIMenuListItem("Shirts", "Select your shirt.", new ItemsCollection(camisasDrawable), player.getDrawableVariation(8));
-let camisasTextureItem = new UIMenuListItem("Color", "Select your shirt's color.", new ItemsCollection(camisasTextureArray), player.getTextureVariation(8));
+let camisasItem = new UIMenuListItem("Shirts", "Wähle dein Shirt.", new ItemsCollection(camisasDrawable), player.getDrawableVariation(8));
+let camisasTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe deines Shirts.", new ItemsCollection(camisasTextureArray), player.getTextureVariation(8));
 menuRoupasCamisas.AddItem(camisasItem);
 menuRoupasCamisas.AddItem(camisasTextureItem);
 menuRoupasCamisas.Visible = false;
@@ -163,6 +169,7 @@ menuRoupasCamisas.ListChange.on((item, listIndex) => {
     switch (item) {
     	case camisasItem:
     		mp.events.callRemote('setClothes', 8, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 8, drawable, 0);
     		camisasTextureNewArray = [];
 			for (i = 0; i < player.getNumberOfTextureVariations(8, player.getDrawableVariation(8)) + 1; i++) camisasTextureNewArray.push(i.toString());
     		camisasTextureItem.Collection = new NativeUI.ItemsCollection(camisasTextureNewArray).getListItems();
@@ -185,9 +192,9 @@ let calcasTextureArray = [];
 let calcasTextureLimite = player.getNumberOfTextureVariations(4, player.getDrawableVariation(4));
 for (i = 0; i < calcasTextureLimite + 1; i++) calcasTextureArray.push(i.toString());
 
-const menuRoupasCalcas = new Menu("Legs", "", new Point(50, 50));
-let calcasItem = new UIMenuListItem("Legs", "Select your pants.", new ItemsCollection(calcasDrawable), player.getDrawableVariation(4));
-let calcasTextureItem = new UIMenuListItem("Color", "Select your pants color.", new ItemsCollection(calcasTextureArray), player.getTextureVariation(4));
+const menuRoupasCalcas = new Menu("Hosen", "", new Point(50, 50));
+let calcasItem = new UIMenuListItem("Hosen", "Select your pants.", new ItemsCollection(calcasDrawable), player.getDrawableVariation(4));
+let calcasTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe deiner Hose.", new ItemsCollection(calcasTextureArray), player.getTextureVariation(4));
 menuRoupasCalcas.AddItem(calcasItem);
 menuRoupasCalcas.AddItem(calcasTextureItem);
 menuRoupasCalcas.Visible = false;
@@ -199,6 +206,7 @@ menuRoupasCalcas.ListChange.on((item, listIndex) => {
     switch (item) {
         case calcasItem:
             mp.events.callRemote('setClothes', 4, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 4, drawable, 0);
             calcasTextureNewArray = [];
             for (i = 0; i < player.getNumberOfTextureVariations(4, player.getDrawableVariation(4)) + 1; i++) calcasTextureNewArray.push(i.toString());
             calcasTextureItem.Collection = new NativeUI.ItemsCollection(calcasTextureNewArray).getListItems();
@@ -221,9 +229,9 @@ let sapatosTextureArray = [];
 let sapatosTextureLimite = player.getNumberOfTextureVariations(6, player.getDrawableVariation(6));
 for (i = 0; i < sapatosTextureLimite + 1; i++) sapatosTextureArray.push(i.toString());
 
-const menuRoupasSapatos = new Menu("Shoes", "", new Point(50, 50));
-let sapatosItem = new UIMenuListItem("Shoes", "Select your shoes.", new ItemsCollection(sapatosDrawable), player.getDrawableVariation(6));
-let sapatosTextureItem = new UIMenuListItem("Color", "Select your shoes color.", new ItemsCollection(sapatosTextureArray), player.getTextureVariation(6));
+const menuRoupasSapatos = new Menu("Schuhe", "", new Point(50, 50));
+let sapatosItem = new UIMenuListItem("Schuhe", "Wähle deinen Schuh.", new ItemsCollection(sapatosDrawable), player.getDrawableVariation(6));
+let sapatosTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe von deinem Schuh.", new ItemsCollection(sapatosTextureArray), player.getTextureVariation(6));
 menuRoupasSapatos.AddItem(sapatosItem);
 menuRoupasSapatos.AddItem(sapatosTextureItem);
 menuRoupasSapatos.Visible = false;
@@ -235,6 +243,7 @@ menuRoupasSapatos.ListChange.on((item, listIndex) => {
     switch (item) {
         case sapatosItem:
             mp.events.callRemote('setClothes', 6, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 6, drawable, 0);
             sapatosTextureNewArray = [];
             for (i = 0; i < player.getNumberOfTextureVariations(6, player.getDrawableVariation(6)) + 1; i++) sapatosTextureNewArray.push(i.toString());
             sapatosTextureItem.Collection = new NativeUI.ItemsCollection(sapatosTextureNewArray).getListItems();
@@ -257,9 +266,9 @@ let maosTextureArray = [];
 let maosTextureLimite = player.getNumberOfTextureVariations(3, player.getDrawableVariation(3));
 for (i = 0; i < maosTextureLimite + 1; i++) maosTextureArray.push(i.toString());
 
-const menuRoupasMaos = new Menu("Hands", "", new Point(50, 50));
-let maosItem = new UIMenuListItem("Hands", "Select your hands.", new ItemsCollection(maosDrawable), player.getDrawableVariation(3));
-let maosTextureItem = new UIMenuListItem("Color", "Select your hands variation.", new ItemsCollection(maosTextureArray), player.getTextureVariation(3));
+const menuRoupasMaos = new Menu("Handschuhe", "", new Point(50, 50));
+let maosItem = new UIMenuListItem("Handschuhe", "Wähle deine Handschuhe.", new ItemsCollection(maosDrawable), player.getDrawableVariation(3));
+let maosTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe von deinem Handschuh.", new ItemsCollection(maosTextureArray), player.getTextureVariation(3));
 menuRoupasMaos.AddItem(maosItem);
 menuRoupasMaos.AddItem(maosTextureItem);
 menuRoupasMaos.Visible = false;
@@ -271,6 +280,7 @@ menuRoupasMaos.ListChange.on((item, listIndex) => {
     switch (item) {
         case maosItem:
             mp.events.callRemote('setClothes', 3, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 3, drawable, 0);
             maosTextureNewArray = [];
             for (i = 0; i < player.getNumberOfTextureVariations(3, player.getDrawableVariation(3)) + 1; i++) maosTextureNewArray.push(i.toString());
             maosTextureItem.Collection = new NativeUI.ItemsCollection(maosTextureNewArray).getListItems();
@@ -294,9 +304,9 @@ let oculosTexture = [];
 let oculosTextureLimite = player.getNumberOfPropTextureVariations(1, player.getPropIndex(0));
 for (i = 0; i < oculosTextureLimite + 1; i++) oculosTexture.push(i.toString());
 
-const menuRoupasOculos = new Menu("Glasses", "", new Point(50, 50));
-let oculosItem = new UIMenuListItem("Glasses", "Select your glasses.", new ItemsCollection(oculosDrawable), player.getPropIndex(0));
-let oculosTextureItem = new UIMenuListItem("Color", "Select your glasses color.", new ItemsCollection(oculosTexture), player.getPropTextureIndex(1));
+const menuRoupasOculos = new Menu("Brillen", "", new Point(50, 50));
+let oculosItem = new UIMenuListItem("Brillen", "Wähle deine Brille.", new ItemsCollection(oculosDrawable), player.getPropIndex(0));
+let oculosTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe deiner Brille.", new ItemsCollection(oculosTexture), player.getPropTextureIndex(1));
 menuRoupasOculos.AddItem(oculosItem);
 menuRoupasOculos.AddItem(oculosTextureItem);
 menuRoupasOculos.Visible = false;
@@ -331,8 +341,8 @@ let acessoriosTextureLimite = player.getNumberOfTextureVariations(7, player.getD
 for (i = 0; i < acessoriosTextureLimite + 1; i++) acessoriosTextureArray.push(i.toString());
 
 const menuRoupasAcessorios = new Menu("Acessories", "", new Point(50, 50));
-let acessoriosItem = new UIMenuListItem("Acessories", "Select your acessories.", new ItemsCollection(acessoriosDrawable), player.getDrawableVariation(7));
-let acessoriosTextureItem = new UIMenuListItem("Color", "Select your acessories color.", new ItemsCollection(acessoriosTextureArray), player.getTextureVariation(7));
+let acessoriosItem = new UIMenuListItem("Acessories", "Wähle dein Accessoire.", new ItemsCollection(acessoriosDrawable), player.getDrawableVariation(7));
+let acessoriosTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe von deinem Accessoire.", new ItemsCollection(acessoriosTextureArray), player.getTextureVariation(7));
 menuRoupasAcessorios.AddItem(acessoriosItem);
 menuRoupasAcessorios.AddItem(acessoriosTextureItem);
 menuRoupasAcessorios.Visible = false;
@@ -344,6 +354,7 @@ menuRoupasAcessorios.ListChange.on((item, listIndex) => {
     switch (item) {
         case acessoriosItem:
             mp.events.callRemote('setClothes', 7, drawable, 0);
+			mp.events.callRemote('KleidungSetzen', 7, drawable, 0);
             acessoriosTextureNewArray = [];
             for (i = 0; i < player.getNumberOfTextureVariations(7, player.getDrawableVariation(7)) + 1; i++) acessoriosTextureNewArray.push(i.toString());
             acessoriosTextureItem.Collection = new NativeUI.ItemsCollection(acessoriosTextureNewArray).getListItems();
@@ -366,9 +377,9 @@ let mochilasTextureArray = [];
 let mochilasTextureLimite = player.getNumberOfTextureVariations(5, player.getDrawableVariation(5));;
 for (i = 0; i < mochilasTextureLimite + 1; i++) mochilasTextureArray.push(i.toString());
 
-const menuRoupasMochilas = new Menu("Bags", "", new Point(50, 50));
-let mochilasItem = new UIMenuListItem("Bags", "Select your bag.", new ItemsCollection(mochilasDrawable), player.getDrawableVariation(5));
-let mochilasTextureItem = new UIMenuListItem("Color", "Select your bag's color.", new ItemsCollection(mochilasTextureArray), player.getTextureVariation(5));
+const menuRoupasMochilas = new Menu("Rucksack", "", new Point(50, 50));
+let mochilasItem = new UIMenuListItem("Rucksack", "Wähle deinen Rucksack.", new ItemsCollection(mochilasDrawable), player.getDrawableVariation(5));
+let mochilasTextureItem = new UIMenuListItem("Farbe", "Wähle die Farbe deines Rucksacks.", new ItemsCollection(mochilasTextureArray), player.getTextureVariation(5));
 menuRoupasMochilas.AddItem(mochilasItem);
 menuRoupasMochilas.AddItem(mochilasTextureItem);
 menuRoupasMochilas.Visible = false;

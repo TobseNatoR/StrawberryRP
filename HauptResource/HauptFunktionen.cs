@@ -3265,10 +3265,26 @@ namespace Haupt
             account.PositionRot = Account.PositionRot;
             account.Dimension = Account.Dimension;
             account.Interior = Account.Interior;
+            account.Component1Drawable = Account.Component1Drawable;
+            account.Component3Drawable = Account.Component3Drawable;
+            account.Component4Drawable = Account.Component4Drawable;
+            account.Component6Drawable = Account.Component6Drawable;
+            account.Component7Drawable = Account.Component7Drawable;
+            account.Component8Drawable = Account.Component8Drawable;
+            account.Component11Drawable = Account.Component11Drawable;
             account.BerufskraftfahrerExp = Account.BerufskraftfahrerExp;
 
             account.JobFahrzeug = null;
             account.AccountGeändert = true;
+
+            //Kleidung laden
+            Player.TriggerEvent("KleidungZuJava", 1, Account.Component1Drawable);
+            Player.TriggerEvent("KleidungZuJava", 3, Account.Component3Drawable);
+            Player.TriggerEvent("KleidungZuJava", 4, Account.Component4Drawable);
+            Player.TriggerEvent("KleidungZuJava", 6, Account.Component6Drawable);
+            Player.TriggerEvent("KleidungZuJava", 7, Account.Component7Drawable);
+            Player.TriggerEvent("KleidungZuJava", 8, Account.Component8Drawable);
+            Player.TriggerEvent("KleidungZuJava", 11, Account.Component11Drawable);
 
             //Zur Liste adden
             AccountListe.Add(account);
@@ -3396,6 +3412,13 @@ namespace Haupt
                             DBAccount.PositionRot = account.PositionRot;
                             DBAccount.Dimension = account.Dimension;
                             DBAccount.Interior = account.Interior;
+                            DBAccount.Component1Drawable = account.Component1Drawable;
+                            DBAccount.Component3Drawable = account.Component3Drawable;
+                            DBAccount.Component4Drawable = account.Component4Drawable;
+                            DBAccount.Component6Drawable = account.Component6Drawable;
+                            DBAccount.Component7Drawable = account.Component7Drawable;
+                            DBAccount.Component8Drawable = account.Component8Drawable;
+                            DBAccount.Component11Drawable = account.Component11Drawable;
                             DBAccount.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
 
                             //Query absenden
@@ -3440,6 +3463,13 @@ namespace Haupt
             Account.PositionRot = account.PositionRot;
             Account.Dimension = account.Dimension;
             Account.Interior = account.Interior;
+            Account.Component1Drawable = account.Component1Drawable;
+            Account.Component3Drawable = account.Component3Drawable;
+            Account.Component4Drawable = account.Component4Drawable;
+            Account.Component6Drawable = account.Component6Drawable;
+            Account.Component7Drawable = account.Component7Drawable;
+            Account.Component8Drawable = account.Component8Drawable;
+            Account.Component11Drawable = account.Component11Drawable;
             Account.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
 
             //Query absenden
@@ -3481,6 +3511,13 @@ namespace Haupt
             Account.PositionRot = account.PositionRot;
             Account.Dimension = account.Dimension;
             Account.Interior = account.Interior;
+            Account.Component1Drawable = account.Component1Drawable;
+            Account.Component3Drawable = account.Component3Drawable;
+            Account.Component4Drawable = account.Component4Drawable;
+            Account.Component6Drawable = account.Component6Drawable;
+            Account.Component7Drawable = account.Component7Drawable;
+            Account.Component8Drawable = account.Component8Drawable;
+            Account.Component11Drawable = account.Component11Drawable;
             Account.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
 
             //Query absenden
@@ -6050,6 +6087,23 @@ namespace Haupt
             Name = Account.NickName;
 
             return Name;
+        }
+
+        [RemoteEvent("KleidungSetzen")]
+        public static void KleidungSetzen(Client Player, int componentId, int drawable, int texture)
+        {
+            AccountLokal account = new AccountLokal();
+            account = AccountBekommen(Player);
+
+            if(componentId == 1) { account.Component1Drawable = drawable; }
+            else if (componentId == 3) { account.Component3Drawable = drawable; }
+            else if (componentId == 4) { account.Component4Drawable = drawable; }
+            else if (componentId == 6) { account.Component6Drawable = drawable; }
+            else if (componentId == 7) { account.Component7Drawable = drawable; }
+            else if (componentId == 8) { account.Component8Drawable = drawable; }
+            else if (componentId == 11) { account.Component11Drawable = drawable; }
+
+            account.AccountGeändert = true;
         }
     }
 }

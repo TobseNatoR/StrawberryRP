@@ -19,6 +19,7 @@
 + Man kann E beim fahren im Bus neben einer Haltestelle nicht mehr triggern
 + An den Haltestellen stehen jetzt die Linien, man sieht also welche wo fährt
 + Ein CEF wurde eingebaut was die Informationen der Linie anzeigt (Wie viele Haltestellen etc.)
++ Outfits werden nun gespeichert (F7 für die Outfitauswahl ist jedoch nur temporär)
 
 02.04.2019
 + Haltestellen anfahren geht jetzt nur noch mit dem Bus
