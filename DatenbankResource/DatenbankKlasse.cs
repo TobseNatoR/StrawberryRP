@@ -1,16 +1,8 @@
-﻿/************************************************************************************************************************************************************************************************
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Dieser Gamemode wurde von Toby Gallenkamp wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
-        @@ Die Entwicklung dieses Gamemodes wurde im Januar 2019 aufgenommen.                                                                                                   @@
-        @@ Es dürfen nur von Toby Gallenkamp bestimmte Entwickler an diesem Gamemode arbeiten.                                                                                  @@
-        @@ Alle Arbeiten an diesem Gamemode gehören automatisch Strawberry Roleplay und dürfen auch nur von Strawberry Roleplay genutzt werden.                                 @@
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Sollte dieser Gamemode in Hände dritter gelangen, so ist Toby Gallenkamp unter folgender Telefonnummer zu kontaktieren: 0160/1144521                                 @@
-        @@ Sollte Toby Gallenkamp in diesem Fall nicht kontaktiert werden, so macht sich die Person nach § 106 Urheberrechtsgesetz strafbar.                                    @@
-        @@ In einem solchen Fall wird nicht gezögert mit einem Anwalt gegen die Person vor zu gehen.                                                                            @@
-        @@ Sollte Toby Gallenkamp durch einen Unfall oder sonstige Umstände sterben, so gehört dieser Gamemode Jakob Pritschmann wohnhaft in der Straße Hunteaue 1 in Hatten.   @@
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-************************************************************************************************************************************************************************************************/
+﻿/************************************************************************************************************
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@ Strawberry Roleplay Gamemode                                                                   @@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*************************************************************************************************************/
 
 using System;
 using GTANetworkAPI;
@@ -58,6 +50,7 @@ namespace Datenbank
         public string Passwort { get; set; }
         public int AdminLevel { get; set; }
         public int Fraktion { get; set; }
+        public int FraktionRang { get; set; }
         public int Job { get; set; }
         public long Geld { get; set; }
         public long BankGeld { get; set; }
@@ -101,6 +94,7 @@ namespace Datenbank
         public string Passwort { get; set; }
         public int AdminLevel { get; set; }
         public int Fraktion { get; set; }
+        public int FraktionRang { get; set; }
         public int Job { get; set; }
         public long Geld { get; set; }
         public long BankGeld { get; set; }
@@ -145,16 +139,28 @@ namespace Datenbank
         public DateTime Wann { get; set; }
     }
 
-    public class JobLohn
+    public class Bankautomaten
     {
         [Key]
         public int Id { get; set; }
 
-        public int JobId { get; set; }
-        public long Lohn1 { get; set; }
-        public long Lohn2 { get; set; }
-        public long Lohn3 { get; set; }
-        public long Lohn4 { get; set; }
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+    }
+
+    public class BankautomatenLokal
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+
+        public TextLabel ATMText { get; set; }
+        public Marker ATMMarker { get; set; }
+        public Blip ATMBlip { get; set; }
     }
 
     public class Save
@@ -524,5 +530,19 @@ namespace Datenbank
         public string GruppenRang5Name { get; set; }
 
         public Boolean GruppeGeändert { get; set; }
+    }
+
+    public class Fraktionen
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public string FraktionName { get; set; }
+        public long FraktionGeld { get; set; }
+        public string FraktionRang1Name { get; set; }
+        public string FraktionRang2Name { get; set; }
+        public string FraktionRang3Name { get; set; }
+        public string FraktionRang4Name { get; set; }
+        public string FraktionRang5Name { get; set; }
     }
 }

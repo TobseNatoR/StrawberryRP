@@ -1,16 +1,8 @@
-﻿/************************************************************************************************************************************************************************************************
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Dieser Gamemode wurde von Toby Gallenkamp wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
-        @@ Die Entwicklung dieses Gamemodes wurde im Januar 2019 aufgenommen.                                                                                                   @@
-        @@ Es dürfen nur von Toby Gallenkamp bestimmte Entwickler an diesem Gamemode arbeiten.                                                                                  @@
-        @@ Alle Arbeiten an diesem Gamemode gehören automatisch Strawberry Roleplay und dürfen auch nur von Strawberry Roleplay genutzt werden.                                 @@
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Sollte dieser Gamemode in Hände dritter gelangen, so ist Toby Gallenkamp unter folgender Telefonnummer zu kontaktieren: 0160/1144521                                 @@
-        @@ Sollte Toby Gallenkamp in diesem Fall nicht kontaktiert werden, so macht sich die Person nach § 106 Urheberrechtsgesetz strafbar.                                    @@
-        @@ In einem solchen Fall wird nicht gezögert mit einem Anwalt gegen die Person vor zu gehen.                                                                            @@
-        @@ Sollte Toby Gallenkamp durch einen Unfall oder sonstige Umstände sterben, so gehört dieser Gamemode Jakob Pritschmann wohnhaft in der Straße Hunteaue 1 in Hatten.   @@
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-************************************************************************************************************************************************************************************************/
+﻿/************************************************************************************************************
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@ Strawberry Roleplay Gamemode                                                                   @@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*************************************************************************************************************/
 
 using GTANetworkAPI;
 using Datenbank;
@@ -29,13 +21,6 @@ namespace Haupt
 {    
     public class Commands : Script
     {
-
-        [Command("test", "")]
-        public void Feuer(Client Player)
-        {
-            Player.TriggerEvent("busfahreranzeigeoeffnen");
-        }
-
         [Command("ferstellen", "Nutze: /ferstellen [Name] [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus] [Farbe 1] [Farbe 2]")]
         public void FahrzeugErstellen(Client Player, String Name, int Typ, int Farbe1, int Farbe2)
         {
@@ -786,6 +771,81 @@ namespace Haupt
             else
             {
                 Player.SendChatMessage("~y~Info~w~: Es wurde kein Ped gefunden.");
+            }
+        }
+
+        [Command("atmerstellen", "Nutze: /atmerstellen")]
+        public void PedErstellen(Client Player)
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Ein neues Objekt erzeugen
+            var Atm = new Bankautomaten
+            {
+                PositionX = Player.Position.X,
+                PositionY = Player.Position.Y,
+                PositionZ = Player.Position.Z
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_bankautomaten.Add(Atm);
+            ContextFactory.Instance.SaveChanges();
+
+            //Tanke zu der Lokalen Liste hinzufügen
+            BankautomatenLokal atm = new BankautomatenLokal();
+
+            atm.Id = ContextFactory.Instance.srp_bankautomaten.Max(x => x.Id);
+            atm.PositionX = Player.Position.X;
+            atm.PositionY = Player.Position.Y;
+            atm.PositionZ = Player.Position.Z;
+
+            String ATMText = null;
+            ATMText = "~g~[~w~ATM~g~]~n~";
+            atm.ATMBlip = NAPI.Blip.CreateBlip(new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ));
+            atm.ATMBlip.Name = "ATM";
+            atm.ATMBlip.ShortRange = true;
+            atm.ATMBlip.Sprite = 500;
+
+            //TextLabel und Marker erstellen
+            atm.ATMText = NAPI.TextLabel.CreateTextLabel(ATMText, new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            atm.ATMMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ATMMarker, new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Tanke in der Liste Lokal speichern
+            Funktionen.ATMListe.Add(atm);
+
+            //Log Eintrag
+            Funktionen.LogEintrag(Player, "ATM erstellt");
+        }
+
+        [Command("atmlöschen", "Nutze: /atmlöschen")]
+        public void ATMLöschen(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            BankautomatenLokal atm = new BankautomatenLokal();
+            atm = Funktionen.NaheBankautomatenBekommen(Player);
+
+            if (atm != null)
+            {
+                var Atm = ContextFactory.Instance.srp_bankautomaten.Where(x => x.Id == atm.Id).FirstOrDefault();
+
+                Funktionen.ATMListe.Remove(atm);
+                atm.ATMMarker.Delete();
+                atm.ATMBlip.Delete();
+                atm.ATMText.Delete();
+
+                //Query absenden
+                ContextFactory.Instance.srp_bankautomaten.Remove(Atm);
+
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "ATM gelöscht");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Es wurde kein ATM gefunden.");
             }
         }
 
@@ -1743,6 +1803,50 @@ namespace Haupt
 
             //Log eintrag
             Funktionen.LogEintrag(Player, Spieler1.Name + " Admin Level " + Level + " gegeben");
+        }
+
+        [Command("fraktionsetzen", "Nutze: /fraktionsetzen [Spielername] [Fraktion]")]
+        public void FraktionSetzen(Client Player, String Spieler, int Fraktion)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FraktionSetzen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Spieler über den Namen ermitteln
+            Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
+            if (Spieler1 == null)
+            {
+                if (Funktionen.SpielerSuchen(Spieler) == null)
+                {
+                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    return;
+                }
+                else
+                {
+                    Spieler1 = Funktionen.SpielerSuchen(Spieler);
+                }
+            }
+
+            //Dem Spieler das Admin Level setzen
+            Funktionen.AccountFraktionSetzen(Spieler1, Fraktion);
+
+            var Check = ContextFactory.Instance.srp_fraktionen.Count(x => x.Id == Fraktion);
+
+            if(Check != 0)
+            {
+                var fraki = ContextFactory.Instance.srp_fraktionen.Where(x => x.Id == Fraktion).FirstOrDefault();
+
+                //Beiden eine Nachricht senden
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
+                NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Du hast von " + Player.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
+
+                //Log eintrag
+                Funktionen.LogEintrag(Player, Spieler1.Name + " in Fraktion " + fraki.FraktionName + " gesetzt.");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Diese Fraktion ist uns nicht bekannt.");
+            }
         }
 
         [Command("geldsetzen", "Nutze: /geldsetzen [Spielername] [Geld]")]

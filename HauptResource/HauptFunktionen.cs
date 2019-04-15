@@ -1,16 +1,8 @@
-﻿/************************************************************************************************************************************************************************************************
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Dieser Gamemode wurde von Toby Gallenkamp wohnhaft in der Fontanestraße 35 in Hatten programmiert.                                                                   @@
-        @@ Die Entwicklung dieses Gamemodes wurde im Januar 2019 aufgenommen.                                                                                                   @@
-        @@ Es dürfen nur von Toby Gallenkamp bestimmte Entwickler an diesem Gamemode arbeiten.                                                                                  @@
-        @@ Alle Arbeiten an diesem Gamemode gehören automatisch Strawberry Roleplay und dürfen auch nur von Strawberry Roleplay genutzt werden.                                 @@
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        @@ Sollte dieser Gamemode in Hände dritter gelangen, so ist Toby Gallenkamp unter folgender Telefonnummer zu kontaktieren: 0160/1144521                                 @@
-        @@ Sollte Toby Gallenkamp in diesem Fall nicht kontaktiert werden, so macht sich die Person nach § 106 Urheberrechtsgesetz strafbar.                                    @@
-        @@ In einem solchen Fall wird nicht gezögert mit einem Anwalt gegen die Person vor zu gehen.                                                                            @@
-        @@ Sollte Toby Gallenkamp durch einen Unfall oder sonstige Umstände sterben, so gehört dieser Gamemode Jakob Pritschmann wohnhaft in der Straße Hunteaue 1 in Hatten.   @@
-        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-************************************************************************************************************************************************************************************************/
+﻿/************************************************************************************************************
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        @@ Strawberry Roleplay Gamemode                                                                   @@
+        @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+*************************************************************************************************************/
 
 using GTANetworkAPI;
 using Datenbank;
@@ -50,6 +42,7 @@ namespace Haupt
         public const int ImmobilienMarker = 0;
         public const int SupermarktMarker = 0;
         public const int AutohausMarker = 0;
+        public const int ATMMarker = 20;
 
         //Preise
         public const int PersonalausweisPreis = 100;
@@ -105,6 +98,9 @@ namespace Haupt
         public const int Speichern = 4;
         public const int GeldGeben = 5;
         public const int VerwaltungsModus = 4;
+        public const int FraktionSetzen = 4;
+        public const int ATMErstellen = 4;
+        public const int ATMLöschen = 4;
         public const int TankeBeschreibung = 4;
         public const int TankeKaufpreis = 4;
         public const int FahrzeugErstellen = 4;
@@ -147,8 +143,8 @@ namespace Haupt
     public class Zahlen
     {
         //Globale Zahlen
-        public const int Jobs = 3;
-        public const int Fraktionen = 3;
+        public const int Jobs = 2;
+        public const int Fraktionen = 1;
     }
 
     public class Funktionen : Script
@@ -165,6 +161,7 @@ namespace Haupt
         public static List<BotLokal> BotListe;
         public static List<SaveLokal> SaveListe;
         public static List<GruppenLokal> GruppenListe;
+        public static List<BankautomatenLokal> ATMListe;
 
         public static void AllesStarten()
         {
@@ -186,6 +183,7 @@ namespace Haupt
             SavesLadenLokal();
             GruppenLadenLokal();
             AutohäuserLadenLokal();
+            BankautomatenLadenLokal();
 
             //Speicherungs Timer
             //Timer.SetTimer(AlleSpielerSpeichern, 30000, 0);
@@ -227,6 +225,7 @@ namespace Haupt
             var Bots = ContextFactory.Instance.srp_bots.Count();
             var Saves = ContextFactory.Instance.srp_saves.Count();
             var Gruppen = ContextFactory.Instance.srp_gruppen.Count();
+            var ATMs = ContextFactory.Instance.srp_bankautomaten.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -241,6 +240,7 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Bots + " Peds wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Saves + " Saves wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Gruppen + " Gruppen wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + ATMs + " ATMs wurden geladen.");
 
             //Spieler auf 0 setzen
             var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
@@ -443,6 +443,25 @@ namespace Haupt
             }
         }
 
+        public static void BankautomatenLadenLokal()
+        {
+            ATMListe = AlleBankautomatenLadenDB();
+
+            foreach (BankautomatenLokal atm in ATMListe)
+            {
+                String ATMText = null;
+                ATMText = "~g~[~w~ATM~g~]~n~";
+                atm.ATMBlip = NAPI.Blip.CreateBlip(new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ));
+                atm.ATMBlip.Name = "ATM";
+                atm.ATMBlip.ShortRange = true;
+                atm.ATMBlip.Sprite = 500;
+
+                //TextLabel und Marker erstellen
+                atm.ATMText = NAPI.TextLabel.CreateTextLabel(ATMText, new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                atm.ATMMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ATMMarker, new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            }
+        }
+
         public static void PedsLadenLokal()
         {
             BotListe = AlleBotsLadenDB();
@@ -590,6 +609,20 @@ namespace Haupt
                 }
             }
             return Bot;
+        }
+
+        public static BankautomatenLokal NaheBankautomatenBekommen(Client Player, float distance = 2.0f)
+        {
+            BankautomatenLokal atm = null;
+            foreach (BankautomatenLokal atmlocal in ATMListe)
+            {
+                if (Player.Position.DistanceTo(new Vector3(atmlocal.PositionX, atmlocal.PositionY, atmlocal.PositionZ)) < distance)
+                {
+                    atm = atmlocal;
+                    break;
+                }
+            }
+            return atm;
         }
 
         public static SupermarktLokal NaheSupermarktBekommen(Client Player, float distance = 2.0f)
@@ -1090,6 +1123,18 @@ namespace Haupt
                 if (Player.GetData("Id") == account.Id)
                 {
                     account.AdminLevel = AdminLevel;
+                    account.AccountGeändert = true;
+                }
+            }
+        }
+
+        public static void AccountFraktionSetzen(Client Player, int Fraktion)
+        {
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    account.Fraktion = Fraktion;
                     account.AccountGeändert = true;
                 }
             }
@@ -2949,6 +2994,25 @@ namespace Haupt
             return BotListe;
         }
 
+        public static List<BankautomatenLokal> AlleBankautomatenLadenDB()
+        {
+            List<BankautomatenLokal> ATMListe = new List<BankautomatenLokal>();
+
+            foreach (var Atm in ContextFactory.Instance.srp_bankautomaten.Where(x => x.Id > 0).ToList())
+            {
+                BankautomatenLokal atm = new BankautomatenLokal();
+
+                atm.Id = Atm.Id;
+                atm.PositionX = Atm.PositionX;
+                atm.PositionY = Atm.PositionY;
+                atm.PositionZ = Atm.PositionZ;
+
+                //Zur lokalen Liste hinzufügen
+                ATMListe.Add(atm);
+            }
+            return ATMListe;
+        }
+
         public static List<SaveLokal> AlleSavesLadenDB()
         {
             List<SaveLokal> SaveListe = new List<SaveLokal>();
@@ -3245,6 +3309,7 @@ namespace Haupt
             account.Passwort = Account.Passwort;
             account.AdminLevel = Account.AdminLevel;
             account.Fraktion = Account.Fraktion;
+            account.FraktionRang = Account.FraktionRang;
             account.Job = Account.Job;
             account.Geld = Account.Geld;
             account.BankGeld = Account.BankGeld;
@@ -3392,6 +3457,7 @@ namespace Haupt
                             DBAccount.NickName = account.NickName;
                             DBAccount.AdminLevel = account.AdminLevel;
                             DBAccount.Fraktion = account.Fraktion;
+                            DBAccount.FraktionRang = account.FraktionRang;
                             DBAccount.Job = account.Job;
                             DBAccount.Geld = account.Geld;
                             DBAccount.BankGeld = account.BankGeld;
@@ -3444,6 +3510,7 @@ namespace Haupt
             Account.NickName = account.NickName;
             Account.AdminLevel = account.AdminLevel;
             Account.Fraktion = account.Fraktion;
+            Account.FraktionRang = account.FraktionRang;
             Account.Job = account.Job;
             Account.Geld = account.Geld;
             Account.BankGeld = account.BankGeld;
@@ -3491,6 +3558,7 @@ namespace Haupt
             Account.NickName = account.NickName;
             Account.AdminLevel = account.AdminLevel;
             Account.Fraktion = account.Fraktion;
+            Account.FraktionRang = account.FraktionRang;
             Account.Job = account.Job;
             Account.Geld = account.Geld;
             Account.BankGeld = account.BankGeld;
