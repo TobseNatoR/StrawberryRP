@@ -35,13 +35,13 @@ namespace Haupt
             {
                 if (Check == 0)
                 {
-                    Funktionen.AlleBlipsWeg(Player);
                     Player.SendChatMessage("~r~Unser Server ist noch in Entwicklung. Melde dich auf www.strawberry-rp.de");
                     NAPI.Notification.SendNotificationToPlayer(Player, "~r~Unser Server ist noch in Entwicklung. Melde dich auf www.strawberry-rp.de");
-                    Timer.SetTimer(() => Funktionen.SpielerKickenBlipsNeuladen(Player), 2000, 1);
 
                     //Log Eintrag
                     Funktionen.LogEintrag(Player, "Nicht auf der Whitelist");
+
+                    NAPI.Player.KickPlayer(Player, "Unser Server ist in Entwicklung!");
                     return;
                 }
             }

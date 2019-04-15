@@ -5756,58 +5756,6 @@ namespace Haupt
             Unfreeze(Player);
         }
 
-        public static void AlleBlipsWeg(Client Player)
-        {
-            foreach (Blip Blip in NAPI.Pools.GetAllBlips())
-            {
-                Blip.Delete();
-            }
-
-            foreach (TextLabel Textlabel in NAPI.Pools.GetAllTextLabels())
-            {
-                Textlabel.Delete();
-            }
-
-            foreach (Marker Marker in NAPI.Pools.GetAllMarkers())
-            {
-                Marker.Delete();
-            }
-        }
-
-        public static void SpielerKickenBlipsNeuladen(Client Player)
-        {
-            NAPI.Player.KickPlayer(Player, "Unser Server ist in Entwicklung!");
-            Timer.SetTimer(() => Funktionen.SpielerKickenBlipsNeuladen1(Player), 2000, 1);
-        }
-
-        public static void SpielerKickenBlipsNeuladen1(Client Player)
-        {
-            BlipsNeuladen();
-        }
-
-        public static void BlipsNeuladen()
-        {
-            //Liste löschen
-            TankenListe.Clear();
-            ImmobilienListe.Clear();
-            TankenPunktListe.Clear();
-            TankenInfoListe.Clear();
-            AutohausListe.Clear();
-            SupermarktListe.Clear();
-
-            TextLabelsLaden();
-            BlipsLaden();
-            MarkersLaden();
-
-            TankstellenLadenLokal();
-            TankstellenPunkteLadenLokal();
-            TankstellenInfoLadenLokal();
-            ImmobilienLadenLokal();
-            SupermärkteLadenLokal();
-            AutohäuserLadenLokal();
-
-        }
-
         [RemoteEvent("GruppierungErstellen")]
         public static void GruppierungErstellen(Client Player, String Gruppenname, String Gruppentag, String Gruppenfarbe)
         {

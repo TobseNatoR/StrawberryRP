@@ -1805,7 +1805,7 @@ namespace Haupt
             Funktionen.LogEintrag(Player, Spieler1.Name + " Admin Level " + Level + " gegeben");
         }
 
-        [Command("fraktionsetzen", "Nutze: /fraktionsetzen [Spielername] [Fraktion]")]
+        [Command("fraktionsetzen", "Nutze: /fraktionsetzen [Spielername] [FraktionsID]")]
         public void FraktionSetzen(Client Player, String Spieler, int Fraktion)
         {
             //Benötigte Abfragen
@@ -1838,7 +1838,7 @@ namespace Haupt
 
                 //Beiden eine Nachricht senden
                 NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
-                NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Du hast von " + Player.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
+                NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Du wurdest von " + Player.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
 
                 //Log eintrag
                 Funktionen.LogEintrag(Player, Spieler1.Name + " in Fraktion " + fraki.FraktionName + " gesetzt.");
