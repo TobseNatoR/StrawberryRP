@@ -1365,9 +1365,13 @@ namespace Haupt
             {
                 Name = "Niemand";
             }
-            else
+            else if(Account != null)
             {
                 Name = Account.NickName;
+            }
+            else
+            {
+                Name = "Niemand";
             }
 
             //Alles wieder zurück geben
