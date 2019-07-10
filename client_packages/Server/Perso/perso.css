@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css?family=Lora');
+@import url('https://fonts.googleapis.com/css?family=Lora');
+body
+{
+	background: transparent;
+}
+
+#pPage {
+  width: 45%;
+  margin: 28%;
+  margin-top: 40%;
+  padding: 25px 20px 15px 20px;
+  border: 2px solid black;
+  background-image: url(https://filebase.strawberry-rp.de/server/img/perso_bg.png);
+  background-size: 450px 239px;
+}
+
+#pHeader{
+  margin-right: 5%;
+  margin-left: 0%;
+  font-family: "Open Sans Condensed", Lora, sans-serif;
+  color: black;
+}
+
+#pWappen{
+ margin-right: 0%;
+ margin-left: 0%;
+ margin-top: -27%;
+}
+
+#pBody{
+  margin-left: 40%;
+  font-family: "Open Sans Condensed", Lora, sans-serif;
+  color: black;
+}
