@@ -24,6 +24,9 @@ namespace Haupt
         public const String Verbindung = "Server=127.0.0.1; Database=strawberryrp_server; Uid=strawberryrpserver; Pwd=rElciatks7Pn7DpH";
         //public const String Verbindung = "Server=localhost; Database=strawberryrp_server; Uid=root;Pwd=";
 
+        //Versionen
+        public const String Client_Files_Version = "1.0.1";
+
         //Verbrauch
         public const float Verbrauch = 0.7f;
 
