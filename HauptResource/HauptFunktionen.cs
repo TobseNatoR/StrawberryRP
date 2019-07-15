@@ -1567,25 +1567,25 @@ namespace Haupt
                     if (Random == 5) { GlobaleSachen.ServerWetter = 0; }
                     break;
                 case 9:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 1; }
                     break;
                 case 10:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
-                    if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 4) { GlobaleSachen.ServerWetter = 2; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 1; }
                     break;
                 case 11:
-                    if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 13; }
+                    if (Random == 1) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 2; }
                     if (Random == 3) { GlobaleSachen.ServerWetter = 11; }
                     if (Random == 4) { GlobaleSachen.ServerWetter = 10; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 12; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 1; }
                     break;
                 case 12:
                     if (Random == 1) { GlobaleSachen.ServerWetter = 13; }
