@@ -28,18 +28,12 @@ namespace Fahrzeug
             {
                 Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
                 Player.TriggerEvent("rollermietenpopupschliessen");
-
-                //Chat an
-                Player.TriggerEvent("Chatzeigen");
             }
             else
             {
                 Player.SendChatMessage("~y~Info~w~: Du hast das Fahrzeug gemietet.");
                 Funktionen.AccountGeldSetzen(Player, 2, auto.FahrzeugMietpreis);
                 Player.TriggerEvent("rollermietenpopupschliessen");
-
-                //Chat an
-                Player.TriggerEvent("Chatzeigen");
             }
         }
 
@@ -47,9 +41,6 @@ namespace Fahrzeug
         public void RollerNichtMieten(Client Player)
         {
             Player.TriggerEvent("rollermietenpopupschliessen");
-
-            //Chat an
-            Player.TriggerEvent("Chatzeigen");
         }
 
         [RemoteEvent("LichtAn")]
@@ -87,9 +78,6 @@ namespace Fahrzeug
 
                 if (Player.GetData("VerwaltungsModus") == 0)
                 {
-                    //Chat weg
-                    Player.TriggerEvent("Chathiden");
-
                     Player.TriggerEvent("rollermietenpopupoeffnen", Funktionen.GeldFormatieren(MietpreisBekommen(Player.Vehicle)));
                 }
             }
@@ -105,9 +93,6 @@ namespace Fahrzeug
 
                     //Freezen
                     Funktionen.Freeze(Player);
-
-                    //Chat weg
-                    Player.TriggerEvent("Chathiden");
 
                     Player.TriggerEvent("Kaufen", 5, Funktionen.GeldFormatieren(KaufPreisBekommen(Player.Vehicle)));
                 }
@@ -130,9 +115,6 @@ namespace Fahrzeug
 
                     //Freezen
                     Funktionen.Freeze(Player);
-
-                    //Chat weg
-                    Player.TriggerEvent("Chathiden");
 
                     Player.TriggerEvent("Kaufen", 6, Funktionen.GeldFormatieren(KaufPreisBekommen(Player.Vehicle)), Funktionen.GeldFormatieren(Rechnen1));
                 }

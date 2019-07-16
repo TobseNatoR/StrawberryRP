@@ -1903,9 +1903,6 @@ namespace Haupt
                 Player.SendChatMessage("~y~Info~w~: Bezahle nun an der Tankstelle " + GeldFormatieren(TankRechnung));
                 Player.TriggerEvent("tankenschliessen");
 
-                //Chat zeigen
-                Player.TriggerEvent("Chatzeigen");
-
                 //Rechnung setzen
                 Player.SetData("TankRechnung", TankRechnung);
             }
@@ -1921,9 +1918,6 @@ namespace Haupt
             Player.SetData("AmTanken", 0);
             Player.SetData("TankenTankstellenId", 0);
             Player.SetData("TankRechnung", 0);
-
-            //Chat zeigen
-            Player.TriggerEvent("Chatzeigen");
         }
 
         [RemoteEvent("IBerry")]
@@ -1962,9 +1956,6 @@ namespace Haupt
 
                 //Log Eintrag
                 LogEintrag(Player, "IBerry geöffnet");
-
-                //Chat zeigen
-                Player.TriggerEvent("Chathiden");
             }
             else
             {
@@ -1974,9 +1965,6 @@ namespace Haupt
 
                 //Log Eintrag
                 LogEintrag(Player, "IBerry geschlossen");
-
-                //Chat zeigen
-                Player.TriggerEvent("Chatzeigen");
             }
         }
 
@@ -1984,9 +1972,6 @@ namespace Haupt
         public static void FahrzeugVerwaltungPrivatAbbrechen(Client Player)
         {
             Player.SetData("FahrzeugPrivatDialog", 0);
-
-            //Chat zeigen
-            Player.TriggerEvent("Chatzeigen");
         }
 
         [RemoteEvent("Fahrzeug_Privat_Abschliessen")]
@@ -2097,6 +2082,28 @@ namespace Haupt
             }
         }
 
+        [RemoteEvent("NCheck")]
+        public static void NCheck(Client Player)
+        {
+            //Cooldown
+            if (Player.GetData("KeyCoolDown") == 1) { return; }
+            Player.SetData("KeyCoolDown", 1);
+            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.KeyCoolDownZeit, 1);
+            
+            if(AccountAdminLevelBekommen(Player) == 0) { return; }
+
+            if(Player.GetData("Chat") == 0)
+            {
+                Player.TriggerEvent("Chatzeigen");
+                Player.SetData("Chat", 1);
+            }
+            else
+            {
+                Player.TriggerEvent("Chathiden");
+                Player.SetData("Chat", 0);
+            }
+        }
+
         [RemoteEvent("F2Check")]
         public static void F2Check(Client Player)
         {
@@ -2186,9 +2193,6 @@ namespace Haupt
                         Player.SetData("KaufenId", tanke.Id);
                         Player.SetData("KaufenPreis", tanke.TankstelleKaufpreis);
 
-                        //Chat weg
-                        Player.TriggerEvent("Chathiden");
-
                         Player.TriggerEvent("Kaufen", 1, GeldFormatieren(tanke.TankstelleKaufpreis));
                         return;
                     }
@@ -2206,9 +2210,6 @@ namespace Haupt
                         Player.SetData("KaufenTyp", 2);
                         Player.SetData("KaufenId", haus.Id);
                         Player.SetData("KaufenPreis", haus.ImmobilienKaufpreis);
-
-                        //Chat weg
-                        Player.TriggerEvent("Chathiden");
 
                         //Freeze
                         Freeze(Player);
@@ -2231,9 +2232,6 @@ namespace Haupt
                         Player.SetData("KaufenId", supermarkt.Id);
                         Player.SetData("KaufenPreis", supermarkt.SupermarktKaufpreis);
 
-                        //Chat weg
-                        Player.TriggerEvent("Chathiden");
-
                         //Freeze
                         Freeze(Player);
 
@@ -2254,9 +2252,6 @@ namespace Haupt
                         Player.SetData("KaufenTyp", 4);
                         Player.SetData("KaufenId", autohaus.Id);
                         Player.SetData("KaufenPreis", autohaus.AutohausKaufpreis);
-
-                        //Chat weg
-                        Player.TriggerEvent("Chathiden");
 
                         //Freeze
                         Freeze(Player);
@@ -2282,7 +2277,6 @@ namespace Haupt
 
             Player.TriggerEvent("Scoreboardoeffnen");
             Player.SetData("Scoreboard", 1);
-            Player.TriggerEvent("Chatzeigen");
             foreach (var Spieler in NAPI.Pools.GetAllPlayers())
             {
                 if (Spieler.GetData("Eingeloggt") == 1)
@@ -2315,7 +2309,6 @@ namespace Haupt
             Player.TriggerEvent("Scoreboardschliessen");
             Player.SetData("Scoreboard", 0);
             Player.SetData("ScoreboardScroll", 0);
-            Player.TriggerEvent("Chatzeigen");
         }
 
         [RemoteEvent("ScoreboardDown")]
@@ -2510,9 +2503,6 @@ namespace Haupt
 
                     InhaltGerundet = (float)Math.Round(Inhalt, 0);
                     TankvollRechnung = Volumen - InhaltGerundet;
-
-                    //Chat weg
-                    Player.TriggerEvent("Chathiden");
 
                     //CEF Javascript Event triggern und die Prameter übergeben
                     Player.TriggerEvent("Tanken", Volumen, InhaltGerundet, TankvollRechnung, Diesel, E10, Super);
@@ -3186,9 +3176,6 @@ namespace Haupt
 
             //Unfreeze
             Unfreeze(Player);
-
-            //Chat an
-            Player.TriggerEvent("Chatzeigen");
         }
 
         [RemoteEvent("Kaufen")]
@@ -3453,6 +3440,8 @@ namespace Haupt
             Player.SetData("HeiratenId", 0);
             Player.SetData("HeiratenBrowser", 0);
             Player.SetData("GruppenEinladungId", 0);
+            Player.SetData("StadthalleInt", 0);
+            Player.SetData("Chat", 0);
 
             //Job Daten
             //Berufskraftfahrer
@@ -3475,9 +3464,6 @@ namespace Haupt
 
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
-
-            //Chat zeigen
-            Player.TriggerEvent("Chatzeigen");
 
             //Discord
             Player.TriggerEvent("DiscordStatusSetzen", "Strawberry Roleplay","Spielt als " + Player.Name);
@@ -5807,10 +5793,12 @@ namespace Haupt
             if(account.AdminLevel == 0)
             {
                 Player.TriggerEvent("Chathiden");
+                Player.SetData("Chat", 0);
             }
             else
             {
                 Player.TriggerEvent("Chatzeigen");
+                Player.SetData("Chat", 1);
             }
             
             LogEintrag(Player, "Gespawnt (" + account.PositionX + ", " + account.PositionY + ", " + account.PositionZ + ") Dimension: " + account.Dimension + " | Interior: " + account.Interior);
@@ -5956,8 +5944,6 @@ namespace Haupt
             //Daten erfassen
             int Gruppe = AccountGruppeBekommen(Player);
             int Rang = AccountGruppeRangBekommen(Player);
-
-            Player.TriggerEvent("Chathiden");
 
             if(Typ == 1)
             {

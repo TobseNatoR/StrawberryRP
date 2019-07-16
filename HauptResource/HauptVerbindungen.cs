@@ -51,9 +51,6 @@ namespace Haupt
             //Consolen Nachricht
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Player.SocialClubName + " hat sich mit dem Server verbunden. [" + DateTime.Now + "]", ConsoleColor.Red);
 
-            //Chat entfernen
-            Player.TriggerEvent("Chathiden");
-
             //Laden und danach Login/Register
             Player.TriggerEvent("Laden");
             Timer.SetTimer(() => Funktionen.LoginLadenBeenden(Player), 4000, 1);
@@ -107,6 +104,7 @@ namespace Haupt
             Player.SetData("HeiratenBrowser", 0);
             Player.SetData("GruppenEinladungId", 0);
             Player.SetData("StadthalleInt", 0);
+            Player.SetData("Chat", 0);
 
             //Job Daten Berufskraftfahrer
             Player.SetData("BerufskraftfahrerFahrzeug", 0);
