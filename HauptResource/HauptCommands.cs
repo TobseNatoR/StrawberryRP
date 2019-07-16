@@ -625,6 +625,12 @@ namespace Haupt
             Funktionen.LogEintrag(Player, "Tankstellen Kaufpreis geändert");
         }
 
+        [Command("testdlc", "Nutze: /testdlc")]
+        public void testdlc(Client Player)
+        {
+            Player.TriggerEvent("TestDLC");
+        }
+
         [Command("terstellen", "Nutze: /terstellen [Kaufpreis]")]
         public void TankstelleErstellen(Client Player, long Kaufpreis)
         {
@@ -696,9 +702,8 @@ namespace Haupt
         [Command("perstellen", "Nutze: /perstellen [Name] [Beschreibung]")]
         public void PedErstellen(Client Player, String Name, String Beschreibung)
         {
-            int Gesperrt = 1;
-
-            if(Gesperrt == 1) { Player.SendChatMessage("~y~Info~w~: Der Befehl ist derzeit leider gesperrt."); return; }
+            //int Gesperrt = 1;
+            //if(Gesperrt == 1) { Player.SendChatMessage("~y~Info~w~: Der Befehl ist derzeit leider gesperrt."); return; }
 
             //Definitionen
             uint BotHash = NAPI.Util.GetHashKey(Name);

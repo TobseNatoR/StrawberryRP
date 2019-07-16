@@ -643,6 +643,17 @@ namespace Haupt
             return Bot;
         }
 
+        public static void PedsFürSpielerLaden(Client Player)
+        {
+
+            foreach (BotLokal botlocal in BotListe)
+            {
+                var botPosition = new Vector3(botlocal.BotX, botlocal.BotY, botlocal.BotZ);
+                var botRotation = new Vector3(0.0, 0.0, botlocal.BotKopf);
+                Player.TriggerEvent("boterstellen", botlocal.BotName, botPosition.X, botPosition.Y, botPosition.Z, botRotation.Z);
+            }
+        }
+
         public static BankautomatenLokal NaheBankautomatenBekommen(Client Player, float distance = 2.0f)
         {
             BankautomatenLokal atm = null;
@@ -3009,9 +3020,6 @@ namespace Haupt
             {
                 BotLokal bot = new BotLokal();
 
-                var botPosition = new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ);
-                var botRotation = new Vector3(0.0, 0.0, Bot.BotKopf);
-                NAPI.ClientEvent.TriggerClientEventForAll("boterstellen", Bot.BotName, botPosition.X, botPosition.Y, botPosition.Z, botRotation.Z);
                 //if (Bot.BotDimension == 0)
                 //{
                 //    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, 0);
@@ -3474,6 +3482,9 @@ namespace Haupt
             //Nachrichten
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dich erfolgreich eingeloggt!");
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein letzter Login war am ~r~" + DatumFormatieren(Account.ZuletztOnline));
+
+            //Peds Laden
+            PedsFürSpielerLaden(Player);
         }
 
         public static void ServerSpielerGejoined(int Status)
