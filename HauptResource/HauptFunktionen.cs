@@ -25,13 +25,16 @@ namespace Haupt
         //public const String Verbindung = "Server=localhost; Database=strawberryrp_server; Uid=root;Pwd=";
 
         //Versionen
-        public const String Client_Files_Version = "1.0.1";
+        public const String Server_Version = "1.0.0";
 
         //Verbrauch
         public const float Verbrauch = 0.7f;
 
         //Wetter
         public static int ServerWetter = 0;
+
+        //Registrierung
+        public const int StartGeld = 100;
 
         //Cooldown
         public static uint KeyCoolDownZeit = 5000;
@@ -46,6 +49,7 @@ namespace Haupt
         public const int SupermarktMarker = 0;
         public const int AutohausMarker = 0;
         public const int ATMMarker = 20;
+        public const int FVermietungMarker = 0;
 
         //Preise
         public const int PersonalausweisPreis = 100;
@@ -57,7 +61,6 @@ namespace Haupt
         public const int GruppenMemberLimit = 25;
 
         //Dinge die am laufen sind
-        public static int Pferderennen = 0;
         public static int Heiraten = 0;
         public static int BerufskraftFahrerFahrzeugGespawnt = 0;
         public static int BusfahrerFahrzeugGespawnt = 0;
@@ -103,6 +106,8 @@ namespace Haupt
         public const int VerwaltungsModus = 4;
         public const int FraktionSetzen = 4;
         public const int ATMErstellen = 4;
+        public const int FVermietungErstellen = 4;
+        public const int FVermietungLöschen = 4;
         public const int ATMLöschen = 4;
         public const int TankeBeschreibung = 4;
         public const int TankeKaufpreis = 4;
@@ -165,6 +170,7 @@ namespace Haupt
         public static List<SaveLokal> SaveListe;
         public static List<GruppenLokal> GruppenListe;
         public static List<BankautomatenLokal> ATMListe;
+        public static List<FahrzeugvermietungenLokal> FVermietungListe;
 
         public static void AllesStarten()
         {
@@ -187,6 +193,7 @@ namespace Haupt
             GruppenLadenLokal();
             AutohäuserLadenLokal();
             BankautomatenLadenLokal();
+            FahrzeugvermietungenLadenLokal();
 
             //Speicherungs Timer
             //Timer.SetTimer(AlleSpielerSpeichern, 30000, 0);
@@ -229,6 +236,7 @@ namespace Haupt
             var Saves = ContextFactory.Instance.srp_saves.Count();
             var Gruppen = ContextFactory.Instance.srp_gruppen.Count();
             var ATMs = ContextFactory.Instance.srp_bankautomaten.Count();
+            var Fahrzeugvermietungen = ContextFactory.Instance.srp_fahrzeugvermietungen.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -244,6 +252,7 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Saves + " Saves wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Gruppen + " Gruppen wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + ATMs + " ATMs wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + Fahrzeugvermietungen + " Fahrzeugvermietungen wurden geladen.");
 
             //Spieler auf 0 setzen
             var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
@@ -465,6 +474,26 @@ namespace Haupt
             }
         }
 
+        public static void FahrzeugvermietungenLadenLokal()
+        {
+            FVermietungListe = AlleFahrzeugvermiertungenLadenDB();
+
+            foreach (FahrzeugvermietungenLokal fverm in FVermietungListe)
+            {
+                String fVermText = null;
+                fVermText = "~g~[~w~Fahrzeugvermietung~g~]~n~";
+                fverm.FVermietungBlip = NAPI.Blip.CreateBlip(new Vector3(fverm.PositionX, fverm.PositionY, fverm.PositionZ));
+                fverm.FVermietungBlip.Name = "Fahrzeugvermietung";
+                fverm.FVermietungBlip.ShortRange = true;
+                fverm.FVermietungBlip.Sprite = 81;
+                fverm.FVermietungBlip.Color = 17;
+
+                //TextLabel und Marker erstellen
+                fverm.FVermietungText = NAPI.TextLabel.CreateTextLabel(fVermText, new Vector3(fverm.PositionX, fverm.PositionY, fverm.PositionZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+                fverm.FVermietungMarker = NAPI.Marker.CreateMarker(GlobaleSachen.FVermietungMarker, new Vector3(fverm.PositionX, fverm.PositionY, fverm.PositionZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+            }
+        }
+
         public static void PedsLadenLokal()
         {
             BotListe = AlleBotsLadenDB();
@@ -626,6 +655,20 @@ namespace Haupt
                 }
             }
             return atm;
+        }
+
+        public static FahrzeugvermietungenLokal NaheFahrzeugvermietungBekommen(Client Player, float distance = 2.0f)
+        {
+            FahrzeugvermietungenLokal fverm = null;
+            foreach (FahrzeugvermietungenLokal fvermlocal in FVermietungListe)
+            {
+                if (Player.Position.DistanceTo(new Vector3(fvermlocal.PositionX, fvermlocal.PositionY, fvermlocal.PositionZ)) < distance)
+                {
+                    fverm = fvermlocal;
+                    break;
+                }
+            }
+            return fverm;
         }
 
         public static SupermarktLokal NaheSupermarktBekommen(Client Player, float distance = 2.0f)
@@ -2976,14 +3019,17 @@ namespace Haupt
             {
                 BotLokal bot = new BotLokal();
 
-                if(Bot.BotDimension == 0)
-                {
-                    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, 0);
-                }
-                else
-                {
-                    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, Bot.BotDimension);
-                }
+                var botPosition = new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ);
+                var botRotation = new Vector3(0.0, 0.0, Bot.BotKopf);
+                NAPI.ClientEvent.TriggerClientEventForAll("boterstellen", Bot.BotName, botPosition.X, botPosition.Y, botPosition.Z, botRotation.Z);
+                //if (Bot.BotDimension == 0)
+                //{
+                //    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, 0);
+                //}
+                //else
+                //{
+                //    bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Bot.BotName), new Vector3(Bot.BotX, Bot.BotY, Bot.BotZ), Bot.BotKopf, Bot.BotDimension);
+                //}
 
                 bot.BotName = Bot.BotName;
                 bot.BotBeschreibung = Bot.BotBeschreibung;
@@ -3018,6 +3064,25 @@ namespace Haupt
                 ATMListe.Add(atm);
             }
             return ATMListe;
+        }
+
+        public static List<FahrzeugvermietungenLokal> AlleFahrzeugvermiertungenLadenDB()
+        {
+            List<FahrzeugvermietungenLokal> FVermiertungListe = new List<FahrzeugvermietungenLokal>();
+
+            foreach (var Fverm in ContextFactory.Instance.srp_fahrzeugvermietungen.Where(x => x.Id > 0).ToList())
+            {
+                FahrzeugvermietungenLokal fverm = new FahrzeugvermietungenLokal();
+
+                fverm.Id = Fverm.Id;
+                fverm.PositionX = Fverm.PositionX;
+                fverm.PositionY = Fverm.PositionY;
+                fverm.PositionZ = Fverm.PositionZ;
+
+                //Zur lokalen Liste hinzufügen
+                FVermiertungListe.Add(fverm);
+            }
+            return FVermiertungListe;
         }
 
         public static List<SaveLokal> AlleSavesLadenDB()
@@ -3345,6 +3410,7 @@ namespace Haupt
             account.Component8Drawable = Account.Component8Drawable;
             account.Component11Drawable = Account.Component11Drawable;
             account.BerufskraftfahrerExp = Account.BerufskraftfahrerExp;
+            account.Tutorial = Account.Tutorial;
 
             account.JobFahrzeug = null;
             account.AccountGeändert = true;
@@ -3381,7 +3447,6 @@ namespace Haupt
             Player.SetData("KeyCoolDown", 0);
             Player.SetData("MenuCoolDown", 0);
             Player.SetData("VerwaltungsModus", 0);
-            Player.SetData("Pferderennen", 0);
             Player.SetData("NachträglicherNickname", 0);
             Player.SetData("HeiratsAntrag", 0);
             Player.SetData("HeiratsId", 0);
@@ -3493,6 +3558,7 @@ namespace Haupt
                             DBAccount.Component8Drawable = account.Component8Drawable;
                             DBAccount.Component11Drawable = account.Component11Drawable;
                             DBAccount.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
+                            DBAccount.Tutorial = account.Tutorial;
 
                             //Query absenden
                             ContextFactory.Instance.SaveChanges();
@@ -3545,6 +3611,7 @@ namespace Haupt
             Account.Component8Drawable = account.Component8Drawable;
             Account.Component11Drawable = account.Component11Drawable;
             Account.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
+            Account.Tutorial = account.Tutorial;
 
             //Query absenden
             ContextFactory.Instance.SaveChanges();
@@ -3594,6 +3661,7 @@ namespace Haupt
             Account.Component8Drawable = account.Component8Drawable;
             Account.Component11Drawable = account.Component11Drawable;
             Account.BerufskraftfahrerExp = account.BerufskraftfahrerExp;
+            Account.Tutorial = account.Tutorial;
 
             //Query absenden
             ContextFactory.Instance.SaveChanges();
@@ -5304,7 +5372,7 @@ namespace Haupt
         {
             //Noobspawn
             NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Hier kannst du einen Roller Mieten.~n~Preis: 30€", new Vector3(-3237.754, 969.6091, 12.94306), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
-            NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Willkommen bei uns!~n~Bei Fragen nutze /support", new Vector3(-3237.508, 965.3855, 13.04449), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            NAPI.TextLabel.CreateTextLabel("~r~StrawberryRP~w~~n~Willkommen bei uns!~n~Wir hoffen du bist gut angekommen.", new Vector3(-3237.508, 965.3855, 13.04449), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
             //Stadthalle
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Eingang~g~]", new Vector3(337.764, -1562.13, 30.298), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
@@ -5719,10 +5787,31 @@ namespace Haupt
             AccountLokal account = new AccountLokal();
             account = AccountBekommen(Player);
 
-            Player.Position = new Vector3(account.PositionX, account.PositionY, account.PositionZ);
-            Player.Rotation = new Vector3(0.0, 0.0, account.PositionRot);
-            Player.Dimension = Convert.ToUInt32(account.Dimension);
-            InteriorLaden(Player, account.Interior);
+            if(account.Tutorial == 1)
+            {
+                //Spieler hat das Tutorial bereits abgeschlossen
+                Player.Position = new Vector3(account.PositionX, account.PositionY, account.PositionZ);
+                Player.Rotation = new Vector3(0.0, 0.0, account.PositionRot);
+                Player.Dimension = Convert.ToUInt32(account.Dimension);
+                InteriorLaden(Player, account.Interior);
+            }
+            else
+            {
+                //Spieler hat das Tutorial noch nicht abgeschlossen
+                Player.Position = new Vector3(815.023, -3001.82, 6.02094);
+                Player.Rotation = new Vector3(0.0, 0.0, 108.61);
+                Player.Dimension = Convert.ToUInt32(account.Dimension);
+                InteriorLaden(Player, account.Interior);
+            }
+
+            if(account.AdminLevel == 0)
+            {
+                Player.TriggerEvent("Chathiden");
+            }
+            else
+            {
+                Player.TriggerEvent("Chatzeigen");
+            }
             
             LogEintrag(Player, "Gespawnt (" + account.PositionX + ", " + account.PositionY + ", " + account.PositionZ + ") Dimension: " + account.Dimension + " | Interior: " + account.Interior);
 

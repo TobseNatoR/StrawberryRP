@@ -35,13 +35,12 @@ namespace Haupt
             {
                 if (Check == 0)
                 {
-                    Player.SendChatMessage("~r~Unser Server ist noch in Entwicklung. Melde dich auf www.strawberry-rp.de");
-                    NAPI.Notification.SendNotificationToPlayer(Player, "~r~Unser Server ist noch in Entwicklung. Melde dich auf www.strawberry-rp.de");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~r~Du bist nicht auf der Whitelist. Melde dich auf www.strawberry-rp.de");
 
                     //Log Eintrag
                     Funktionen.LogEintrag(Player, "Nicht auf der Whitelist");
 
-                    NAPI.Player.KickPlayer(Player, "Unser Server ist in Entwicklung!");
+                    NAPI.Player.KickPlayer(Player, "Nicht auf der Whitelist");
                     return;
                 }
             }
@@ -101,7 +100,6 @@ namespace Haupt
             Player.SetData("KeyCoolDown", 0);
             Player.SetData("MenuCoolDown", 0);
             Player.SetData("Verwaltungsmodus", 0);
-            Player.SetData("Pferderennen", 0);
             Player.SetData("NachträglicherNickname", 0);
             Player.SetData("HeiratsAntrag", 0);
             Player.SetData("HeiratsId", 0);

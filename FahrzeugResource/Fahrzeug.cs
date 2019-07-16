@@ -594,6 +594,7 @@ namespace Fahrzeug
                             if(Spieler.Vehicle == Fahrzeug)
                             {
                                 HatFahrer = true;
+                                break;
                             }
                         }
                         if(HatFahrer == false)

@@ -82,6 +82,7 @@ namespace Datenbank
         public int Component8Drawable { get; set; }
         public int Component11Drawable { get; set; }
         public int BerufskraftfahrerExp { get; set; }
+        public int Tutorial { get; set; }
     }
 
     public class AccountLokal
@@ -123,6 +124,7 @@ namespace Datenbank
         public int Component8Drawable { get; set; }
         public int Component11Drawable { get; set; }
         public int BerufskraftfahrerExp { get; set; }
+        public int Tutorial { get; set; }
 
         public Vehicle JobFahrzeug { get; set; }
         public Boolean AccountGeändert { get; set; }
@@ -161,6 +163,30 @@ namespace Datenbank
         public TextLabel ATMText { get; set; }
         public Marker ATMMarker { get; set; }
         public Blip ATMBlip { get; set; }
+    }
+
+    public class Fahrzeugvermietungen
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+    }
+
+    public class FahrzeugvermietungenLokal
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public float PositionX { get; set; }
+        public float PositionY { get; set; }
+        public float PositionZ { get; set; }
+
+        public TextLabel FVermietungText { get; set; }
+        public Marker FVermietungMarker { get; set; }
+        public Blip FVermietungBlip { get; set; }
     }
 
     public class Save

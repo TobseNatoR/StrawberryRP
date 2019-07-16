@@ -736,7 +736,10 @@ namespace Haupt
             bot.BotDimension = Player.Dimension;
 
             //Bot erstellen
-            bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Name), new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, Player.Dimension);
+            //bot.Bot = NAPI.Ped.CreatePed(NAPI.Util.PedNameToModel(Name), new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, Player.Dimension);
+            var SpielerPosition = new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z);
+            var SpielerRotZ = new Vector3(0.0, 0.0, Player.Rotation.Z);
+            NAPI.ClientEvent.TriggerClientEventForAll("boterstellen", Name, SpielerPosition.X, SpielerPosition.Y, SpielerPosition.Z, SpielerRotZ.Z);
 
             //Tanke in der Liste Lokal speichern
             Funktionen.BotListe.Add(bot);
@@ -774,8 +777,84 @@ namespace Haupt
             }
         }
 
+        [Command("fvermerstellen", "Nutze: /fvermerstellen")]
+        public void FahrzeugvermietungErstellen(Client Player)
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FVermietungErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Ein neues Objekt erzeugen
+            var Fverm = new Fahrzeugvermietungen
+            {
+                PositionX = Player.Position.X,
+                PositionY = Player.Position.Y,
+                PositionZ = Player.Position.Z
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_fahrzeugvermietungen.Add(Fverm);
+            ContextFactory.Instance.SaveChanges();
+
+            //Fahrzeugvermietung zu der Lokalen Liste hinzufügen
+            FahrzeugvermietungenLokal fverm = new FahrzeugvermietungenLokal();
+
+            fverm.Id = ContextFactory.Instance.srp_fahrzeugvermietungen.Max(x => x.Id);
+            fverm.PositionX = Player.Position.X;
+            fverm.PositionY = Player.Position.Y;
+            fverm.PositionZ = Player.Position.Z;
+
+            String fVermText = null;
+            fVermText = "~g~[~w~Fahrzeugvermietung~g~]~n~";
+            fverm.FVermietungBlip = NAPI.Blip.CreateBlip(new Vector3(fverm.PositionX, fverm.PositionY, fverm.PositionZ));
+            fverm.FVermietungBlip.Name = "Fahrzeugvermietung";
+            fverm.FVermietungBlip.ShortRange = true;
+            fverm.FVermietungBlip.Sprite = 81;
+            fverm.FVermietungBlip.Color = 17;
+
+            //TextLabel und Marker erstellen
+            fverm.FVermietungText = NAPI.TextLabel.CreateTextLabel(fVermText, new Vector3(fverm.PositionX, fverm.PositionY, fverm.PositionZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+            fverm.FVermietungMarker = NAPI.Marker.CreateMarker(GlobaleSachen.ATMMarker, new Vector3(fverm.PositionX, fverm.PositionY, fverm.PositionZ), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Tanke in der Liste Lokal speichern
+            Funktionen.FVermietungListe.Add(fverm);
+
+            //Log Eintrag
+            Funktionen.LogEintrag(Player, "Fahrzeugvermietung erstellt");
+        }
+
+        [Command("fvermlöschen", "Nutze: /fvermlöschen")]
+        public void FahrzeugvermietungLöschen(Client Player)
+        {
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FVermietungLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            FahrzeugvermietungenLokal fverm = new FahrzeugvermietungenLokal();
+            fverm = Funktionen.NaheFahrzeugvermietungBekommen(Player);
+
+            if (fverm != null)
+            {
+                var FVerm = ContextFactory.Instance.srp_bankautomaten.Where(x => x.Id == fverm.Id).FirstOrDefault();
+
+                Funktionen.FVermietungListe.Remove(fverm);
+                fverm.FVermietungMarker.Delete();
+                fverm.FVermietungBlip.Delete();
+                fverm.FVermietungText.Delete();
+
+                //Query absenden
+                ContextFactory.Instance.srp_bankautomaten.Remove(FVerm);
+
+                //Log Eintrag
+                Funktionen.LogEintrag(Player, "Fahrzeugvermietung gelöscht");
+            }
+            else
+            {
+                Player.SendChatMessage("~y~Info~w~: Es wurde keine Fahrzeugvermietung gefunden.");
+            }
+        }
+
         [Command("atmerstellen", "Nutze: /atmerstellen")]
-        public void PedErstellen(Client Player)
+        public void ATMErstellen(Client Player)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
@@ -1589,20 +1668,6 @@ namespace Haupt
             {
                 Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
-        }
-
-        [Command("pferd1", "Nutze /pferd1")]
-        public void PferdeRennen(Client Player)
-        {
-            Player.TriggerEvent("Pferderennenoeffnen");
-            Player.SetData("Pferderennen", 1);
-        }
-
-        [Command("pferd2", "Nutze /pferd2")]
-        public void PferdeRennen1(Client Player)
-        {
-            Player.TriggerEvent("Pferderennenschliessen");
-            Player.SetData("Pferderennen", 0);
         }
 
         [Command("flöschen", "Nutze /flöschen")]

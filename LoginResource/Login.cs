@@ -85,7 +85,7 @@ namespace Login
                         Fraktion = 0,
                         FraktionRang = 0,
                         Job = 0,
-                        Geld = 100,
+                        Geld = GlobaleSachen.StartGeld,
                         BankGeld = 0,
                         Perso = 0,
                         Spielzeit = 0,
@@ -110,7 +110,8 @@ namespace Login
                         Component7Drawable = 0,
                         Component8Drawable = 0,
                         Component11Drawable = 0,
-                        BerufskraftfahrerExp = 0
+                        BerufskraftfahrerExp = 0,
+                        Tutorial = 0
                     };
 
                     //Query absenden
