@@ -127,6 +127,10 @@ namespace Haupt
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
 
+            //Tutorial Daten
+            Player.SetData("EinreiseNPC", 0);
+            Player.SetData("HelmutNPC", 0);
+
             Funktionen.LogEintrag(Player, "Verbindung getrennt");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Player.SocialClubName + " hat den Server verlassen.", ConsoleColor.Red);
         }

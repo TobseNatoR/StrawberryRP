@@ -1449,6 +1449,20 @@ namespace Haupt
             return i;
         }
 
+        public static int HatTutorialFahrzeug(Client Player)
+        {
+            int i = 0;
+            foreach (AutoLokal auto in AutoListe)
+            {
+                if (auto.FahrzeugSpieler == Player.GetData("Id") && auto.FahrzeugTyp == 2)
+                {
+                    i = 1;
+                    break;
+                }
+            }
+            return i;
+        }
+
         public static string BesitzerNamenBekommen(int Id)
         {
             //Benötigte Definitionen
@@ -2483,16 +2497,24 @@ namespace Haupt
                     //Einreise Bot
                     if (Player.Position.DistanceTo(new Vector3(815.023, -3001.82, 6.02094)) < 5.0f)
                     {
-                        Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
-                        Freeze(Player);
-                        Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
+                        if(Player.GetData("EinreiseNPC") == 0 && AccountTutorialBekommen(Player) == 0)
+                        {
+                            Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
+                            Freeze(Player);
+                            Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
+                            Player.SetData("EinreiseNPC", 1);
+                        }
                     }
                     //Helmut
                     else if (Player.Position.DistanceTo(new Vector3(0, 0, 0)) < 5.0f)
                     {
-                        Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
-                        Freeze(Player);
-                        Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
+                        if (Player.GetData("HelmutNPC") == 0 && AccountTutorialBekommen(Player) == 0 && HatTutorialFahrzeug(Player) == 0)
+                        {
+                            Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
+                            Freeze(Player);
+                            Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
+                            Player.SetData("HelmutNPC", 1);
+                        }
                     }
 
                     //Hier der Stop der Codeausführung
@@ -3522,6 +3544,10 @@ namespace Haupt
 
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
+
+            //Tutorial Daten
+            Player.SetData("EinreiseNPC", 0);
+            Player.SetData("HelmutNPC", 0);
 
             //Discord
             Player.TriggerEvent("DiscordStatusSetzen", "Strawberry Roleplay","Spielt als " + Player.Name);
