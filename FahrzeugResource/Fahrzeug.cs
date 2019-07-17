@@ -26,12 +26,12 @@ namespace Fahrzeug
 
             if(Funktionen.AccountGeldBekommen(Player) < auto.FahrzeugMietpreis)
             {
-                Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                 Player.TriggerEvent("rollermietenpopupschliessen");
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du hast das Fahrzeug gemietet.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Fahrzeug gemietet.");
                 Funktionen.AccountGeldSetzen(Player, 2, auto.FahrzeugMietpreis);
                 Player.TriggerEvent("rollermietenpopupschliessen");
             }
@@ -86,7 +86,7 @@ namespace Fahrzeug
             {
                 if (Player.GetData("VerwaltungsModus") == 0)
                 {
-                    if (Player.GetData("KaufenTyp") == 5) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                    if (Player.GetData("KaufenTyp") == 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                     Player.SetData("KaufenTyp", 5);
                     Player.SetData("KaufenId", IdBekommen(Player.Vehicle));
                     Player.SetData("KaufenPreis", KaufPreisBekommen(Player.Vehicle));
@@ -102,7 +102,7 @@ namespace Fahrzeug
             {
                 if (Player.GetData("VerwaltungsModus") == 0)
                 {
-                    if (Player.GetData("KaufenTyp") == 6) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                    if (Player.GetData("KaufenTyp") == 6) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                     Player.SetData("KaufenTyp", 6);
                     Player.SetData("KaufenId", IdBekommen(Player.Vehicle));
                     Player.SetData("KaufenPreis", KaufPreisBekommen(Player.Vehicle));
@@ -129,7 +129,7 @@ namespace Fahrzeug
 
             if(auto.FahrzeugJob == 1 && vehicle.GetData("GeradeGespawnt") == 0)
             {
-                Player.SendChatMessage("~y~Info~w~: Fertig mit jobben? /beenden");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Fertig mit jobben? /beenden");
             }
             else
             {

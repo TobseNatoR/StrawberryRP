@@ -95,6 +95,15 @@ namespace Haupt
         public static Marker Route1_8, Route2_8;
         public static Marker Route2_9;
         public static Marker Route2_10;
+
+        //NPC Texte
+        public static String EinreiseNPCText;
+        public static String HelmutNPCText;
+    }
+
+    public enum Fahrzeug_Mods : int
+    {
+        e46 = 1
     }
 
     public class AdminBefehle
@@ -172,12 +181,27 @@ namespace Haupt
         public static List<BankautomatenLokal> ATMListe;
         public static List<FahrzeugvermietungenLokal> FVermietungListe;
 
+        public static void NPCTexteInitialisieren()
+        {
+            //EinreiseNPC
+            GlobaleSachen.EinreiseNPCText = "Willkommen in Los Santos, zeigen Sie mir  bitte Ihren  Ausweis… <br>" +
+            "Sie haben keine Papiere? Hmm..<br>" +
+            "Nun gut, ich werde Ihnen die Einreise gewähren, jedoch müssen Sie sich in 7 Tagen beim Bürgeramt melden, dort müssen Sie dann einen neuen Ausweis beantragen.<br>" +
+            "Ich gebe Ihnen noch einen guten Rat, gleich hier vorne am Parkplatz steht mein Freund Helmut, der wird dir ein Fahrzeug zur Verfügung stellen.";
+
+            GlobaleSachen.HelmutNPCText = "Hallo ich bin Helmut, ich hoffe du hattest eine angenehme Reise. <br>" +
+            "Mir wurde gesagt du brauchst ein Fahrzeug?<br>" +
+            "Mein Enkel hat sein altes Auto hier gelassen, bevor er auf Weltreise gegangen ist, er wird noch einige Tage wegbleiben, solange kann ich es dir ausleihen<br>" +
+            "Es ist nicht mehr das beste aber geh bitte gut damit um.";
+        }
+
         public static void AllesStarten()
         {
             //Globaler Server Chat aus
             NAPI.Server.SetGlobalServerChat(false);
 
             //Wichtige Dinge die geladen werden müssen
+            NPCTexteInitialisieren();
             AccountsLadenLokal();
             FahrzeugeLadenLokal();
             TextLabelsLaden();
@@ -1030,6 +1054,22 @@ namespace Haupt
             return Geld;
         }
 
+        public static long AccountTutorialBekommen(Client Player)
+        {
+            //Benötigte Definitionen
+            int Tutorial = 0;
+
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    Tutorial = account.Tutorial;
+                    break;
+                }
+            }
+            return Tutorial;
+        }
+
         public static String AccountVerheiratetBekommen(Client Player)
         {
             //Benötigte Definitionen
@@ -1487,7 +1527,7 @@ namespace Haupt
                 {
                     if (AccountVerheiratetBekommen(Player) == "Nein")
                     {
-                        Player.SendChatMessage("~y~Info~w~: Die Heirat wurde beendet da niemand angenommen / abgelehnt hat.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Heirat wurde beendet da niemand angenommen / abgelehnt hat.");
                         Player.SetData("HeiratenId", 0);
                         Player.SetData("HeiratsId", 0);
                         Player.SetData("HeiratsAntrag", 0);
@@ -1500,7 +1540,7 @@ namespace Haupt
                     {
                         if (AccountVerheiratetBekommen(Player) == "Nein")
                         {
-                            Spieler.SendChatMessage("~y~Info~w~: Die Heirat wurde beendet da niemand angenommen / abgelehnt hat.");
+                            NAPI.Notification.SendNotificationToPlayer(Spieler, "~y~Info~w~: Die Heirat wurde beendet da niemand angenommen / abgelehnt hat.");
                             Spieler.SetData("HeiratsId", 0);
                             Spieler.SetData("HeiratenId", 0);
                             Spieler.SetData("HeiratsAntrag", 0);
@@ -1540,7 +1580,7 @@ namespace Haupt
                         {
                             if (Spieler.Position.DistanceTo(new Vector3(tankstellelocal.TankstelleX, tankstellelocal.TankstelleY, tankstellelocal.TankstelleZ)) > 50)
                             {
-                                Spieler.SendChatMessage("~y~Info~w~: Die Polizei wurde darüber benachrichtigt das du deine Rechnung nicht bezahlt hast.");
+                                NAPI.Notification.SendNotificationToPlayer(Spieler, "~y~Info~w~: Die Polizei wurde darüber benachrichtigt das du deine Rechnung nicht bezahlt hast.");
                                 Spieler.SetData("AmTanken", 0);
                                 Spieler.SetData("TankenTankstellenId", 0);
                                 Spieler.SetData("TankRechnung", 0);
@@ -1910,8 +1950,8 @@ namespace Haupt
                 }
 
                 //Nachrichten an den Spieler
-                Player.SendChatMessage("~y~Info~w~: Dein Fahrzeug wurde getankt.");
-                Player.SendChatMessage("~y~Info~w~: Bezahle nun an der Tankstelle " + GeldFormatieren(TankRechnung));
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein Fahrzeug wurde getankt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Bezahle nun an der Tankstelle " + GeldFormatieren(TankRechnung));
                 Player.TriggerEvent("tankenschliessen");
 
                 //Rechnung setzen
@@ -2130,23 +2170,6 @@ namespace Haupt
 
             if (FahrzeugeZählenPrivat(Player) != 0)
             {
-
-                AutoLokal autoe = new AutoLokal();
-                autoe = NaheEigenesAutoBekommenPrivat(Player);
-
-                if(autoe != null)
-                {
-                    float TankFloat = autoe.TankInhalt / 10 / 100;
-                    float Kilometerstand = autoe.Kilometerstand / 10 / 100;
-                    float TankVolumenFloat = autoe.TankVolumen;
-                   
-                    String Tankstring = NAPI.Util.ToJson(Math.Round(TankFloat, 2)) + " / " + TankVolumenFloat + " Liter";
-                    String Kilometerstring = NAPI.Util.ToJson(Math.Round(Kilometerstand, 1)) + " KM";
-                    DateTime Datum = autoe.FahrzeugHU;
-
-                    Player.TriggerEvent("Fahrzeugverwaltung_Privat", autoe.FahrzeugName, Tankstring, Kilometerstring, Datum.ToString("dd.MM.yyyy"), autoe.FahrzeugAbgeschlossen);
-                }
-                else
                 {
                     Player.TriggerEvent("Fahrzeugverwaltung_Privat_Liste");
                     foreach (AutoLokal auto in AutoListe)
@@ -2198,8 +2221,8 @@ namespace Haupt
                 {
                     if (tanke.TankstelleBesitzer == 0)
                     {
-                        if(HatBiz(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Business."); return; }
-                        if (Player.GetData("KaufenTyp") == 1) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                        if(HatBiz(Player) == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Business."); return; }
+                        if (Player.GetData("KaufenTyp") == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 1);
                         Player.SetData("KaufenId", tanke.Id);
                         Player.SetData("KaufenPreis", tanke.TankstelleKaufpreis);
@@ -2216,8 +2239,8 @@ namespace Haupt
                 {
                     if (haus.ImmobilienBesitzer == 0)
                     {
-                        if (HatImmobilie(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Haus."); return; }
-                        if (Player.GetData("KaufenTyp") == 2) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                        if (HatImmobilie(Player) == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Haus."); return; }
+                        if (Player.GetData("KaufenTyp") == 2) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 2);
                         Player.SetData("KaufenId", haus.Id);
                         Player.SetData("KaufenPreis", haus.ImmobilienKaufpreis);
@@ -2237,8 +2260,8 @@ namespace Haupt
                 {
                     if (supermarkt.SupermarktBesitzer == 0)
                     {
-                        if (HatBiz(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Business."); return; }
-                        if (Player.GetData("KaufenTyp") == 3) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                        if (HatBiz(Player) == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Business."); return; }
+                        if (Player.GetData("KaufenTyp") == 3) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 3);
                         Player.SetData("KaufenId", supermarkt.Id);
                         Player.SetData("KaufenPreis", supermarkt.SupermarktKaufpreis);
@@ -2258,8 +2281,8 @@ namespace Haupt
                 {
                     if (autohaus.AutohausBesitzer == 0)
                     {
-                        if (HatBiz(Player) == 1) { Player.SendChatMessage("~y~Info~w~: Du hast bereits ein Business."); return; }
-                        if (Player.GetData("KaufenTyp") == 4) { Player.SendChatMessage("~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
+                        if (HatBiz(Player) == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits ein Business."); return; }
+                        if (Player.GetData("KaufenTyp") == 4) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Schließe erst das aktuelle Fenster."); return; }
                         Player.SetData("KaufenTyp", 4);
                         Player.SetData("KaufenId", autohaus.Id);
                         Player.SetData("KaufenPreis", autohaus.AutohausKaufpreis);
@@ -2342,6 +2365,9 @@ namespace Haupt
             Player.TriggerEvent("ScoreboardScrollUp");
         }
 
+        //Wichtige INFORMATION ZU DEN CHECK METHODEN
+        //Sobald irgendwas zutrifft, immer return nutzten
+        //Sonst würde es auf Dauer zu viele Ressourcen verbrauchen!
         [RemoteEvent("ECheck")]
         public static void ECheck(Client Player)
         {
@@ -2450,6 +2476,30 @@ namespace Haupt
             //Alles ohne Fahrzeuge
             else
             {
+                //Wenn der Spieler im Tutorial ist darf er nirgendwo anders interagieren
+                //Alles was mit dem Tutorial Interaktionen zu tun hat
+                if (AccountTutorialBekommen(Player) == 0)
+                {
+                    //Einreise Bot
+                    if (Player.Position.DistanceTo(new Vector3(815.023, -3001.82, 6.02094)) < 5.0f)
+                    {
+                        Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
+                        Freeze(Player);
+                        Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
+                    }
+                    //Helmut
+                    else if (Player.Position.DistanceTo(new Vector3(0, 0, 0)) < 5.0f)
+                    {
+                        Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
+                        Freeze(Player);
+                        Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
+                    }
+
+                    //Hier der Stop der Codeausführung
+                    return;
+                }
+
+
                 //Stadthalle
                 if (Player.Position.DistanceTo(new Vector3(331.347, -1569.97, 30.3076)) < 3.0f)
                 {
@@ -2491,7 +2541,7 @@ namespace Haupt
                     if (auto != null) { Player.SetData("TankenAutoId", auto.Id); }
 
                     //Schauen ob der Spieler schon am tanken ist wenn ja Browser schließen
-                    if (Player.GetData("AmTanken") == 1) { Player.SendChatMessage("~y~Info~w~: Du bist bereits am tanken."); return; }
+                    if (Player.GetData("AmTanken") == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist bereits am tanken."); return; }
 
                     //Benötigte Definitionen
                     int Diesel = 0, E10 = 0, Super = 0;
@@ -2533,7 +2583,7 @@ namespace Haupt
                     {
                         if (Funktionen.AccountGeldBekommen(Player) < Player.GetData("TankRechnung"))
                         {
-                            Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                         }
                         else
                         {
@@ -2541,8 +2591,8 @@ namespace Haupt
                             tanke.TankstelleGeld += Player.GetData("TankRechnung");
 
                             //Nachricht an den Spieler
-                            Player.SendChatMessage("~y~Info~w~: Du hast deine Rechnung bezahlt.");
-                            Player.SendChatMessage("~y~Info~w~: Eine angenehme Weiterfahrt.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast deine Rechnung bezahlt.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Eine angenehme Weiterfahrt.");
 
                             //Dem Spieler das Geld abziehen
                             Funktionen.AccountGeldSetzen(Player, 2, Player.GetData("TankRechnung"));
@@ -2563,11 +2613,11 @@ namespace Haupt
         public static void JobBerufskraftFahrerHolzEntladen(Client Player)
         {
             if(Player.IsInVehicle == false) { return; }
-            Player.SendChatMessage("Debug1");
+            NAPI.Notification.SendNotificationToPlayer(Player, "Debug1");
             if(Player.GetData("BerufskraftfahrerAmAbladen") == 1) { return; }
-            Player.SendChatMessage("Debug2");
+            NAPI.Notification.SendNotificationToPlayer(Player, "Debug2");
             if (Player.GetData("BerufskraftfahrerHolzGeladen") == 0) { return; }
-            Player.SendChatMessage("Debug3");
+            NAPI.Notification.SendNotificationToPlayer(Player, "Debug3");
             if (Player.Vehicle != AccountJobFahrzeugBekommen(Player)) { return; }
 
             if(Player.GetData("BerufskraftfahrerJobAngenommen") == 0)
@@ -3203,7 +3253,7 @@ namespace Haupt
                     {
                         if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
-                            Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
@@ -3211,8 +3261,8 @@ namespace Haupt
                             tanke.TankstelleBesitzer = Player.GetData("Id");
                             tanke.TankstelleBeschreibung = Player.Name + "`s Tankstelle";
 
-                            Player.SendChatMessage("~y~Info~w~: Die Tankstelle gehört jetzt dir.");
-                            Player.SendChatMessage("~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Tankstelle gehört jetzt dir.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
                             AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
@@ -3235,7 +3285,7 @@ namespace Haupt
                     {
                         if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
-                            Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
@@ -3243,8 +3293,8 @@ namespace Haupt
                             haus.ImmobilienBesitzer = Player.GetData("Id");
                             haus.ImmobilienBeschreibung = Player.Name + "`s Immobilie";
 
-                            Player.SendChatMessage("~y~Info~w~: Die Immobilie gehört jetzt dir.");
-                            Player.SendChatMessage("~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Immobilie gehört jetzt dir.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Diese wird sich gleich automatisch aktualisieren.");
                             AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
@@ -3267,7 +3317,7 @@ namespace Haupt
                     {
                         if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
-                            Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
@@ -3275,8 +3325,8 @@ namespace Haupt
                             supermarkt.SupermarktBesitzer = Player.GetData("Id");
                             supermarkt.SupermarktBeschreibung = Player.Name + "`s 24/7";
 
-                            Player.SendChatMessage("~y~Info~w~: Der 24/7 gehört jetzt dir.");
-                            Player.SendChatMessage("~y~Info~w~: Dieser wird sich gleich automatisch aktualisieren.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der 24/7 gehört jetzt dir.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser wird sich gleich automatisch aktualisieren.");
                             Funktionen.AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
@@ -3299,15 +3349,15 @@ namespace Haupt
                     {
                         if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                         {
-                            Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                             Player.TriggerEvent("kaufenabbrechen");
                         }
                         else
                         {
                             autohaus.AutohausBesitzer = Player.GetData("Id");
 
-                            Player.SendChatMessage("~y~Info~w~: Das Autohaus gehört jetzt dir.");
-                            Player.SendChatMessage("~y~Info~w~: Dieses wird sich gleich automatisch aktualisieren.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Autohaus gehört jetzt dir.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses wird sich gleich automatisch aktualisieren.");
                             AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                             Player.TriggerEvent("kaufenabbrechen");
 
@@ -3324,14 +3374,14 @@ namespace Haupt
                     //Schauen ob das Autohaus immer noch keinen Besitzer hat
                     if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                     {
-                        Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                         Player.TriggerEvent("kaufenabbrechen");
                     }
                     else
                     {
                         Fahrzeuge.FahrzeugKaufen(Player, Player.Vehicle);
 
-                        Player.SendChatMessage("~y~Info~w~: Das Fahrzeug gehört jetzt dir.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug gehört jetzt dir.");
                         AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                         Player.TriggerEvent("kaufenabbrechen");
                     }
@@ -3345,14 +3395,14 @@ namespace Haupt
                     //Schauen ob das Autohaus immer noch keinen Besitzer hat
                     if (AccountGeldBekommen(Player) < Player.GetData("KaufenPreis"))
                     {
-                        Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                         Player.TriggerEvent("kaufenabbrechen");
                     }
                     else
                     {
                         Fahrzeuge.FahrzeugKaufenAutohaus(Player, Player.Vehicle);
 
-                        Player.SendChatMessage("~y~Info~w~: Das Fahrzeug gehört jetzt deinem Autohaus.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug gehört jetzt deinem Autohaus.");
                         AccountGeldSetzen(Player, 2, Player.GetData("KaufenPreis"));
                         Player.TriggerEvent("kaufenabbrechen");
                     }
@@ -3484,7 +3534,7 @@ namespace Haupt
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein letzter Login war am ~r~" + DatumFormatieren(Account.ZuletztOnline));
 
             //Peds Laden
-            PedsFürSpielerLaden(Player);
+            //PedsFürSpielerLaden(Player);
         }
 
         public static void ServerSpielerGejoined(int Status)
@@ -5534,11 +5584,11 @@ namespace Haupt
             {
                 if (Funktionen.AccountGeldBekommen(Player) < GlobaleSachen.PersonalausweisPreis)
                 {
-                    Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
                 }
                 else
                 {
-                    Player.SendChatMessage("~y~Info~w~: Du hast einen Personalausweis erhalten.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast einen Personalausweis erhalten.");
                     account.Perso = 1;
                     account.AccountGeändert = true;
                     Funktionen.AccountGeldSetzen(Player, 2, GlobaleSachen.PersonalausweisPreis);
@@ -5547,7 +5597,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du hast bereits einen Personalausweis.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast bereits einen Personalausweis.");
             }
         }
 
@@ -5947,6 +5997,12 @@ namespace Haupt
             SpielerSpeichern(Player);
 
             LogEintrag(Player, "Gruppen Invite angenommen");
+        }
+
+        public static void NPCPopupSchliessen(Client Player)
+        {
+            Player.TriggerEvent("npcpopupschliessen");
+            Unfreeze(Player);
         }
 
         [RemoteEvent("Gruppierung_IBerry")]

@@ -21,19 +21,33 @@ namespace Haupt
 {    
     public class Commands : Script
     {
+        [Command("modcar")]
+        public void CreateCar(Client player, string name)
+        {
+            int number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), name));
+            NAPI.Notification.SendNotificationToPlayer(player, "Nummer:" + number);
+            Vector3 position = player.Position;
+            Vector3 rotation = player.Rotation;
+            uint veh = NAPI.Util.GetHashKey(name);
+            Vehicle vehicle = NAPI.Vehicle.CreateVehicle(veh, position, rotation.Z, 0, 0);
+            player.SetIntoVehicle(vehicle, (int)VehicleSeat.Driver);
+            
+        }
+
         [Command("ferstellen", "Nutze: /ferstellen [Name] [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus] [Farbe 1] [Farbe 2]")]
         public void FahrzeugErstellen(Client Player, String Name, int Typ, int Farbe1, int Farbe2)
         {
             //Definitionen
             uint AutoCode = NAPI.Util.GetHashKey(Name);
             Name = Funktionen.ErsterBuchstabeGroß(Name);
+            int number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), Name));
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Typ < 0 || Typ > 5) { Player.SendChatMessage("~y~Info~w~: Ungültiger Typ."); return; }
-            if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { Player.SendChatMessage("~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
-            if (Typ == 1) { Player.SendChatMessage("~y~Info~w~: Job Fahrzeuge werden an der jeweiligen Base gespawnt. Sie können nicht mehr per /ferstellen erstellt werden."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Typ < 0 || Typ > 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültiger Typ."); return; }
+            if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+            if (Typ == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Job Fahrzeuge werden an der jeweiligen Base gespawnt. Sie können nicht mehr per /ferstellen erstellt werden."); return; }
 
             if(Typ != 0)
             {
@@ -137,10 +151,10 @@ namespace Haupt
             Player.SetIntoVehicle(auto.Fahrzeug, -1);
 
             //Mitteilung das das Fahrzeug noch zugewiesen werden muss
-            if (Typ == 1) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Job zugewiesen werden."); }
-            if (Typ == 3) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einer Fraktion zugewiesen werden."); }
-            if (Typ == 4) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Besitzer zugewiesen werden."); }
-            if (Typ == 5) { Player.SendChatMessage("~y~Info~w~: Das Fahrzeug muss nun noch einem Autohaus zugewiesen werden."); }
+            if (Typ == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug muss nun noch einem Job zugewiesen werden."); }
+            if (Typ == 3) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug muss nun noch einer Fraktion zugewiesen werden."); }
+            if (Typ == 4) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug muss nun noch einem Besitzer zugewiesen werden."); }
+            if (Typ == 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug muss nun noch einem Autohaus zugewiesen werden."); }
 
             Funktionen.LogEintrag(Player, Funktionen.FahrzeugTypNamen(Typ) + "(s) Fahrzeug erstellt");
 
@@ -155,7 +169,7 @@ namespace Haupt
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminFahrzeugErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminFahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             
             //Objekt für die Liste erzeugen
             AutoLokal auto = new AutoLokal();
@@ -215,8 +229,8 @@ namespace Haupt
         [Command("interior", "Nutze: /interior")]
         public void Interior(Client Player)
         {
-            Player.SendChatMessage("Dein Interior: " + Player.GetData("InteriorName"));
-            Player.SendChatMessage("Dein Dimension: " + Player.Dimension);
+            NAPI.Notification.SendNotificationToPlayer(Player, "Dein Interior: " + Player.GetData("InteriorName"));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Dein Dimension: " + Player.Dimension);
             Player.Dimension = 0;
         }
 
@@ -232,8 +246,8 @@ namespace Haupt
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ManufakturFahrzeugErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { Player.SendChatMessage("~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ManufakturFahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
 
             //Ein neues Objekt erzeugen
             var veh = new Auto
@@ -331,8 +345,8 @@ namespace Haupt
         public void ImmobilieErstellen(Client Player, int Interior, long Kaufpreis)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if(Interior <= 0 || Interior > 25) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; } 
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if(Interior <= 0 || Interior > 25) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; } 
 
             //Benötigte Definitionen
             String InteriorName = null;
@@ -431,7 +445,7 @@ namespace Haupt
         public void SupermarktErstellen(Client Player, long Kaufpreis)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SupermarktErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SupermarktErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Ein neues Objekt erzeugen
             var Supermarkt = new Supermarkt
@@ -488,7 +502,7 @@ namespace Haupt
         public void AutohausErstellen(Client Player, String Beschreibung, long Kaufpreis)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Ein neues Objekt erzeugen
             var Autohaus = new Autohaus
@@ -545,9 +559,9 @@ namespace Haupt
         public void TankstelleBeschreibung(Client Player, int Id, String Beschreibung)
         {
             //Benötigte Abfragen
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeBeschreibung) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Id < 0) { Player.SendChatMessage("~y~Info~w~: Die Id kann nicht kleiner als 0 sein."); return; }
-            if(Beschreibung.Length > 20) { Player.SendChatMessage("~y~Info~w~: Die Beschreibung ist zu lang."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeBeschreibung) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Id < 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Id kann nicht kleiner als 0 sein."); return; }
+            if(Beschreibung.Length > 20) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Beschreibung ist zu lang."); return; }
 
             TankstelleLokal tanke = new TankstelleLokal();
             tanke = Funktionen.TankeVonIdBekommen(Id);
@@ -559,11 +573,11 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Die Tankstelle konnte nicht gefunden werden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Tankstelle konnte nicht gefunden werden.");
             }
 
             //Erfolgreich Nachricht
-            Player.SendChatMessage("~g~Info~w~: Die Beschreibung der Tankstelle " + Id + " wurde erfolgreich geändert.");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~g~Info~w~: Die Beschreibung der Tankstelle " + Id + " wurde erfolgreich geändert.");
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Tankstellen Beschreibung geändert");
@@ -573,9 +587,9 @@ namespace Haupt
         public void AutohausBeschreibung(Client Player, int Id, String Beschreibung)
         {
             //Benötigte Abfragen
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausBeschreibung) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Id < 0) { Player.SendChatMessage("~y~Info~w~: Die Id kann nicht kleiner als 0 sein."); return; }
-            if (Beschreibung.Length > 20) { Player.SendChatMessage("~y~Info~w~: Die Beschreibung ist zu lang."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausBeschreibung) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Id < 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Id kann nicht kleiner als 0 sein."); return; }
+            if (Beschreibung.Length > 20) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Beschreibung ist zu lang."); return; }
 
             AutohausLokal autohaus = new AutohausLokal();
             autohaus = Funktionen.AutohausVonIdBekommen(Id);
@@ -587,11 +601,11 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Das Autohaus konnte nicht gefunden werden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Autohaus konnte nicht gefunden werden.");
             }
 
             //Erfolgreich Nachricht
-            Player.SendChatMessage("~g~Info~w~: Die Beschreibung des Autohauses " + Id + " wurde erfolgreich geändert.");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~g~Info~w~: Die Beschreibung des Autohauses " + Id + " wurde erfolgreich geändert.");
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Autohaus Beschreibung geändert");
@@ -601,8 +615,8 @@ namespace Haupt
         public void TankstellenKaufPreis(Client Player, int Id, long Kaufpreis)
         {
             //Benötigte Abfragen
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeKaufpreis) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Id < Kaufpreis) { Player.SendChatMessage("~y~Info~w~: Der Kaufpreis kann nicht kleiner als 0 sein."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeKaufpreis) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Id < Kaufpreis) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Kaufpreis kann nicht kleiner als 0 sein."); return; }
             
 
             TankstelleLokal tanke = new TankstelleLokal();
@@ -615,11 +629,11 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Die Tankstelle konnte nicht gefunden werden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Tankstelle konnte nicht gefunden werden.");
             }
 
             //Erfolgreich Nachricht
-            Player.SendChatMessage("~g~Info~w~: Die Beschreibung der Tankstelle " + Id + " wurde erfolgreich geändert.");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~g~Info~w~: Die Beschreibung der Tankstelle " + Id + " wurde erfolgreich geändert.");
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "Tankstellen Kaufpreis geändert");
@@ -635,7 +649,7 @@ namespace Haupt
         public void TankstelleErstellen(Client Player, long Kaufpreis)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Ein neues Objekt erzeugen
             var Tankstelle = new Tankstelle
@@ -702,15 +716,15 @@ namespace Haupt
         [Command("perstellen", "Nutze: /perstellen [Name] [Beschreibung]")]
         public void PedErstellen(Client Player, String Name, String Beschreibung)
         {
-            //int Gesperrt = 1;
-            //if(Gesperrt == 1) { Player.SendChatMessage("~y~Info~w~: Der Befehl ist derzeit leider gesperrt."); return; }
+            int Gesperrt = 1;
+            if(Gesperrt == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Befehl ist derzeit leider gesperrt."); return; }
 
             //Definitionen
             uint BotHash = NAPI.Util.GetHashKey(Name);
 
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PedErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Enum.IsDefined(typeof(PedHash), BotHash) == false) { Player.SendChatMessage("~y~Info~w~: Dieses Ped kennen wir leider nicht."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PedErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Enum.IsDefined(typeof(PedHash), BotHash) == false) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Ped kennen wir leider nicht."); return; }
 
             //Ein neues Objekt erzeugen
             var Bot = new Bot
@@ -758,7 +772,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PedLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PedLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             BotLokal bot = new BotLokal();
             bot = Funktionen.NahePedBekommen(Player);
@@ -778,7 +792,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde kein Ped gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde kein Ped gefunden.");
             }
         }
 
@@ -786,7 +800,7 @@ namespace Haupt
         public void FahrzeugvermietungErstellen(Client Player)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FVermietungErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FVermietungErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Ein neues Objekt erzeugen
             var Fverm = new Fahrzeugvermietungen
@@ -832,7 +846,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FVermietungLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FVermietungLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             FahrzeugvermietungenLokal fverm = new FahrzeugvermietungenLokal();
             fverm = Funktionen.NaheFahrzeugvermietungBekommen(Player);
@@ -854,7 +868,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde keine Fahrzeugvermietung gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde keine Fahrzeugvermietung gefunden.");
             }
         }
 
@@ -862,7 +876,7 @@ namespace Haupt
         public void ATMErstellen(Client Player)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Ein neues Objekt erzeugen
             var Atm = new Bankautomaten
@@ -907,7 +921,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.ATMLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             BankautomatenLokal atm = new BankautomatenLokal();
             atm = Funktionen.NaheBankautomatenBekommen(Player);
@@ -929,7 +943,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde kein ATM gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde kein ATM gefunden.");
             }
         }
 
@@ -938,13 +952,13 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankPunktErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankPunktErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Query durch die Tankstellen
             var Check = ContextFactory.Instance.srp_tankstellen.Count(x => x.Id == Id);
 
             //Prüfen ob die Tankstelle existiert
-            if (Check == 0) { Player.SendChatMessage("~y~Info~w~: Die Tankstelle ist uns nicht bekannt."); return; }
+            if (Check == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Tankstelle ist uns nicht bekannt."); return; }
 
             //Ein neues Objekt erzeugen
             var Tankpunkt = new TankstellenPunkt
@@ -992,13 +1006,13 @@ namespace Haupt
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankInfoErstellen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankInfoErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Query durch die Tankstellen
             var Check = ContextFactory.Instance.srp_tankstellen.Count(x => x.Id == Id);
 
             //Prüfen ob die Tankstelle existiert
-            if (Check == 0) { Player.SendChatMessage("~y~Info~w~: Die Tankstelle ist uns nicht bekannt."); return; }
+            if (Check == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die Tankstelle ist uns nicht bekannt."); return; }
 
             //Ein neues Objekt erzeugen
             var TankInfo = new TankstellenInfo
@@ -1054,7 +1068,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankeLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             TankstelleLokal tanke = new TankstelleLokal();
             tanke = Funktionen.NaheTankeBekommen(Player);
@@ -1075,7 +1089,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde keine Tankstelle gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde keine Tankstelle gefunden.");
             }
         }
 
@@ -1084,7 +1098,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SupermarktLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SupermarktLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             SupermarktLokal supermarkt = new SupermarktLokal();
             supermarkt = Funktionen.NaheSupermarktBekommen(Player);
@@ -1105,7 +1119,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde kein 24/7 gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde kein 24/7 gefunden.");
             }
         }
 
@@ -1114,7 +1128,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AutohausLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             AutohausLokal autohaus = new AutohausLokal();
             autohaus = Funktionen.NaheAutohausBekommen(Player);
@@ -1135,7 +1149,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde kein Autohaus gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde kein Autohaus gefunden.");
             }
         }
 
@@ -1144,7 +1158,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             ImmobilienLokal haus = new ImmobilienLokal();
             haus = Funktionen.NaheImmobilieBekommen(Player);
@@ -1165,7 +1179,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde keine Immobilie gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde keine Immobilie gefunden.");
             }
         }
 
@@ -1174,8 +1188,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausInterior) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Interior <= 0 || Interior > 24) { Player.SendChatMessage("~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausInterior) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Interior <= 0 || Interior > 24) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Interior ist uns nicht bekannt."); return; }
 
             ImmobilienLokal haus = new ImmobilienLokal();
             haus = Funktionen.NaheImmobilieBekommen(Player);
@@ -1223,11 +1237,11 @@ namespace Haupt
                 Funktionen.LogEintrag(Player, "Immobilie Interior geändert");
 
                 //Nachricht
-                Player.SendChatMessage("~y~Info~w~: Das Interior wurde angepasst.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Interior wurde angepasst.");
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde keine Immobilie gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde keine Immobilie gefunden.");
             }
         }
 
@@ -1236,8 +1250,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausKaufPreis) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Preis < 0) { Player.SendChatMessage("~y~Info~w~:Das ist zu wenig Geld."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausKaufPreis) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Preis < 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~:Das ist zu wenig Geld."); return; }
 
             ImmobilienLokal haus = new ImmobilienLokal();
             haus = Funktionen.NaheImmobilieBekommen(Player);
@@ -1250,11 +1264,11 @@ namespace Haupt
                 //Log Eintrag
                 Funktionen.LogEintrag(Player, "Immobilie Kaufpreis geändert");
 
-                Player.SendChatMessage("~y~Info~w~: Der Kaufpreis wurde auf " + Funktionen.GeldFormatieren(Preis) + " geändert!");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Kaufpreis wurde auf " + Funktionen.GeldFormatieren(Preis) + " geändert!");
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde keine Immobilie gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde keine Immobilie gefunden.");
             }
         }
 
@@ -1263,7 +1277,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausTeleport) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.HausTeleport) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Benötigte Definitionen
             int i = 0;
@@ -1279,7 +1293,7 @@ namespace Haupt
 
             if(i == 0)
             {
-                Player.SendChatMessage("~y~Info~w~: Dieses Haus konnte nicht gefunden werden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Haus konnte nicht gefunden werden.");
             }
         }
 
@@ -1288,7 +1302,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankPunktLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankPunktLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             TankstellenPunktLokal tankenpunkt = new TankstellenPunktLokal();
             tankenpunkt = Funktionen.NaheTankePunktBekommen(Player);
@@ -1308,7 +1322,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde keine Zapfsäule gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde keine Zapfsäule gefunden.");
             }
         }
 
@@ -1340,7 +1354,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Das geht nur außerhalb eines Fahrzeugs.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das geht nur außerhalb eines Fahrzeugs.");
             }
         }
 
@@ -1349,7 +1363,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankInfoLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.TankInfoLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             TankstellenInfoLokal tankeninfo = new TankstellenInfoLokal();
             tankeninfo = Funktionen.NaheTankeInfoBekommen(Player);
@@ -1369,7 +1383,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Es wurde kein Info Punkt gefunden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurde kein Info Punkt gefunden.");
             }
         }
 
@@ -1378,18 +1392,18 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Waffe) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Waffe) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Anhand des eingegeben Namens den WeaponHash ermitteln
             WeaponHash weapon = NAPI.Util.WeaponNameToModel(weaponName);
 
             if (weapon == 0)
             {
-                Player.SendChatMessage("~y~Info~w~: Diese Waffe ist uns nicht bekannt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Diese Waffe ist uns nicht bekannt.");
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du hast die Waffe erhalten.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast die Waffe erhalten.");
 
                 //Dem Spieler die gewünschte Waffe geben
                 Player.GiveWeapon(weapon, ammo);
@@ -1405,14 +1419,14 @@ namespace Haupt
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
 
-            Player.SendChatMessage("~w~[~r~Stats für " + Player.Name + "~w~]");
-            Player.SendChatMessage("Social-Club: " + Funktionen.AccountSocialClubBekommen(Player));
-            Player.SendChatMessage("Admin Level: " + Funktionen.AccountAdminLevelBekommen(Player));
-            Player.SendChatMessage("Spielzeit: " + Funktionen.AccountSpielzeitBerechnen(Player));
-            Player.SendChatMessage("Geld: " + Funktionen.GeldFormatieren(Funktionen.AccountGeldBekommen(Player)));
-            Player.SendChatMessage("Bank Geld: " + Funktionen.GeldFormatieren(Funktionen.AccountBankGeldBekommen(Player)));
-            Player.SendChatMessage("Fahrzeug Schlüssel: " + Funktionen.AccountFahrzeugSchlüsselBekommen(Player));
-            Player.SendChatMessage("Job: " + Funktionen.AccountJobInNamen(Player));
+            NAPI.Notification.SendNotificationToPlayer(Player, "~w~[~r~Stats für " + Player.Name + "~w~]");
+            NAPI.Notification.SendNotificationToPlayer(Player, "Social-Club: " + Funktionen.AccountSocialClubBekommen(Player));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Admin Level: " + Funktionen.AccountAdminLevelBekommen(Player));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Spielzeit: " + Funktionen.AccountSpielzeitBerechnen(Player));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Geld: " + Funktionen.GeldFormatieren(Funktionen.AccountGeldBekommen(Player)));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Bank Geld: " + Funktionen.GeldFormatieren(Funktionen.AccountBankGeldBekommen(Player)));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Fahrzeug Schlüssel: " + Funktionen.AccountFahrzeugSchlüsselBekommen(Player));
+            NAPI.Notification.SendNotificationToPlayer(Player, "Job: " + Funktionen.AccountJobInNamen(Player));
         }
 
         [Command("fparken", "Nutze /fparken")]
@@ -1420,7 +1434,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugParken) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugParken) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1438,7 +1452,7 @@ namespace Haupt
 
                 auto.FahrzeugGeändert = true;
        
-                Player.SendChatMessage("~y~Info~w~: Das Fahrzeug mit der ID: ~g~" + FahrzeugID + " ~w~wurde erfolgreich geparkt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug mit der ID: ~g~" + FahrzeugID + " ~w~wurde erfolgreich geparkt.");
 
                 //Log Eintrag
                 Funktionen.LogEintrag(Player, "Fahrzeug ID: " + FahrzeugID + " geparkt");
@@ -1448,7 +1462,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -1458,15 +1472,15 @@ namespace Haupt
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
 
-            if (Funktionen.AccountVerheiratetBekommen(Player) != "Nein") { Player.SendChatMessage("~y~Info~w~: Du bist bereits verheiratet."); return; }
+            if (Funktionen.AccountVerheiratetBekommen(Player) != "Nein") { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist bereits verheiratet."); return; }
 
             if (Player.Position.DistanceTo(new Vector3(-329.9244, 6150.168, 32.31319)) < 10.0f)
             {
-                if(GlobaleSachen.Heiraten == 1) { Player.SendChatMessage("~y~Info~w~: Es heiratet bereits jemand."); return; }
+                if(GlobaleSachen.Heiraten == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es heiratet bereits jemand."); return; }
 
                 if (Funktionen.AccountGeldBekommen(Player) < GlobaleSachen.HeiratenPreis)
                 {
-                    Player.SendChatMessage("~y~Info~w~: Du hast nicht genug Geld. (" + Funktionen.GeldFormatieren(GlobaleSachen.HeiratenPreis) + ")");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld. (" + Funktionen.GeldFormatieren(GlobaleSachen.HeiratenPreis) + ")");
                     return;
                 }
 
@@ -1476,7 +1490,7 @@ namespace Haupt
                 {
                     if (Funktionen.SpielerSuchen(Spieler) == null)
                     {
-                        Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
                         return;
                     }
                     else
@@ -1487,15 +1501,15 @@ namespace Haupt
                 if(Spieler1 != null)
                 {
                     Spieler1 = Funktionen.SpielerSuchen(Spieler);
-                    if (Spieler1 == Player) { Player.SendChatMessage("~y~Info~w~: Du kannst dich nicht selbst heiraten!"); return; }
-                    if (Funktionen.AccountVerheiratetBekommen(Spieler1) != "Nein") { Player.SendChatMessage("~y~Info~w~: Der Spieler ist bereits verheiratet."); return; }
-                    if (Spieler1.GetData("HeiratsId") != 0) { Player.SendChatMessage("~y~Info~w~: Der Spieler ist bereits am heiraten."); return; }
-                    if (Spieler1.GetData("HeiratenId") != 0) { Player.SendChatMessage("~y~Info~w~: Der Spieler ist bereits am heiraten."); return; }
+                    if (Spieler1 == Player) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du kannst dich nicht selbst heiraten!"); return; }
+                    if (Funktionen.AccountVerheiratetBekommen(Spieler1) != "Nein") { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Spieler ist bereits verheiratet."); return; }
+                    if (Spieler1.GetData("HeiratsId") != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Spieler ist bereits am heiraten."); return; }
+                    if (Spieler1.GetData("HeiratenId") != 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Spieler ist bereits am heiraten."); return; }
 
                     if (Spieler1.Position.DistanceTo(new Vector3(-329.9244, 6150.168, 32.31319)) < 10.0f)
                     {
                         GlobaleSachen.Heiraten = 1;
-                        Spieler1.SendChatMessage("~y~Info~w~: Möchtest du " + Player.Name + " heiraten? Nutze /ja oder /nein");
+                        NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Möchtest du " + Player.Name + " heiraten? Nutze /ja oder /nein");
                         Spieler1.SetData("HeiratsAntrag", 1);
                         Spieler1.SetData("HeiratsId", Player.GetData("Id"));
                         Player.SetData("HeiratenId", Spieler1.GetData("Id"));
@@ -1507,13 +1521,13 @@ namespace Haupt
                     }
                     else
                     {
-                        Player.SendChatMessage("~y~Info~w~: Der Spieler ist nicht am Heiraten Punkt.");
+                        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Spieler ist nicht am Heiraten Punkt.");
                     }
                 }
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du bist nicht am Heiraten Punkt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du bist nicht am Heiraten Punkt.");
             }
 
         }
@@ -1563,7 +1577,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du hast keinen Antrag erhalten.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast keinen Antrag erhalten.");
             }
             
         }
@@ -1586,8 +1600,8 @@ namespace Haupt
 
                 Client Spieler1 = NAPI.Player.GetPlayerFromName(HeiratsName);
 
-                Player.SendChatMessage("~y~Info~w~: Du hast den Antrag von " + HeiratsName + " abgelehnt.");
-                Spieler1.SendChatMessage("~y~Info~w~: " + Player.Name + " hat deinen Antrag abgelehnt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast den Antrag von " + HeiratsName + " abgelehnt.");
+                NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: " + Player.Name + " hat deinen Antrag abgelehnt.");
 
                 Player.SetData("HeiratsAntrag", 0);
                 Player.SetData("HeiratsId", 0);
@@ -1597,7 +1611,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du hast keinen Antrag erhalten.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast keinen Antrag erhalten.");
             }
         }
 
@@ -1606,8 +1620,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugMietPreis) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Mietpreis < 0) { Player.SendChatMessage("~y~Info~w~: Der Mietpreis muss mehr als 0 sein."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugMietPreis) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Mietpreis < 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Mietpreis muss mehr als 0 sein."); return; }
 
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1618,13 +1632,13 @@ namespace Haupt
                 AutoLokal auto = new AutoLokal();
                 auto = Funktionen.AutoBekommen(Player.Vehicle);
 
-                if(auto.FahrzeugTyp != 2) { Player.SendChatMessage("~y~Info~w~: Das ist kein Mietfahrzeug."); return; }
+                if(auto.FahrzeugTyp != 2) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das ist kein Mietfahrzeug."); return; }
 
                 auto.FahrzeugMietpreis = Mietpreis;
                 
                 auto.FahrzeugGeändert = true;
        
-                Player.SendChatMessage("~y~Info~w~: Der Mietpreis für dieses Fahrzeug wurde auf " + Funktionen.GeldFormatieren(Mietpreis) + " gesetzt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Mietpreis für dieses Fahrzeug wurde auf " + Funktionen.GeldFormatieren(Mietpreis) + " gesetzt.");
 
                 //Log Eintrag
                 Funktionen.LogEintrag(Player, "Fahrzeug ID: " + FahrzeugID + " Mietpreis geändert");
@@ -1634,7 +1648,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -1643,8 +1657,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugKaufPreis) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Kaufpreis < 0) { Player.SendChatMessage("~y~Info~w~: Der Kaufpreis muss mehr als 0 sein."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugKaufPreis) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Kaufpreis < 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Kaufpreis muss mehr als 0 sein."); return; }
 
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1655,13 +1669,13 @@ namespace Haupt
                 AutoLokal auto = new AutoLokal();
                 auto = Funktionen.AutoBekommen(Player.Vehicle);
 
-                if (auto.FahrzeugTyp != 5) { Player.SendChatMessage("~y~Info~w~: Das ist kein verkaufbares Fahrzeug."); return; }
+                if (auto.FahrzeugTyp != 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das ist kein verkaufbares Fahrzeug."); return; }
 
                 auto.FahrzeugKaufpreis = Kaufpreis;
 
                 auto.FahrzeugGeändert = true;
 
-                Player.SendChatMessage("~y~Info~w~: Der Kaufpreis für dieses Fahrzeug wurde auf " + Funktionen.GeldFormatieren(Kaufpreis) + " gesetzt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Kaufpreis für dieses Fahrzeug wurde auf " + Funktionen.GeldFormatieren(Kaufpreis) + " gesetzt.");
 
                 //Log Eintrag
                 Funktionen.LogEintrag(Player, "Fahrzeug ID: " + FahrzeugID + " Kaufpreis geändert");
@@ -1671,7 +1685,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -1680,7 +1694,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugLöschen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1714,7 +1728,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -1723,7 +1737,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminChat) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminChat) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             foreach (var Spieler in NAPI.Pools.GetAllPlayers())
             {
@@ -1739,8 +1753,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Teleporten) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Typ < 0 || Typ > 2) { Player.SendChatMessage("~y~Info~w~: Ungültige Eingabe."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Teleporten) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Typ < 0 || Typ > 2) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültige Eingabe."); return; }
 
             //Den Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
@@ -1748,7 +1762,7 @@ namespace Haupt
             {
                 if(Funktionen.SpielerSuchen(Spieler) == null)
                 {
-                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
                     return;
                 }
                 else
@@ -1812,7 +1826,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Teleporten) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Teleporten) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Die Teleport Orte mit Abfrage
             if(Name == "Stadthalle" || Name == "stadthalle")
@@ -1837,7 +1851,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Dieser Ort konnte nicht gefunden werden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Ort konnte nicht gefunden werden.");
             }
         }
 
@@ -1846,8 +1860,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            //if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminGeben) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Level < 0 || Level > 5) { Player.SendChatMessage("~y~Info~w~: Ungültige Eingabe."); return; }
+            //if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminGeben) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Level < 0 || Level > 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültige Eingabe."); return; }
 
             //Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
@@ -1855,7 +1869,7 @@ namespace Haupt
             {
                 if (Funktionen.SpielerSuchen(Spieler) == null)
                 {
-                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
                     return;
                 }
                 else
@@ -1880,7 +1894,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FraktionSetzen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FraktionSetzen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
@@ -1888,7 +1902,7 @@ namespace Haupt
             {
                 if (Funktionen.SpielerSuchen(Spieler) == null)
                 {
-                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
                     return;
                 }
                 else
@@ -1915,7 +1929,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Diese Fraktion ist uns nicht bekannt.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Diese Fraktion ist uns nicht bekannt.");
             }
         }
 
@@ -1924,7 +1938,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.GeldGeben) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.GeldGeben) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Den Spieler über den Namen ermitteln
             Client Spieler1 = NAPI.Player.GetPlayerFromName(Spieler);
@@ -1932,7 +1946,7 @@ namespace Haupt
             {
                 if (Funktionen.SpielerSuchen(Spieler) == null)
                 {
-                    Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
                     return;
                 }
                 else
@@ -1957,7 +1971,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugReparieren) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugReparieren) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Checken ob er in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1965,13 +1979,13 @@ namespace Haupt
                 //Log eintrag
                 Funktionen.LogEintrag(Player, "Fahrzeug repariert");
 
-                Player.SendChatMessage("~y~Info~w~: Das Fahrzeug mit der ID: ~g~" + Player.Vehicle.GetData("Id") + " ~w~wurde erfolgreich repariert.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug mit der ID: ~g~" + Player.Vehicle.GetData("Id") + " ~w~wurde erfolgreich repariert.");
                 Player.Vehicle.Repair();
                 Player.TriggerEvent("FahrzeugReparieren");
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -1980,8 +1994,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugZuweisen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Typ < 1 || Typ > 3) { Player.SendChatMessage("~y~Info~w~: Ungültiger Typ."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugZuweisen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Typ < 1 || Typ > 3) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültiger Typ."); return; }
 
             //Checken ob er in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -1990,13 +2004,13 @@ namespace Haupt
                 if (Fahrzeuge.TypBekommen(Player.Vehicle) == 1 && Typ == 1)
                 {
                     //Schauen ob der Job überhaupt existiert
-                    if (Id < 0|| Id > Zahlen.Jobs) { Player.SendChatMessage("~y~Info~w~: Ungültiger Job."); return; }
+                    if (Id < 0|| Id > Zahlen.Jobs) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültiger Job."); return; }
 
                     //Dem Fahrzeug lokal die Werte mitgeben
                     Fahrzeuge.JobSetzen(Player.Vehicle, Id);
 
                     //Nachricht an den Spieler
-                    Player.SendChatMessage("~y~Info~w~: Dem Fahrzeug wurde der Job zugewiesen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dem Fahrzeug wurde der Job zugewiesen.");
 
                     //Log eintrag
                     Funktionen.LogEintrag(Player, "Fahrzeug Job zugewiesen");
@@ -2004,13 +2018,13 @@ namespace Haupt
                 else if (Fahrzeuge.TypBekommen(Player.Vehicle) == 3 && Typ == 2)
                 {
                     //Schauen ob die Fraktion überhaupt existiert
-                    if (Id < 1 || Id > Zahlen.Fraktionen) { Player.SendChatMessage("~y~Info~w~: Ungültige Fraktion."); return; }
+                    if (Id < 1 || Id > Zahlen.Fraktionen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültige Fraktion."); return; }
 
                     //Dem Fahrzeug lokal die Werte mitgeben
                     Fahrzeuge.FraktionSetzen(Player.Vehicle, Id);
 
                     //Nachricht an den Spieler
-                    Player.SendChatMessage("~y~Info~w~: Dem Fahrzeug wurde die Fraktion zugewiesen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dem Fahrzeug wurde die Fraktion zugewiesen.");
 
                     //Log eintrag
                     Funktionen.LogEintrag(Player, "Fahrzeug Fraktion zugewiesen");
@@ -2021,13 +2035,13 @@ namespace Haupt
                     var Check = ContextFactory.Instance.srp_autohäuser.Count(x => x.Id == Id);
 
                     //Prüfen ob das Autohaus existiert
-                    if (Check == 0) { Player.SendChatMessage("~y~Info~w~: Dieses Autohaus ist uns nicht bekannt."); return; }
+                    if (Check == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Autohaus ist uns nicht bekannt."); return; }
 
                     //Dem Fahrzeug lokal die Werte mitgeben
                     Fahrzeuge.AutohausSetzen(Player.Vehicle, Id);
 
                     //Nachricht an den Spieler
-                    Player.SendChatMessage("~y~Info~w~: Dem Fahrzeug wurde das Autohaus zugewiesen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dem Fahrzeug wurde das Autohaus zugewiesen.");
 
                     //Log eintrag
                     Funktionen.LogEintrag(Player, "Fahrzeug Autohaus zugewiesen");
@@ -2035,12 +2049,12 @@ namespace Haupt
                 else
                 {
                     //Fehlermessage falls der Typ der Verändert werden soll nicht zum Fahrzeug passt
-                    Player.SendChatMessage("~y~Info~w~: Da hat was nicht geklappt. Schaue auf das Kennzeichen um zu sehen was es für ein Fahrzeug ist.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Da hat was nicht geklappt. Schaue auf das Kennzeichen um zu sehen was es für ein Fahrzeug ist.");
                 }
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -2049,7 +2063,7 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugZuweisen) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugZuweisen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             //Checken ob er in einem Fahrzeug ist
             if (Player.IsInVehicle)
@@ -2067,7 +2081,7 @@ namespace Haupt
                     {
                         if (Funktionen.SpielerSuchen(Spieler) == null)
                         {
-                            Player.SendChatMessage("~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
+                            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieser Spieler konnte nicht gefunden werden.");
                             return;
                         }
                         else
@@ -2080,8 +2094,8 @@ namespace Haupt
                     Fahrzeug.FahrzeugSpieler = Spieler1.GetData("Id");
 
                     //Dem Spieler und dem Sender eine Nachricht senden
-                    Spieler1.SendChatMessage("~y~Info~w~: Der " + Funktionen.AdminLevelName(Funktionen.AccountAdminLevelBekommen(Player)) + " " + Player.Name + " hat dir das Fahrzeug " + Fahrzeuge.NameBekommen(Player.Vehicle) + " als Privatfahrzeug zugewiesen.");
-                    Player.SendChatMessage("~y~Info~w~: Du hast " + Spieler1.Name + " das Fahrzeug " + Fahrzeuge.NameBekommen(Player.Vehicle) + " als Privatfahrzeug zugewiesen.");
+                    NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Der " + Funktionen.AdminLevelName(Funktionen.AccountAdminLevelBekommen(Player)) + " " + Player.Name + " hat dir das Fahrzeug " + Fahrzeuge.NameBekommen(Player.Vehicle) + " als Privatfahrzeug zugewiesen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " das Fahrzeug " + Fahrzeuge.NameBekommen(Player.Vehicle) + " als Privatfahrzeug zugewiesen.");
 
                     //Dem Fahrzeug lokal die Werte mitgeben
                     Fahrzeuge.BesitzerSetzen(Player.Vehicle, Spieler1.GetData("Id"));
@@ -2092,7 +2106,7 @@ namespace Haupt
                 else
                 {
                     //Fehlermessage falls der Typ der Verändert werden soll nicht zum Fahrzeug passt
-                    Player.SendChatMessage("~y~Info~w~: Da hat was nicht geklappt. Schaue auf das Kennzeichen um zu sehen was es für ein Fahrzeug ist.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Da hat was nicht geklappt. Schaue auf das Kennzeichen um zu sehen was es für ein Fahrzeug ist.");
                 }
 
                 //Query absenden
@@ -2100,7 +2114,7 @@ namespace Haupt
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
         
@@ -2113,8 +2127,8 @@ namespace Haupt
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugPorten) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Id < 0) { Player.SendChatMessage("~y~Info~w~: Ungültige ID."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugPorten) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Id < 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültige ID."); return; }
 
             //Schleife durch die Fahrzeuge die neugespawnt werden sollen
             foreach (var Fahrzeuge in NAPI.Pools.GetAllVehicles())
@@ -2132,11 +2146,11 @@ namespace Haupt
 
             if (i == 0)
             {
-                Player.SendChatMessage("~y~Info~w~: Das Fahrzeug konnte nicht gefunden werden.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug konnte nicht gefunden werden.");
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Das Fahrzeug wurde zu dir teleportiert.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Fahrzeug wurde zu dir teleportiert.");
             }
         }
 
@@ -2145,10 +2159,10 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Speichern) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.Speichern) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
-            NAPI.Chat.SendChatMessageToAll("~g~Info~w~: Speicherung wurde eingeleitet.");
-            NAPI.Chat.SendChatMessageToAll("~g~Info~w~: Dies kann zu Verzögerungen führen!");
+            NAPI.Notification.SendNotificationToAll("~g~Info~w~: Speicherung wurde eingeleitet.");
+            NAPI.Notification.SendNotificationToAll("~g~Info~w~: Dies kann zu Verzögerungen führen!");
 
             //Stoppuhr starten
             var Uhr = System.Diagnostics.Stopwatch.StartNew();
@@ -2161,7 +2175,7 @@ namespace Haupt
             var MS = Uhr.ElapsedMilliseconds;
 
             //Ausgabe
-            NAPI.Chat.SendChatMessageToAll("~g~Info~w~: Der Gesamte Server wurde gespeichert. [" + MS + "ms]");
+            NAPI.Notification.SendNotificationToAll("~g~Info~w~: Der Gesamte Server wurde gespeichert. [" + MS + "ms]");
         }
 
         [Command("frespawn", "Nutze: /frespawn [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus]")]
@@ -2169,8 +2183,8 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugRespawn) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Typ < 0 || Typ > 5) { Player.SendChatMessage("~y~Info~w~: Ungültiger Typ."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugRespawn) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Typ < 0 || Typ > 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültiger Typ."); return; }
 
             //Schleife durch die Fahrzeuge die neugespawnt werden sollen
             foreach(var Fahrzeuge in NAPI.Pools.GetAllVehicles())
@@ -2187,7 +2201,7 @@ namespace Haupt
             }
 
             //Nachricht an alle Spieler
-            NAPI.Chat.SendChatMessageToAll("~y~Info~w~: Der " + Funktionen.AdminLevelName(Funktionen.AccountAdminLevelBekommen(Player)) + " " + Player.Name + " hat alle " + Funktionen.FahrzeugTypNamen(Typ) + " Fahrzeuge neu gespawnt.");
+            NAPI.Notification.SendNotificationToAll("~y~Info~w~: Der " + Funktionen.AdminLevelName(Funktionen.AccountAdminLevelBekommen(Player)) + " " + Player.Name + " hat alle " + Funktionen.FahrzeugTypNamen(Typ) + " Fahrzeuge neu gespawnt.");
 
             //Log eintrag
             Funktionen.LogEintrag(Player, "Fahrzeuge respawnt");
@@ -2198,12 +2212,12 @@ namespace Haupt
         {
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.VerwaltungsModus) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.VerwaltungsModus) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             if(Player.GetData("VerwaltungsModus") == 1)
             {
                 Player.SetData("VerwaltungsModus", 0);
-                Player.SendChatMessage("~y~Info~w~: Du hast den Verwaltungsmodus verlassen.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast den Verwaltungsmodus verlassen.");
 
                 //Log eintrag
                 Funktionen.LogEintrag(Player, "Verwaltungsmodus verlassen");
@@ -2211,7 +2225,7 @@ namespace Haupt
             else
             {
                 Player.SetData("VerwaltungsModus", 1);
-                Player.SendChatMessage("~y~Info~w~: Du hast den Verwaltungsmodus betreten.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast den Verwaltungsmodus betreten.");
 
                 //Log eintrag
                 Funktionen.LogEintrag(Player, "Verwaltungsmodus betreten");
@@ -2224,11 +2238,11 @@ namespace Haupt
             //Überprüfen ob der Spieler in einem Fahrzeug ist
             if (Player.IsInVehicle)
             {
-                Player.SendChatMessage("~y~Info~w~: Die ID dieses Fahrzeuges ist " + Player.Vehicle.GetData("Id"));
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Die ID dieses Fahrzeuges ist " + Player.Vehicle.GetData("Id"));
             }
             else
             {
-                Player.SendChatMessage("~y~Info~w~: Du musst in einem Fahrzeug sein.");
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst in einem Fahrzeug sein.");
             }
         }
 
@@ -2236,7 +2250,7 @@ namespace Haupt
         public void CoordinatenTeleport(Client Player, float posX, float posY, float posZ)
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.CoordinatenTeleport) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.CoordinatenTeleport) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             Player.Position = new Vector3(posX, posY, posZ);
         }
@@ -2245,7 +2259,7 @@ namespace Haupt
         public void SavePosition(Client Player, String PosBeschreibung = "Nicht gesetzt")
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PositionSpeichern) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.PositionSpeichern) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             var Save = new Save
             {
@@ -2280,7 +2294,7 @@ namespace Haupt
         public void SavePositionListe(Client Player, String PosBeschreibung = "Nicht gesetzt")
         {
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SaveListe) { Player.SendChatMessage("~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.SaveListe) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
 
             Player.TriggerEvent("savelisteoeffnen");
 
