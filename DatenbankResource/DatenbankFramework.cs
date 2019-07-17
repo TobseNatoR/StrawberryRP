@@ -40,6 +40,7 @@ namespace Datenbank
         public DbSet<Bankautomaten> srp_bankautomaten { get; set; }
         public DbSet<Fraktionen> srp_fraktionen { get; set; }
         public DbSet<Fahrzeugvermietungen> srp_fahrzeugvermietungen { get; set; }
+        public DbSet<RandomSpawns> srp_randomspawns { get; set; }
 
     }
 

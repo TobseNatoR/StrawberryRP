@@ -571,4 +571,15 @@ namespace Datenbank
         public string FraktionRang4Name { get; set; }
         public string FraktionRang5Name { get; set; }
     }
+
+    public class RandomSpawns
+    {
+        [Key]
+        public int Id { get; set; }
+        public String Name { get; set; }
+        public float PosX { get; set; }
+        public float PosY { get; set; }
+        public float PosZ { get; set; }
+        public float RotZ { get; set; }
+    }
 }

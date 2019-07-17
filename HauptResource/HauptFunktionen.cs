@@ -167,6 +167,7 @@ namespace Haupt
     public class Funktionen : Script
     {
         //Listen für Dynamische Systeme
+        public static List<RandomSpawns> RandomSpawnListe;
         public static List<AccountLokal> AccountListe;
         public static List<ImmobilienLokal> ImmobilienListe;
         public static List<AutoLokal> AutoListe;
@@ -201,6 +202,7 @@ namespace Haupt
             NAPI.Server.SetGlobalServerChat(false);
 
             //Wichtige Dinge die geladen werden müssen
+            RandomSpawnsLaden();
             NPCTexteInitialisieren();
             AccountsLadenLokal();
             FahrzeugeLadenLokal();
@@ -261,6 +263,7 @@ namespace Haupt
             var Gruppen = ContextFactory.Instance.srp_gruppen.Count();
             var ATMs = ContextFactory.Instance.srp_bankautomaten.Count();
             var Fahrzeugvermietungen = ContextFactory.Instance.srp_fahrzeugvermietungen.Count();
+            var RandomSpawns = ContextFactory.Instance.srp_randomspawns.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -277,6 +280,7 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Gruppen + " Gruppen wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + ATMs + " ATMs wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Fahrzeugvermietungen + " Fahrzeugvermietungen wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + RandomSpawns + " Randomspawns wurden geladen.");
 
             //Spieler auf 0 setzen
             var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
@@ -498,6 +502,11 @@ namespace Haupt
             }
         }
 
+        public static void RandomSpawnsLaden()
+        {
+            RandomSpawnListe = AlleRandomSpawnsLadenDB();
+        }
+
         public static void FahrzeugvermietungenLadenLokal()
         {
             FVermietungListe = AlleFahrzeugvermiertungenLadenDB();
@@ -704,6 +713,31 @@ namespace Haupt
                 }
             }
             return fverm;
+        }
+
+        public static int RandomSpawnBekommen(String Name)
+        {
+            int i = 0, ii = 0;
+            foreach (RandomSpawns randomspawn in RandomSpawnListe)
+            {
+                i += 1;
+            }
+
+            var idarray = new int[i];
+
+            foreach (RandomSpawns randomspawn in RandomSpawnListe)
+            {
+                if(randomspawn.Name == Name)
+                {
+                    ii += 1;
+                    idarray[ii] = randomspawn.Id;
+                }
+            }
+
+            Random random = new Random();
+            int start2 = random.Next(0, idarray.Length);
+
+            return idarray[start2];
         }
 
         public static SupermarktLokal NaheSupermarktBekommen(Client Player, float distance = 2.0f)
@@ -2495,7 +2529,7 @@ namespace Haupt
                 if (AccountTutorialBekommen(Player) == 0)
                 {
                     //Einreise Bot
-                    if (Player.Position.DistanceTo(new Vector3(815.023, -3001.82, 6.02094)) < 5.0f)
+                    if (Player.Position.DistanceTo(new Vector3(815.822, -3001.06, 6.02094)) < 5.0f)
                     {
                         if(Player.GetData("EinreiseNPC") == 0 && AccountTutorialBekommen(Player) == 0)
                         {
@@ -2506,7 +2540,7 @@ namespace Haupt
                         }
                     }
                     //Helmut
-                    else if (Player.Position.DistanceTo(new Vector3(0, 0, 0)) < 5.0f)
+                    else if (Player.Position.DistanceTo(new Vector3(793.214, -3021.96, 6.02094)) < 5.0f)
                     {
                         if (Player.GetData("HelmutNPC") == 0 && AccountTutorialBekommen(Player) == 0 && HatTutorialFahrzeug(Player) == 0)
                         {
@@ -3136,6 +3170,27 @@ namespace Haupt
             return ATMListe;
         }
 
+        public static List<RandomSpawns> AlleRandomSpawnsLadenDB()
+        {
+            List<RandomSpawns> RandomSpawnListe = new List<RandomSpawns>();
+
+            foreach (var Spawn in ContextFactory.Instance.srp_randomspawns.Where(x => x.Id > 0).ToList())
+            {
+                RandomSpawns spawn = new RandomSpawns();
+
+                spawn.Id = Spawn.Id;
+                spawn.Name = Spawn.Name;
+                spawn.PosX = Spawn.PosX;
+                spawn.PosY = Spawn.PosY;
+                spawn.PosZ = Spawn.PosZ;
+                spawn.RotZ = Spawn.RotZ;
+
+                //Zur lokalen Liste hinzufügen
+                RandomSpawnListe.Add(spawn);
+            }
+            return RandomSpawnListe;
+        }
+
         public static List<FahrzeugvermietungenLokal> AlleFahrzeugvermiertungenLadenDB()
         {
             List<FahrzeugvermietungenLokal> FVermiertungListe = new List<FahrzeugvermietungenLokal>();
@@ -3431,7 +3486,6 @@ namespace Haupt
                 }
             }
         }
-
         public static void SpielerLaden(Client Player)
         {
             //Daten aus der SQL Datenbank ziehen

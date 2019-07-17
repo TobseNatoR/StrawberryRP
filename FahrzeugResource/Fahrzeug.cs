@@ -606,6 +606,95 @@ namespace Fahrzeug
             }
         }
 
+        public void HelmutFahrzeugErstellen(Client Player)
+        {
+            //Definitionen
+            uint AutoCode = NAPI.Util.GetHashKey("mk7");
+
+            //Ein neues Objekt erzeugen
+            var veh = new Auto
+            {
+                FahrzeugBeschreibung = "Nicos Fahrzeug",
+                FahrzeugName = Funktionen.ErsterBuchstabeGroß("Golf mk7"),
+                FahrzeugTyp = 2,
+                FahrzeugFraktion = 0,
+                FahrzeugJob = 0,
+                FahrzeugSpieler = Player.GetData("Id"),
+                FahrzeugMietpreis = 0,
+                FahrzeugKaufpreis = 0,
+                FahrzeugAutohaus = 0,
+                FahrzeugX = Player.Position.X,
+                FahrzeugY = Player.Position.Y,
+                FahrzeugZ = Player.Position.Z,
+                FahrzeugRot = Player.Rotation.Z,
+                FahrzeugFarbe1 = 0,
+                FahrzeugFarbe2 = 0,
+                TankVolumen = Funktionen.TankVolumenBerechnen("Golf"),
+                TankInhalt = Funktionen.TankVolumenBerechnen("Golf") * 10 * 100,
+                Kilometerstand = 0.0f,
+                KraftstoffArt = 3,
+                FahrzeugHU = DateTime.Now.AddMonths(+1),
+                FahrzeugAbgeschlossen = 0,
+                FahrzeugMotor = 1,
+                FahrzeugGespawnt = 1
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_fahrzeuge.Add(veh);
+            ContextFactory.Instance.SaveChanges();
+            
+
+            //Objekt für die Liste erzeugen
+            AutoLokal auto = new AutoLokal();
+
+            //Das Fahrzeug spawnen
+            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, 0, 0, numberPlate: "Nico");
+
+            auto.Fahrzeug.NumberPlate = "Nico";
+            auto.Fahrzeug.Dimension = 0;
+
+            //Dem Fahrzeug die Werte lokal übergeben
+            auto.Id = ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id);
+            auto.FahrzeugBeschreibung = "Nicos Fahrzeug";
+            auto.FahrzeugName = Funktionen.ErsterBuchstabeGroß("Golf mk7");
+            auto.FahrzeugTyp = 2;
+            auto.FahrzeugFraktion = 0;
+            auto.FahrzeugJob = 0;
+            auto.FahrzeugSpieler = 0;
+            auto.FahrzeugMietpreis = 0;
+            auto.FahrzeugKaufpreis = 0;
+            auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugX = Player.Position.X;
+            auto.FahrzeugY = Player.Position.Y;
+            auto.FahrzeugZ = Player.Position.Z;
+            auto.FahrzeugRot = Player.Rotation.Z;
+            auto.FahrzeugFarbe1 = 0;
+            auto.FahrzeugFarbe2 = 0;
+            auto.TankVolumen = Funktionen.TankVolumenBerechnen("Golf");
+            auto.TankInhalt = Funktionen.TankVolumenBerechnen("Golf") * 10 * 100;
+            auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 3;
+            auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
+            auto.FahrzeugAbgeschlossen = 0;
+            auto.FahrzeugMotor = 1;
+            auto.FahrzeugGespawnt = 1;
+
+            //Diese Sachen nur lokal
+            auto.FahrzeugAltePositionX = Player.Position.X;
+            auto.FahrzeugAltePositionY = Player.Position.Y;
+            auto.FahrzeugAltePositionZ = Player.Position.Z;
+            auto.FahrzeugNeuePositionX = 0;
+            auto.FahrzeugNeuePositionY = 0;
+            auto.FahrzeugNeuePositionZ = 0;
+
+            //Fahrzeug in der Liste ablegen
+            Funktionen.AutoListe.Add(auto);
+
+            //Dem Auto die DB Id lokal geben
+            auto.Fahrzeug.SetData("Id", ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id));
+            auto.Fahrzeug.EngineStatus = true;
+        }
+
         public static void TachoUpdaten()
         {
             //Schleife für alle Autos

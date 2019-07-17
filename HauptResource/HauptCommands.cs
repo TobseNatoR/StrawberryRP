@@ -21,17 +21,69 @@ namespace Haupt
 {    
     public class Commands : Script
     {
-        [Command("modcar")]
-        public void CreateCar(Client player, string name)
+        [Command("modcar", "Nutze: /modcar [Name]")]
+        public void ModCarErstellen(Client Player, String Name)
         {
-            int number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), name));
-            NAPI.Notification.SendNotificationToPlayer(player, "Nummer:" + number);
-            Vector3 position = player.Position;
-            Vector3 rotation = player.Rotation;
-            uint veh = NAPI.Util.GetHashKey(name);
-            Vehicle vehicle = NAPI.Vehicle.CreateVehicle(veh, position, rotation.Z, 0, 0);
-            player.SetIntoVehicle(vehicle, (int)VehicleSeat.Driver);
-            
+            //Definitionen
+            uint AutoCode = NAPI.Util.GetHashKey(Name);
+
+            //Benötigte Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminFahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Objekt für die Liste erzeugen
+            AutoLokal auto = new AutoLokal();
+
+            //Das Fahrzeug spawnen
+            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, 0, 0, numberPlate: Funktionen.FahrzeugTypNamen(0));
+
+            auto.Fahrzeug.NumberPlate = Funktionen.FahrzeugTypNamen(0);
+            auto.Fahrzeug.Dimension = 0;
+
+
+            auto.Id = -1;
+            auto.FahrzeugBeschreibung = Funktionen.FahrzeugTypNamen(0);
+            auto.FahrzeugName = Name;
+            auto.FahrzeugTyp = 0;
+            auto.FahrzeugFraktion = 0;
+            auto.FahrzeugJob = 0;
+            auto.FahrzeugSpieler = 0;
+            auto.FahrzeugMietpreis = 0;
+            auto.FahrzeugKaufpreis = 0;
+            auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugX = Player.Position.X;
+            auto.FahrzeugY = Player.Position.Y;
+            auto.FahrzeugZ = Player.Position.Z;
+            auto.FahrzeugRot = Player.Rotation.Z;
+            auto.FahrzeugFarbe1 = 0;
+            auto.FahrzeugFarbe2 = 0;
+            auto.TankVolumen = Funktionen.TankVolumenBerechnen(Name);
+            auto.TankInhalt = Funktionen.TankVolumenBerechnen(Name) * 10 * 100;
+            auto.Kilometerstand = 0;
+            auto.KraftstoffArt = 3;
+            auto.FahrzeugHU = DateTime.Now.AddMonths(+1);
+            auto.FahrzeugAbgeschlossen = 0;
+            auto.FahrzeugMotor = 1;
+            auto.FahrzeugGespawnt = 1;
+
+            //Diese Sachen nur lokal
+            auto.FahrzeugAltePositionX = Player.Position.X;
+            auto.FahrzeugAltePositionY = Player.Position.Y;
+            auto.FahrzeugAltePositionZ = Player.Position.Z;
+            auto.FahrzeugNeuePositionX = 0;
+            auto.FahrzeugNeuePositionY = 0;
+            auto.FahrzeugNeuePositionZ = 0;
+
+            //Fahrzeug in der Liste ablegen
+            Funktionen.AutoListe.Add(auto);
+
+            //Den Spieler in das Auto setzen
+            Player.SetIntoVehicle(auto.Fahrzeug, -1);
+
+            //ID Setzen
+            auto.Fahrzeug.SetData("Id", -1);
+
+            Funktionen.LogEintrag(Player, "Mod Fahrzeug erstellen");
         }
 
         [Command("ferstellen", "Nutze: /ferstellen [Name] [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus] [Farbe 1] [Farbe 2]")]
