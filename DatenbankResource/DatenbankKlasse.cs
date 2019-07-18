@@ -366,8 +366,8 @@ namespace Datenbank
         public long FahrzeugMietpreis { get; set; }
         public long FahrzeugKaufpreis { get; set; }
         public int FahrzeugAutohaus { get; set; }
-        public int FahrzeugMitzeit { get; set; }
         public int FahrzeugMaxMietzeit { get; set; }
+        public int FahrzeugMietzeit { get; set; }
         public float FahrzeugX { get; set; }
         public float FahrzeugY { get; set; }
         public float FahrzeugZ { get; set; }
@@ -400,8 +400,8 @@ namespace Datenbank
         public long FahrzeugMietpreis { get; set; }
         public long FahrzeugKaufpreis { get; set; }
         public int FahrzeugAutohaus { get; set; }
-        public int FahrzeugMitzeit { get; set; }
         public int FahrzeugMaxMietzeit { get; set; }
+        public int FahrzeugMietzeit { get; set; }
         public float FahrzeugX { get; set; }
         public float FahrzeugY { get; set; }
         public float FahrzeugZ { get; set; }
@@ -585,5 +585,11 @@ namespace Datenbank
         public float PosY { get; set; }
         public float PosZ { get; set; }
         public float RotZ { get; set; }
+    }
+
+    public class FahrzeugMods
+    {
+        public int Id { get; set; }
+        public String Name { get; set; }
     }
 }

@@ -101,14 +101,6 @@ namespace Haupt
         public static String HelmutNPCText;
     }
 
-    public enum Fahrzeug_Mods : int
-    {
-        passat = 1,
-        mk7,
-        e46,
-        mers63amg
-    }
-
     public class AdminBefehle
     {
         //Hier kann man die Berechtigungen für die Befehle ändern
@@ -187,6 +179,7 @@ namespace Haupt
         public static List<GruppenLokal> GruppenListe;
         public static List<BankautomatenLokal> ATMListe;
         public static List<FahrzeugvermietungenLokal> FVermietungListe;
+        public static List<FahrzeugMods> FModsListe;
 
         public static void NPCTexteInitialisieren()
         {
@@ -194,14 +187,15 @@ namespace Haupt
             GlobaleSachen.EinreiseNPCText = "Willkommen in Los Santos, zeigen Sie mir  bitte Ihren  Ausweis… <br>" +
             "Sie haben keine Papiere? Hmm..<br>" +
             "Nun gut, ich werde Ihnen die Einreise gewähren, jedoch müssen Sie sich in 7 Tagen beim Bürgeramt melden, dort müssen Sie dann einen neuen Ausweis beantragen.<br>" +
-            "Ich gebe Ihnen noch einen guten Rat, gleich hier vorne am Parkplatz steht mein Freund Helmut, der wird dir ein Fahrzeug zur Verfügung stellen.";
+            "Ich gebe Ihnen noch einen guten Rat, gleich hier vorne am Parkplatz steht mein Freund Helmut, der wird Ihnen ein Fahrzeug zur Verfügung stellen.";
 
             GlobaleSachen.HelmutNPCText = "Hallo ich bin Helmut, ich hoffe du hattest eine angenehme Reise. <br>" +
             "Mir wurde gesagt du brauchst ein Fahrzeug?<br>" +
-            "Mein Enkel hat sein altes Auto hier gelassen, bevor er auf Weltreise gegangen ist, er wird noch einige Tage wegbleiben, solange kann ich es dir seinen Golf ausleihen<br>" +
-            "Er hat den Wagen noch nicht so lange geh bitte gut damit um.<br>" +
-            "Dafür musst du mir aber einen gefallen tun. Ich habe vorhin im vorbeifahren einen alten Mann am Blumenfeld gesehen, er sah aus als könnte er Hilfe gebrauchen…<br>" +
-            "Da ich aber schnell wieder hierher zurück musste konnte ich nicht anhalten. Geh bitte los und schau mal nach ihm.<br>" +
+            "Mein Enkel hat sein altes Auto hier gelassen, bevor er auf Weltreise gegangen ist, er wird noch einige Tage wegbleiben, solange kann ich es dir seinen Golf ausleihen.<br>" +
+            "Er hat den Wagen noch nicht so lange, geh bitte gut damit um.<br>" +
+            "Dafür musst du mir aber einen Gefallen tun. Ich habe vorhin im Vorbeifahren einen alten Mann am Blumenfeld gesehen, er sah aus als könnte er Hilfe gebrauchen…<br>" +
+            "Da ich aber schnell wieder hierher zurück musste konnte ich nicht anhalten.<br>" +
+            "Geh bitte los und schau mal nach ihm.<br>" +
             "Bitte bring mir den Wagen in 2 Tagen wieder. Ich brauche ihn dann selber.<br>";
         }
 
@@ -213,6 +207,7 @@ namespace Haupt
             //Wichtige Dinge die geladen werden müssen
             RandomSpawnsLaden();
             NPCTexteInitialisieren();
+            FahrzeugModsLaden();
             AccountsLadenLokal();
             FahrzeugeLadenLokal();
             TextLabelsLaden();
@@ -273,6 +268,7 @@ namespace Haupt
             var ATMs = ContextFactory.Instance.srp_bankautomaten.Count();
             var Fahrzeugvermietungen = ContextFactory.Instance.srp_fahrzeugvermietungen.Count();
             var RandomSpawns = ContextFactory.Instance.srp_randomspawns.Count();
+            var FahrzeugMods = ContextFactory.Instance.srp_fahrzeugmods.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -290,6 +286,7 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + ATMs + " ATMs wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Fahrzeugvermietungen + " Fahrzeugvermietungen wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + RandomSpawns + " Randomspawns wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + FahrzeugMods + " Fahrzeugmods wurden geladen.");
 
             //Spieler auf 0 setzen
             var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
@@ -516,6 +513,11 @@ namespace Haupt
             RandomSpawnListe = AlleRandomSpawnsLadenDB();
         }
 
+        public static void FahrzeugModsLaden()
+        {
+            FModsListe = AlleFahrzeugModsLadenDB();
+        }
+
         public static void FahrzeugvermietungenLadenLokal()
         {
             FVermietungListe = AlleFahrzeugvermiertungenLadenDB();
@@ -732,7 +734,7 @@ namespace Haupt
                 i += 1;
             }
 
-            var idarray = new int[i];
+            var idarray = new int[i + 1];
 
             foreach (RandomSpawns randomspawn in RandomSpawnListe)
             {
@@ -744,7 +746,7 @@ namespace Haupt
             }
 
             Random random = new Random();
-            int start2 = random.Next(0, idarray.Length);
+            int start2 = random.Next(1, idarray.Length);
 
             return idarray[start2];
         }
@@ -754,8 +756,11 @@ namespace Haupt
             RandomSpawns rsgefunden = null;
             foreach (RandomSpawns rs in RandomSpawnListe)
             {
-                rsgefunden = rs;
-                break;
+                if(rs.Id == Id)
+                {
+                    rsgefunden = rs;
+                    break;
+                }
             }
             return rsgefunden;
         }
@@ -1349,6 +1354,22 @@ namespace Haupt
             return Job;
         }
 
+        public static Boolean FahrzeugModVorhanden(String Name)
+        {
+            //Benötigte Definitionen
+            Boolean Gefunden = false;
+
+            foreach (FahrzeugMods fmod in FModsListe)
+            {
+                if(fmod.Name == Name)
+                {
+                    Gefunden = true;
+                    break;
+                }
+            }
+            return Gefunden;
+        }
+
         public static int AccountExpBekommen(Client Player)
         {
             //Benötigte Definitionen
@@ -1536,11 +1557,11 @@ namespace Haupt
             {
                 if (auto.FahrzeugSpieler == Player.GetData("Id") && auto.FahrzeugTyp == 2)
                 {
-                    if(auto.FahrzeugMaxMietzeit > auto.FahrzeugMitzeit)
+                    if(auto.FahrzeugMaxMietzeit > auto.FahrzeugMietzeit)
                     {
-                        auto.FahrzeugMitzeit += 1;
+                        auto.FahrzeugMietzeit += 1;
                     }
-                    else if (auto.FahrzeugMaxMietzeit == auto.FahrzeugMitzeit)
+                    else if (auto.FahrzeugMaxMietzeit == auto.FahrzeugMietzeit)
                     {
                         //Hier dann alles weitere was passieren soll, falls ein Spieler meint seine Karre nicht zurück zu bringen ;)
                     }
@@ -3224,6 +3245,25 @@ namespace Haupt
             return RandomSpawnListe;
         }
 
+        public static List<FahrzeugMods> AlleFahrzeugModsLadenDB()
+        {
+            List<FahrzeugMods> FModsListe = new List<FahrzeugMods>();
+
+            foreach (var Fmod in ContextFactory.Instance.srp_fahrzeugmods.Where(x => x.Id > 0).ToList())
+            {
+                FahrzeugMods fmod = new FahrzeugMods();
+
+                fmod.Id = Fmod.Id;
+                fmod.Name = Fmod.Name;
+
+
+                //Zur lokalen Liste hinzufügen
+                FModsListe.Add(fmod);
+            }
+
+            return FModsListe;
+        }
+
         public static List<FahrzeugvermietungenLokal> AlleFahrzeugvermiertungenLadenDB()
         {
             List<FahrzeugvermietungenLokal> FVermiertungListe = new List<FahrzeugvermietungenLokal>();
@@ -4881,7 +4921,7 @@ namespace Haupt
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
             auto.FahrzeugMaxMietzeit = 0;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -4960,7 +5000,7 @@ namespace Haupt
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
             auto.FahrzeugMaxMietzeit = 0;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -5090,7 +5130,7 @@ namespace Haupt
                     AktuellesFahrzeug.FahrzeugKaufpreis = auto.FahrzeugKaufpreis;
                     AktuellesFahrzeug.FahrzeugAutohaus = auto.FahrzeugAutohaus;
                     AktuellesFahrzeug.FahrzeugMaxMietzeit = auto.FahrzeugMaxMietzeit;
-                    AktuellesFahrzeug.FahrzeugMitzeit = auto.FahrzeugMitzeit;
+                    AktuellesFahrzeug.FahrzeugMietzeit = auto.FahrzeugMietzeit;
                     AktuellesFahrzeug.FahrzeugX = Fahrzeuge.Position.X;
                     AktuellesFahrzeug.FahrzeugY = Fahrzeuge.Position.Y;
                     AktuellesFahrzeug.FahrzeugZ = Fahrzeuge.Position.Z;
@@ -5156,7 +5196,7 @@ namespace Haupt
                 AktuellesFahrzeug.FahrzeugKaufpreis = auto.FahrzeugKaufpreis;
                 AktuellesFahrzeug.FahrzeugAutohaus = auto.FahrzeugAutohaus;
                 AktuellesFahrzeug.FahrzeugMaxMietzeit = auto.FahrzeugMaxMietzeit;
-                AktuellesFahrzeug.FahrzeugMitzeit = auto.FahrzeugMitzeit;
+                AktuellesFahrzeug.FahrzeugMietzeit = auto.FahrzeugMietzeit;
                 AktuellesFahrzeug.FahrzeugX = Fahrzeuge.Position.X;
                 AktuellesFahrzeug.FahrzeugY = Fahrzeuge.Position.Y;
                 AktuellesFahrzeug.FahrzeugZ = Fahrzeuge.Position.Z;
@@ -5924,6 +5964,21 @@ namespace Haupt
             Player.Vehicle.FreezePosition = false;
         }
 
+        public static void FahrzeugMotor(Vehicle vehicle)
+        {
+            AutoLokal auto = new AutoLokal();
+            auto = AutoBekommen(vehicle);
+
+            if (auto.FahrzeugMotor == 0)
+            {
+                auto.Fahrzeug.EngineStatus = false;
+            }
+            else
+            {
+                auto.Fahrzeug.EngineStatus = true;
+            }
+        }
+
         public static void KeyCoolDown(Client Player)
         {
             //Cooldown beenden
@@ -5959,7 +6014,7 @@ namespace Haupt
             AccountLokal account = new AccountLokal();
             account = AccountBekommen(Player);
 
-            if(account.Tutorial == 1)
+            if(account.Tutorial == 100)
             {
                 //Spieler hat das Tutorial bereits abgeschlossen
                 Player.Position = new Vector3(account.PositionX, account.PositionY, account.PositionZ);
@@ -5970,8 +6025,8 @@ namespace Haupt
             else
             {
                 //Spieler hat das Tutorial noch nicht abgeschlossen
-                Player.Position = new Vector3(815.023, -3001.82, 6.02094);
-                Player.Rotation = new Vector3(0.0, 0.0, 108.61);
+                Player.Position = new Vector3(826.526, -3014.08, 5.90631);
+                Player.Rotation = new Vector3(0.0, 0.0, 355.688);
                 Player.Dimension = Convert.ToUInt32(account.Dimension);
                 InteriorLaden(Player, account.Interior);
             }
@@ -6326,7 +6381,7 @@ namespace Haupt
                 {
                     Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
                     Freeze(Player);
-                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 20000, 1);
+                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 35000, 1);
                     Player.SetData("EinreiseNPC", 1);
                     AccountTutorialSetzen(Player, 1);
                 }
@@ -6338,7 +6393,8 @@ namespace Haupt
                 {
                     Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
                     Freeze(Player);
-                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 20000, 1);
+                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 45000, 1);
+                    Timer.SetTimer(() => Fahrzeuge.HelmutFahrzeugErstellen(Player), 45000, 1);
                     Player.SetData("HelmutNPC", 1);
                     AccountTutorialSetzen(Player, 2);
                 }

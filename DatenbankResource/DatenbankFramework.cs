@@ -41,6 +41,7 @@ namespace Datenbank
         public DbSet<Fraktionen> srp_fraktionen { get; set; }
         public DbSet<Fahrzeugvermietungen> srp_fahrzeugvermietungen { get; set; }
         public DbSet<RandomSpawns> srp_randomspawns { get; set; }
+        public DbSet<FahrzeugMods> srp_fahrzeugmods { get; set; }
 
     }
 

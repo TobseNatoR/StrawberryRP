@@ -21,6 +21,20 @@ namespace Haupt
 {    
     public class Commands : Script
     {
+        //Test CMD
+        [Command("test", "Nutze: /test")]
+        public void test(Client Player)
+        {
+            Player.TriggerEvent("test");
+        }
+
+        [Command("test1", "Nutze: /test")]
+        public void test1(Client Player)
+        {
+            RandomSpawns rs = new RandomSpawns();
+            rs = Funktionen.RandomSpawnObjektBekommen(Funktionen.RandomSpawnBekommen("Helmut"));
+            Player.SendChatMessage("X: " + rs.PosX + " | Y: " + rs.PosY + " | Z: " + rs.PosZ);
+        }
 
         [Command("delallacars", "Nutze: /delallacars")]
         public void AlleAdminFahrzeugeLöschen(Client Player)
@@ -50,15 +64,13 @@ namespace Haupt
         public void ModCarErstellen(Client Player, String Name)
         {
             //Definitionen
-            int number = 0;
             uint AutoCode = NAPI.Util.GetHashKey(Name);
             Name = Funktionen.ErsterBuchstabeGroß(Name);
-            number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), Name));
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminModFahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
-            if (Enum.IsDefined(typeof(VehicleHash), AutoCode) == false && number == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+            if (Enum.IsDefined(typeof(VehicleHash), AutoCode) == false && Funktionen.FahrzeugModVorhanden(Name) == false) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
 
             //Objekt für die Liste erzeugen
             AutoLokal auto = new AutoLokal();
@@ -80,7 +92,7 @@ namespace Haupt
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
             auto.FahrzeugMaxMietzeit = 0;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -120,16 +132,15 @@ namespace Haupt
         public void FahrzeugErstellen(Client Player, String Name, int Typ, int Farbe1, int Farbe2)
         {
             //Definitionen
-            int number = 0;
+            
             uint AutoCode = NAPI.Util.GetHashKey(Name);
             Name = Funktionen.ErsterBuchstabeGroß(Name);
-            number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), Name));
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             if (Typ < 0 || Typ > 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültiger Typ."); return; }
-            if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false && number == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+            if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false && Funktionen.FahrzeugModVorhanden(Name) == false) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
             if (Typ == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Job Fahrzeuge werden an der jeweiligen Base gespawnt. Sie können nicht mehr per /ferstellen erstellt werden."); return; }
 
             if(Typ != 0)
@@ -147,7 +158,7 @@ namespace Haupt
                     FahrzeugKaufpreis = 0,
                     FahrzeugAutohaus = 0,
                     FahrzeugMaxMietzeit = 0,
-                    FahrzeugMitzeit = 0,
+                    FahrzeugMietzeit = 0,
                     FahrzeugX = Player.Position.X,
                     FahrzeugY = Player.Position.Y,
                     FahrzeugZ = Player.Position.Z,
@@ -197,7 +208,7 @@ namespace Haupt
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
             auto.FahrzeugMaxMietzeit = 0;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -279,7 +290,7 @@ namespace Haupt
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
             auto.FahrzeugMaxMietzeit = 0;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -351,7 +362,7 @@ namespace Haupt
                 FahrzeugKaufpreis = 0,
                 FahrzeugAutohaus = -1,
                 FahrzeugMaxMietzeit = 0,
-                FahrzeugMitzeit = 0,
+                FahrzeugMietzeit = 0,
                 FahrzeugX = Player.Position.X,
                 FahrzeugY = Player.Position.Y,
                 FahrzeugZ = Player.Position.Z,
@@ -393,7 +404,7 @@ namespace Haupt
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = -1;
             auto.FahrzeugMaxMietzeit = 0;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;

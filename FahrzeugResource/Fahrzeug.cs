@@ -78,7 +78,10 @@ namespace Fahrzeug
 
                 if (Player.GetData("VerwaltungsModus") == 0)
                 {
-                    Player.TriggerEvent("rollermietenpopupoeffnen", Funktionen.GeldFormatieren(MietpreisBekommen(Player.Vehicle)));
+                    if(BeschreibungBekommen(Player.Vehicle) != "Nicos Auto")
+                    {
+                        Player.TriggerEvent("rollermietenpopupoeffnen", Funktionen.GeldFormatieren(MietpreisBekommen(Player.Vehicle)));
+                    }
                 }
             }
             //Autohausfahrzeug
@@ -134,6 +137,7 @@ namespace Fahrzeug
             else
             {
                 Funktionen.FahrzeugSpeichern(vehicle);
+                Funktionen.FahrzeugMotor(vehicle);
             }
         }
 
@@ -238,7 +242,7 @@ namespace Fahrzeug
                 auto.FahrzeugKaufpreis = Fahrzeuge.FahrzeugKaufpreis;
                 auto.FahrzeugAutohaus = Fahrzeuge.FahrzeugAutohaus;
                 auto.FahrzeugMaxMietzeit = Fahrzeuge.FahrzeugMaxMietzeit;
-                auto.FahrzeugMitzeit = Fahrzeuge.FahrzeugMitzeit;
+                auto.FahrzeugMietzeit = Fahrzeuge.FahrzeugMietzeit;
                 auto.FahrzeugX = Fahrzeuge.FahrzeugX;
                 auto.FahrzeugY = Fahrzeuge.FahrzeugY;
                 auto.FahrzeugZ = Fahrzeuge.FahrzeugZ;
@@ -308,9 +312,26 @@ namespace Fahrzeug
                 if (Auto.GetData("Id") == auto.Id)
                 {
                     Typ = auto.FahrzeugTyp;
+                    break;
                 }
             }
             return Typ;
+        }
+
+        public static string BeschreibungBekommen(Vehicle Auto)
+        {
+            //Benötigte Definitionen
+            String Beschreibung = null;
+
+            foreach (AutoLokal auto in Funktionen.AutoListe)
+            {
+                if (Auto.GetData("Id") == auto.Id)
+                {
+                    Beschreibung = auto.FahrzeugBeschreibung;
+                    break;
+                }
+            }
+            return Beschreibung;
         }
 
         public static int AutoHausBekommen(Vehicle Auto)
@@ -323,6 +344,7 @@ namespace Fahrzeug
                 if (Auto.GetData("Id") == auto.Id)
                 {
                     Autohaus = auto.FahrzeugAutohaus;
+                    break;
                 }
             }
             return Autohaus;
@@ -608,7 +630,7 @@ namespace Fahrzeug
             }
         }
 
-        public void HelmutFahrzeugErstellen(Client Player)
+        public static void HelmutFahrzeugErstellen(Client Player)
         {
             //Definitionen
             uint AutoCode = NAPI.Util.GetHashKey("mk7");
@@ -629,7 +651,7 @@ namespace Fahrzeug
                 FahrzeugKaufpreis = 0,
                 FahrzeugAutohaus = 0,
                 FahrzeugMaxMietzeit = 120,
-                FahrzeugMitzeit = 0,
+                FahrzeugMietzeit = 0,
                 FahrzeugX = rs.PosX,
                 FahrzeugY = rs.PosY,
                 FahrzeugZ = rs.PosZ,
@@ -655,7 +677,7 @@ namespace Fahrzeug
             AutoLokal auto = new AutoLokal();
 
             //Das Fahrzeug spawnen
-            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z), Player.Rotation.Z, 0, 0, numberPlate: "Nico");
+            auto.Fahrzeug = NAPI.Vehicle.CreateVehicle(AutoCode, new Vector3(rs.PosX, rs.PosY, rs.PosZ), rs.RotZ, 0, 0, numberPlate: "Nico");
 
             auto.Fahrzeug.NumberPlate = "Nico";
             auto.Fahrzeug.Dimension = 0;
@@ -672,7 +694,7 @@ namespace Fahrzeug
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
             auto.FahrzeugMaxMietzeit = 120;
-            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugMietzeit = 0;
             auto.FahrzeugX = rs.PosX;
             auto.FahrzeugY = rs.PosY;
             auto.FahrzeugZ = rs.PosZ;
@@ -702,6 +724,11 @@ namespace Fahrzeug
             //Dem Auto die DB Id lokal geben
             auto.Fahrzeug.SetData("Id", ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id));
             auto.Fahrzeug.EngineStatus = true;
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Das Auto von Helmuts Enkel steht gleich hier auf dem Parkplatz.");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Nachricht~w~: GPS Coordinaten von Helmut.");
+            var MannImBlumenFeld = new Vector3(1331.05, -2458.33, 0);
+            Player.TriggerEvent("Navigation", MannImBlumenFeld.X, MannImBlumenFeld.Y);
         }
 
         public static void TachoUpdaten()
