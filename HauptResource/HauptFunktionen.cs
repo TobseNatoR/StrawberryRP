@@ -103,7 +103,10 @@ namespace Haupt
 
     public enum Fahrzeug_Mods : int
     {
-        e46 = 1
+        passat = 1,
+        mk7,
+        e46,
+        mers63amg
     }
 
     public class AdminBefehle
@@ -113,6 +116,8 @@ namespace Haupt
         public const int Speichern = 4;
         public const int GeldGeben = 5;
         public const int VerwaltungsModus = 4;
+        public const int AlleAdminFahrzeugeLöschen = 4;
+        public const int RandomSpawnErstellen = 4;
         public const int FraktionSetzen = 4;
         public const int ATMErstellen = 4;
         public const int FVermietungErstellen = 4;
@@ -145,6 +150,7 @@ namespace Haupt
         public const int Waffe = 4;
         public const int FahrzeugParken = 3;
         public const int FahrzeugPorten = 3;
+        public const int AdminModFahrzeugErstellen = 3;
         public const int HausTeleport = 1;
         public const int Teleporten = 1;
         public const int AdminChat = 1;
@@ -192,8 +198,11 @@ namespace Haupt
 
             GlobaleSachen.HelmutNPCText = "Hallo ich bin Helmut, ich hoffe du hattest eine angenehme Reise. <br>" +
             "Mir wurde gesagt du brauchst ein Fahrzeug?<br>" +
-            "Mein Enkel hat sein altes Auto hier gelassen, bevor er auf Weltreise gegangen ist, er wird noch einige Tage wegbleiben, solange kann ich es dir ausleihen<br>" +
-            "Es ist nicht mehr das beste aber geh bitte gut damit um.";
+            "Mein Enkel hat sein altes Auto hier gelassen, bevor er auf Weltreise gegangen ist, er wird noch einige Tage wegbleiben, solange kann ich es dir seinen Golf ausleihen<br>" +
+            "Er hat den Wagen noch nicht so lange geh bitte gut damit um.<br>" +
+            "Dafür musst du mir aber einen gefallen tun. Ich habe vorhin im vorbeifahren einen alten Mann am Blumenfeld gesehen, er sah aus als könnte er Hilfe gebrauchen…<br>" +
+            "Da ich aber schnell wieder hierher zurück musste konnte ich nicht anhalten. Geh bitte los und schau mal nach ihm.<br>" +
+            "Bitte bring mir den Wagen in 2 Tagen wieder. Ich brauche ihn dann selber.<br>";
         }
 
         public static void AllesStarten()
@@ -740,6 +749,17 @@ namespace Haupt
             return idarray[start2];
         }
 
+        public static RandomSpawns RandomSpawnObjektBekommen(int Id)
+        {
+            RandomSpawns rsgefunden = null;
+            foreach (RandomSpawns rs in RandomSpawnListe)
+            {
+                rsgefunden = rs;
+                break;
+            }
+            return rsgefunden;
+        }
+
         public static SupermarktLokal NaheSupermarktBekommen(Client Player, float distance = 2.0f)
         {
             SupermarktLokal Supermarkt = null;
@@ -1194,6 +1214,19 @@ namespace Haupt
             }
         }
 
+        public static void AccountTutorialSetzen(Client Player, int Tutorial)
+        {
+            foreach (AccountLokal account in Funktionen.AccountListe)
+            {
+                if (Player.GetData("Id") == account.Id)
+                {
+                    account.Tutorial = Tutorial;
+                    account.AccountGeändert = true;
+                    break;
+                }
+            }
+        }
+
         public static long AccountGesamtVermögenBekommen(Client Player)
         {
             //Benötigte Definitionen
@@ -1488,13 +1521,34 @@ namespace Haupt
             int i = 0;
             foreach (AutoLokal auto in AutoListe)
             {
-                if (auto.FahrzeugSpieler == Player.GetData("Id") && auto.FahrzeugTyp == 2)
+                if (auto.FahrzeugSpieler == Player.GetData("Id") && auto.FahrzeugTyp == 2 && auto.FahrzeugBeschreibung == "Nicos Auto")
                 {
                     i = 1;
                     break;
                 }
             }
             return i;
+        }
+
+        public static void MietFahrzeugSetzen(Client Player)
+        {
+            foreach (AutoLokal auto in AutoListe)
+            {
+                if (auto.FahrzeugSpieler == Player.GetData("Id") && auto.FahrzeugTyp == 2)
+                {
+                    if(auto.FahrzeugMaxMietzeit > auto.FahrzeugMitzeit)
+                    {
+                        auto.FahrzeugMitzeit += 1;
+                    }
+                    else if (auto.FahrzeugMaxMietzeit == auto.FahrzeugMitzeit)
+                    {
+                        //Hier dann alles weitere was passieren soll, falls ein Spieler meint seine Karre nicht zurück zu bringen ;)
+                    }
+
+                    //Damit wir auch speichern
+                    auto.FahrzeugGeändert = true;
+                }
+            }
         }
 
         public static string BesitzerNamenBekommen(int Id)
@@ -2526,30 +2580,9 @@ namespace Haupt
             {
                 //Wenn der Spieler im Tutorial ist darf er nirgendwo anders interagieren
                 //Alles was mit dem Tutorial Interaktionen zu tun hat
-                if (AccountTutorialBekommen(Player) == 0)
+                if (AccountTutorialBekommen(Player) != 100)
                 {
-                    //Einreise Bot
-                    if (Player.Position.DistanceTo(new Vector3(815.822, -3001.06, 6.02094)) < 5.0f)
-                    {
-                        if(Player.GetData("EinreiseNPC") == 0 && AccountTutorialBekommen(Player) == 0)
-                        {
-                            Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
-                            Freeze(Player);
-                            Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
-                            Player.SetData("EinreiseNPC", 1);
-                        }
-                    }
-                    //Helmut
-                    else if (Player.Position.DistanceTo(new Vector3(793.214, -3021.96, 6.02094)) < 5.0f)
-                    {
-                        if (Player.GetData("HelmutNPC") == 0 && AccountTutorialBekommen(Player) == 0 && HatTutorialFahrzeug(Player) == 0)
-                        {
-                            Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
-                            Freeze(Player);
-                            Timer.SetTimer(() => NPCPopupSchliessen(Player), 30000, 1);
-                            Player.SetData("HelmutNPC", 1);
-                        }
-                    }
+                    Tutorial(Player);
 
                     //Hier der Stop der Codeausführung
                     return;
@@ -3548,8 +3581,8 @@ namespace Haupt
             //Zur Liste adden
             AccountListe.Add(account);
 
-            //Timer für die Spielzeit
-            Timer.SetTimer(() => AccountSpielzeit(Player), 60000, 1);
+            //Minutentimer für Spieler
+            Timer.SetTimer(() => SpielerMinutenTimer(Player), 60000, 1);
 
             //Dies sind lokale Dinge bitte keine floats etc nutzen, dass buggt per SetData
             Player.SetData("InteriorName", 0);
@@ -4847,6 +4880,8 @@ namespace Haupt
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugMaxMietzeit = 0;
+            auto.FahrzeugMitzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -4924,6 +4959,8 @@ namespace Haupt
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugMaxMietzeit = 0;
+            auto.FahrzeugMitzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -4998,21 +5035,25 @@ namespace Haupt
             LogEintrag(Player, "Fahrzeug ID: " + auto.Id + " gelöscht");
         }
 
-        public static void AccountSpielzeit(Client Player)
+        public static void SpielerMinutenTimer(Client Player)
         {
-            if(NAPI.Player.IsPlayerConnected(Player))
+            if(NAPI.Player.IsPlayerConnected(Player) && Player.GetData("Eingeloggt") == 1)
             {
                 //Lokalen Account bekommen
                 AccountLokal account = new AccountLokal();
                 account = AccountBekommen(Player);
 
+                //Speilzeit der Spieler
                 account.Spielzeit += 1;
                 if(account.Kündigungszeit > 0)
                 {
                     account.Kündigungszeit -= 1;
                 }
                 account.AccountGeändert = true;
-                Timer.SetTimer(() => AccountSpielzeit(Player), 60000, 1);
+
+                //Mietzeit der Spieler
+                MietFahrzeugSetzen(Player);
+                Timer.SetTimer(() => SpielerMinutenTimer(Player), 60000, 1);
             }
         }
 
@@ -5048,6 +5089,8 @@ namespace Haupt
                     AktuellesFahrzeug.FahrzeugMietpreis = auto.FahrzeugMietpreis;
                     AktuellesFahrzeug.FahrzeugKaufpreis = auto.FahrzeugKaufpreis;
                     AktuellesFahrzeug.FahrzeugAutohaus = auto.FahrzeugAutohaus;
+                    AktuellesFahrzeug.FahrzeugMaxMietzeit = auto.FahrzeugMaxMietzeit;
+                    AktuellesFahrzeug.FahrzeugMitzeit = auto.FahrzeugMitzeit;
                     AktuellesFahrzeug.FahrzeugX = Fahrzeuge.Position.X;
                     AktuellesFahrzeug.FahrzeugY = Fahrzeuge.Position.Y;
                     AktuellesFahrzeug.FahrzeugZ = Fahrzeuge.Position.Z;
@@ -5112,6 +5155,8 @@ namespace Haupt
                 AktuellesFahrzeug.FahrzeugMietpreis = auto.FahrzeugMietpreis;
                 AktuellesFahrzeug.FahrzeugKaufpreis = auto.FahrzeugKaufpreis;
                 AktuellesFahrzeug.FahrzeugAutohaus = auto.FahrzeugAutohaus;
+                AktuellesFahrzeug.FahrzeugMaxMietzeit = auto.FahrzeugMaxMietzeit;
+                AktuellesFahrzeug.FahrzeugMitzeit = auto.FahrzeugMitzeit;
                 AktuellesFahrzeug.FahrzeugX = Fahrzeuge.Position.X;
                 AktuellesFahrzeug.FahrzeugY = Fahrzeuge.Position.Y;
                 AktuellesFahrzeug.FahrzeugZ = Fahrzeuge.Position.Z;
@@ -6270,6 +6315,34 @@ namespace Haupt
 
             //Log Eintrag
             LogEintrag(Player, "Gruppe Spieler invitet");
+        }
+
+        public static void Tutorial(Client Player)
+        {
+            //Einreise Bot
+            if (Player.Position.DistanceTo(new Vector3(815.822, -3001.06, 6.02094)) < 5.0f)
+            {
+                if (Player.GetData("EinreiseNPC") == 0 && AccountTutorialBekommen(Player) == 0)
+                {
+                    Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
+                    Freeze(Player);
+                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 20000, 1);
+                    Player.SetData("EinreiseNPC", 1);
+                    AccountTutorialSetzen(Player, 1);
+                }
+            }
+            //Helmut
+            else if (Player.Position.DistanceTo(new Vector3(793.214, -3021.96, 6.02094)) < 5.0f)
+            {
+                if (Player.GetData("HelmutNPC") == 0 && AccountTutorialBekommen(Player) == 1 && HatTutorialFahrzeug(Player) == 0)
+                {
+                    Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
+                    Freeze(Player);
+                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 20000, 1);
+                    Player.SetData("HelmutNPC", 1);
+                    AccountTutorialSetzen(Player, 2);
+                }
+            }
         }
 
         public static String DatumFormatieren(DateTime Datum)

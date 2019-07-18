@@ -237,6 +237,8 @@ namespace Fahrzeug
                 auto.FahrzeugMietpreis = Fahrzeuge.FahrzeugMietpreis;
                 auto.FahrzeugKaufpreis = Fahrzeuge.FahrzeugKaufpreis;
                 auto.FahrzeugAutohaus = Fahrzeuge.FahrzeugAutohaus;
+                auto.FahrzeugMaxMietzeit = Fahrzeuge.FahrzeugMaxMietzeit;
+                auto.FahrzeugMitzeit = Fahrzeuge.FahrzeugMitzeit;
                 auto.FahrzeugX = Fahrzeuge.FahrzeugX;
                 auto.FahrzeugY = Fahrzeuge.FahrzeugY;
                 auto.FahrzeugZ = Fahrzeuge.FahrzeugZ;
@@ -611,11 +613,14 @@ namespace Fahrzeug
             //Definitionen
             uint AutoCode = NAPI.Util.GetHashKey("mk7");
 
+            RandomSpawns rs = new RandomSpawns();
+            rs = Funktionen.RandomSpawnObjektBekommen(Funktionen.RandomSpawnBekommen("Helmut"));
+
             //Ein neues Objekt erzeugen
             var veh = new Auto
             {
-                FahrzeugBeschreibung = "Nicos Fahrzeug",
-                FahrzeugName = Funktionen.ErsterBuchstabeGroß("Golf mk7"),
+                FahrzeugBeschreibung = "Nicos Auto",
+                FahrzeugName = Funktionen.ErsterBuchstabeGroß("mk7"),
                 FahrzeugTyp = 2,
                 FahrzeugFraktion = 0,
                 FahrzeugJob = 0,
@@ -623,14 +628,16 @@ namespace Fahrzeug
                 FahrzeugMietpreis = 0,
                 FahrzeugKaufpreis = 0,
                 FahrzeugAutohaus = 0,
-                FahrzeugX = Player.Position.X,
-                FahrzeugY = Player.Position.Y,
-                FahrzeugZ = Player.Position.Z,
-                FahrzeugRot = Player.Rotation.Z,
+                FahrzeugMaxMietzeit = 120,
+                FahrzeugMitzeit = 0,
+                FahrzeugX = rs.PosX,
+                FahrzeugY = rs.PosY,
+                FahrzeugZ = rs.PosZ,
+                FahrzeugRot = rs.RotZ,
                 FahrzeugFarbe1 = 0,
                 FahrzeugFarbe2 = 0,
-                TankVolumen = Funktionen.TankVolumenBerechnen("Golf"),
-                TankInhalt = Funktionen.TankVolumenBerechnen("Golf") * 10 * 100,
+                TankVolumen = Funktionen.TankVolumenBerechnen("mk7"),
+                TankInhalt = Funktionen.TankVolumenBerechnen("mk7") * 10 * 100,
                 Kilometerstand = 0.0f,
                 KraftstoffArt = 3,
                 FahrzeugHU = DateTime.Now.AddMonths(+1),
@@ -655,19 +662,21 @@ namespace Fahrzeug
 
             //Dem Fahrzeug die Werte lokal übergeben
             auto.Id = ContextFactory.Instance.srp_fahrzeuge.Max(x => x.Id);
-            auto.FahrzeugBeschreibung = "Nicos Fahrzeug";
-            auto.FahrzeugName = Funktionen.ErsterBuchstabeGroß("Golf mk7");
+            auto.FahrzeugBeschreibung = "Nicos Auto";
+            auto.FahrzeugName = Funktionen.ErsterBuchstabeGroß("mk7");
             auto.FahrzeugTyp = 2;
             auto.FahrzeugFraktion = 0;
             auto.FahrzeugJob = 0;
-            auto.FahrzeugSpieler = 0;
+            auto.FahrzeugSpieler = Player.GetData("Id");
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
-            auto.FahrzeugX = Player.Position.X;
-            auto.FahrzeugY = Player.Position.Y;
-            auto.FahrzeugZ = Player.Position.Z;
-            auto.FahrzeugRot = Player.Rotation.Z;
+            auto.FahrzeugMaxMietzeit = 120;
+            auto.FahrzeugMitzeit = 0;
+            auto.FahrzeugX = rs.PosX;
+            auto.FahrzeugY = rs.PosY;
+            auto.FahrzeugZ = rs.PosZ;
+            auto.FahrzeugRot = rs.RotZ;
             auto.FahrzeugFarbe1 = 0;
             auto.FahrzeugFarbe2 = 0;
             auto.TankVolumen = Funktionen.TankVolumenBerechnen("Golf");
@@ -680,9 +689,9 @@ namespace Fahrzeug
             auto.FahrzeugGespawnt = 1;
 
             //Diese Sachen nur lokal
-            auto.FahrzeugAltePositionX = Player.Position.X;
-            auto.FahrzeugAltePositionY = Player.Position.Y;
-            auto.FahrzeugAltePositionZ = Player.Position.Z;
+            auto.FahrzeugAltePositionX = rs.PosX;
+            auto.FahrzeugAltePositionY = rs.PosY;
+            auto.FahrzeugAltePositionZ = rs.PosZ;
             auto.FahrzeugNeuePositionX = 0;
             auto.FahrzeugNeuePositionY = 0;
             auto.FahrzeugNeuePositionZ = 0;

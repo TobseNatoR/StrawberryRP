@@ -21,15 +21,44 @@ namespace Haupt
 {    
     public class Commands : Script
     {
-        [Command("modcar", "Nutze: /modcar [Name]")]
+
+        [Command("delallacars", "Nutze: /delallacars")]
+        public void AlleAdminFahrzeugeLöschen(Client Player)
+        {
+            //Definitionen
+            int i = 0;
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AlleAdminFahrzeugeLöschen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            foreach (var Fahrzeuge in NAPI.Pools.GetAllVehicles())
+            {
+
+                foreach (AutoLokal auto in Funktionen.AutoListe)
+                {
+                    if (auto.FahrzeugTyp == 0)
+                    {
+                        auto.Fahrzeug.Delete();
+                        Funktionen.AutoListe.Remove(auto);
+                        i += 1;
+                    }
+                }
+            }
+
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Es wurden " + i + " Admin Fahrzeug(e) gelöscht.");
+        }
+        [Command("acarmod", "Nutze: /modcar [acarmod]")]
         public void ModCarErstellen(Client Player, String Name)
         {
             //Definitionen
+            int number = 0;
             uint AutoCode = NAPI.Util.GetHashKey(Name);
+            Name = Funktionen.ErsterBuchstabeGroß(Name);
+            number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), Name));
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
-            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminFahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.AdminModFahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+            if (Enum.IsDefined(typeof(VehicleHash), AutoCode) == false && number == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
 
             //Objekt für die Liste erzeugen
             AutoLokal auto = new AutoLokal();
@@ -39,7 +68,6 @@ namespace Haupt
 
             auto.Fahrzeug.NumberPlate = Funktionen.FahrzeugTypNamen(0);
             auto.Fahrzeug.Dimension = 0;
-
 
             auto.Id = -1;
             auto.FahrzeugBeschreibung = Funktionen.FahrzeugTypNamen(0);
@@ -51,6 +79,8 @@ namespace Haupt
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugMaxMietzeit = 0;
+            auto.FahrzeugMitzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -83,22 +113,23 @@ namespace Haupt
             //ID Setzen
             auto.Fahrzeug.SetData("Id", -1);
 
-            Funktionen.LogEintrag(Player, "Mod Fahrzeug erstellen");
+            Funktionen.LogEintrag(Player, "Admin Mod Fahrzeug erstellt");
         }
 
         [Command("ferstellen", "Nutze: /ferstellen [Name] [Typ 0 = Admin, 1 = Job, 2 = Miet, 3 = Fraktion, 4 = Privat, 5 = Autohaus] [Farbe 1] [Farbe 2]")]
         public void FahrzeugErstellen(Client Player, String Name, int Typ, int Farbe1, int Farbe2)
         {
             //Definitionen
+            int number = 0;
             uint AutoCode = NAPI.Util.GetHashKey(Name);
             Name = Funktionen.ErsterBuchstabeGroß(Name);
-            int number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), Name));
+            number = (int)((Fahrzeug_Mods)Enum.Parse(typeof(Fahrzeug_Mods), Name));
 
             //Benötigte Abfragen
             if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
             if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.FahrzeugErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
             if (Typ < 0 || Typ > 5) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Ungültiger Typ."); return; }
-            if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
+            if(Enum.IsDefined(typeof(VehicleHash), AutoCode) == false && number == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dieses Fahrzeug kennen wir leider nicht."); return; }
             if (Typ == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Job Fahrzeuge werden an der jeweiligen Base gespawnt. Sie können nicht mehr per /ferstellen erstellt werden."); return; }
 
             if(Typ != 0)
@@ -115,6 +146,8 @@ namespace Haupt
                     FahrzeugMietpreis = 0,
                     FahrzeugKaufpreis = 0,
                     FahrzeugAutohaus = 0,
+                    FahrzeugMaxMietzeit = 0,
+                    FahrzeugMitzeit = 0,
                     FahrzeugX = Player.Position.X,
                     FahrzeugY = Player.Position.Y,
                     FahrzeugZ = Player.Position.Z,
@@ -163,6 +196,8 @@ namespace Haupt
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugMaxMietzeit = 0;
+            auto.FahrzeugMitzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -243,6 +278,8 @@ namespace Haupt
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = 0;
+            auto.FahrzeugMaxMietzeit = 0;
+            auto.FahrzeugMitzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -313,6 +350,8 @@ namespace Haupt
                 FahrzeugMietpreis = 0,
                 FahrzeugKaufpreis = 0,
                 FahrzeugAutohaus = -1,
+                FahrzeugMaxMietzeit = 0,
+                FahrzeugMitzeit = 0,
                 FahrzeugX = Player.Position.X,
                 FahrzeugY = Player.Position.Y,
                 FahrzeugZ = Player.Position.Z,
@@ -353,6 +392,8 @@ namespace Haupt
             auto.FahrzeugMietpreis = 0;
             auto.FahrzeugKaufpreis = 0;
             auto.FahrzeugAutohaus = -1;
+            auto.FahrzeugMaxMietzeit = 0;
+            auto.FahrzeugMitzeit = 0;
             auto.FahrzeugX = Player.Position.X;
             auto.FahrzeugY = Player.Position.Y;
             auto.FahrzeugZ = Player.Position.Z;
@@ -966,6 +1007,43 @@ namespace Haupt
 
             //Log Eintrag
             Funktionen.LogEintrag(Player, "ATM erstellt");
+        }
+
+        [Command("rserstellen", "Nutze: /rserstellen")]
+        public void ATMErstellen(Client Player, String rsName)
+        {
+            if (Player.GetData("Eingeloggt") == 0) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du musst dafür angemeldet sein!"); return; }
+            if (Funktionen.AccountAdminLevelBekommen(Player) < AdminBefehle.RandomSpawnErstellen) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Deine Rechte reichen nicht aus."); return; }
+
+            //Ein neues Objekt erzeugen
+            var Rs = new RandomSpawns
+            {
+                Name = rsName,
+                PosX = Player.Vehicle.Position.X,
+                PosY = Player.Vehicle.Position.Y,
+                PosZ = Player.Vehicle.Position.Z,
+                RotZ = Player.Vehicle.Position.Z
+            };
+
+            //Query absenden
+            ContextFactory.Instance.srp_randomspawns.Add(Rs);
+            ContextFactory.Instance.SaveChanges();
+
+            //Tanke zu der Lokalen Liste hinzufügen
+            RandomSpawns rs = new RandomSpawns();
+
+            rs.Id = ContextFactory.Instance.srp_randomspawns.Max(x => x.Id);
+            rs.Name = rsName;
+            rs.PosX = Player.Vehicle.Position.X;
+            rs.PosY = Player.Vehicle.Position.Y;
+            rs.PosZ = Player.Vehicle.Position.Z;
+            rs.RotZ = Player.Vehicle.Position.Z;
+
+            //Tanke in der Liste Lokal speichern
+            Funktionen.RandomSpawnListe.Add(rs);
+
+            //Log Eintrag
+            Funktionen.LogEintrag(Player, "Randomspawn erstellt");
         }
 
         [Command("atmlöschen", "Nutze: /atmlöschen")]
