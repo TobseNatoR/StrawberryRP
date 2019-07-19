@@ -34,7 +34,10 @@ namespace Haupt
         public static int ServerWetter = 0;
 
         //Registrierung
-        public const int StartGeld = 100;
+        public const int StartGeld = 0;
+
+        //Tutorial
+        public const int TutorialGeld = 500;
 
         //Cooldown
         public static uint KeyCoolDownZeit = 5000;
@@ -99,6 +102,7 @@ namespace Haupt
         //NPC Texte
         public static String EinreiseNPCText;
         public static String HelmutNPCText;
+        public static String MannImBlumenfeldNPCText;
     }
 
     public class AdminBefehle
@@ -189,6 +193,7 @@ namespace Haupt
             "Nun gut, ich werde Ihnen die Einreise gewähren, jedoch müssen Sie sich in 7 Tagen beim Bürgeramt melden, dort müssen Sie dann einen neuen Ausweis beantragen.<br>" +
             "Ich gebe Ihnen noch einen guten Rat, gleich hier vorne am Parkplatz steht mein Freund Helmut, der wird Ihnen ein Fahrzeug zur Verfügung stellen.";
 
+            //HelmutNPC
             GlobaleSachen.HelmutNPCText = "Hallo ich bin Helmut, ich hoffe du hattest eine angenehme Reise. <br>" +
             "Mir wurde gesagt du brauchst ein Fahrzeug?<br>" +
             "Mein Enkel hat sein altes Auto hier gelassen, bevor er auf Weltreise gegangen ist, er wird noch einige Tage wegbleiben, solange kann ich es dir seinen Golf ausleihen.<br>" +
@@ -197,6 +202,12 @@ namespace Haupt
             "Da ich aber schnell wieder hierher zurück musste konnte ich nicht anhalten.<br>" +
             "Geh bitte los und schau mal nach ihm.<br>" +
             "Bitte bring mir den Wagen in 2 Tagen wieder. Ich brauche ihn dann selber.<br>";
+
+            //MannImBlumenfeldNPC
+            GlobaleSachen.MannImBlumenfeldNPCText = "EEEENDLICH kommt hier jemand vorbei! Ich brauche unbedingt deine Hilfe!<br>" +
+            "Meine Frau Brunhilde feiert heute ihren 99. Geburtstag und ich brauche ein paar frische Blumen…<br>" +
+            "Bei meinem ersten Versuch ist mir Tollpatsch die Schere kaputt gegangen und mein Rücken will auch nicht mehr so wirklich… " +
+            "Könntest du bitte im nächsten 24/7 eine neue Schere holen und mir diese schönen Blumen abschneiden? Ich bezahle dich natürlich auch dafür!";
         }
 
         public static void AllesStarten()
@@ -3672,10 +3683,6 @@ namespace Haupt
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
 
-            //Tutorial Daten
-            Player.SetData("EinreiseNPC", 0);
-            Player.SetData("HelmutNPC", 0);
-
             //Discord
             Player.TriggerEvent("DiscordStatusSetzen", "Strawberry Roleplay","Spielt als " + Player.Name);
 
@@ -6377,26 +6384,38 @@ namespace Haupt
             //Einreise Bot
             if (Player.Position.DistanceTo(new Vector3(815.822, -3001.06, 6.02094)) < 5.0f)
             {
-                if (Player.GetData("EinreiseNPC") == 0 && AccountTutorialBekommen(Player) == 0)
+                if (AccountTutorialBekommen(Player) == 0)
                 {
                     Player.TriggerEvent("npcpopupoeffnen", "Mitarbeiter des auswärtigen Amts", GlobaleSachen.EinreiseNPCText);
                     Freeze(Player);
                     Timer.SetTimer(() => NPCPopupSchliessen(Player), 35000, 1);
-                    Player.SetData("EinreiseNPC", 1);
                     AccountTutorialSetzen(Player, 1);
                 }
             }
             //Helmut
             else if (Player.Position.DistanceTo(new Vector3(793.214, -3021.96, 6.02094)) < 5.0f)
             {
-                if (Player.GetData("HelmutNPC") == 0 && AccountTutorialBekommen(Player) == 1 && HatTutorialFahrzeug(Player) == 0)
+                if (AccountTutorialBekommen(Player) == 1 && HatTutorialFahrzeug(Player) == 0)
                 {
                     Player.TriggerEvent("npcpopupoeffnen", "Helmut", GlobaleSachen.HelmutNPCText);
                     Freeze(Player);
                     Timer.SetTimer(() => NPCPopupSchliessen(Player), 45000, 1);
                     Timer.SetTimer(() => Fahrzeuge.HelmutFahrzeugErstellen(Player), 45000, 1);
-                    Player.SetData("HelmutNPC", 1);
                     AccountTutorialSetzen(Player, 2);
+                }
+            }
+            //Mann im Blumenfeld
+            else if (Player.Position.DistanceTo(new Vector3(1331.05, -2458.33, 48.4316)) < 5.0f)
+            {
+                if (AccountTutorialBekommen(Player) == 2)
+                {
+                    Player.TriggerEvent("npcpopupoeffnen", "Alter Mann im Blumenfeld", GlobaleSachen.MannImBlumenfeldNPCText);
+                    Freeze(Player);
+                    Timer.SetTimer(() => NPCPopupSchliessen(Player), 25000, 1);
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Suche nun einen 24/7 auf.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Werfe einen Blick auf die Karte.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Merke dir wo der alte Mann ist, damit du ihn wiederfindest.");
+                    AccountTutorialSetzen(Player, 3);
                 }
             }
         }
