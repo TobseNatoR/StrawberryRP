@@ -6390,6 +6390,7 @@ namespace Haupt
                     Freeze(Player);
                     Timer.SetTimer(() => NPCPopupSchliessen(Player), 35000, 1);
                     AccountTutorialSetzen(Player, 1);
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Mitarbeiter des auswärtigen Amts bittet dich, ihm 35 Sekunden zuzuhören.");
                 }
             }
             //Helmut
@@ -6402,6 +6403,7 @@ namespace Haupt
                     Timer.SetTimer(() => NPCPopupSchliessen(Player), 45000, 1);
                     Timer.SetTimer(() => Fahrzeuge.HelmutFahrzeugErstellen(Player), 45000, 1);
                     AccountTutorialSetzen(Player, 2);
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Helmut bittet dich, ihm 45 Sekunden zuzuhören.");
                 }
             }
             //Mann im Blumenfeld
@@ -6416,8 +6418,24 @@ namespace Haupt
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Werfe einen Blick auf die Karte.");
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Merke dir wo der alte Mann ist, damit du ihn wiederfindest.");
                     AccountTutorialSetzen(Player, 3);
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 25 Sekunden zuzuhören.");
                 }
             }
+            //Wieder beim Mann im Blumenfeld mit der Schere
+            //else if (Player.Position.DistanceTo(new Vector3(1331.05, -2458.33, 48.4316)) < 5.0f)
+            //{
+            //    if (AccountTutorialBekommen(Player) == 3)
+            //    {
+            //        Player.TriggerEvent("npcpopupoeffnen", "Alter Mann im Blumenfeld", GlobaleSachen.MannImBlumenfeldNPCText);
+            //        Freeze(Player);
+            //        Timer.SetTimer(() => NPCPopupSchliessen(Player), 25000, 1);
+            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Suche nun einen 24/7 auf.");
+            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Werfe einen Blick auf die Karte.");
+            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Merke dir wo der alte Mann ist, damit du ihn wiederfindest.");
+            //        AccountTutorialSetzen(Player, 3);
+            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 25 Sekunden zuzuhören.");
+            //    }
+            //}
         }
 
         public static String DatumFormatieren(DateTime Datum)
