@@ -511,7 +511,6 @@ namespace Datenbank
 
     public class BotLokal
     {
-        [Key]
         public int Id { get; set; }
 
         public String BotName { get; set; }
@@ -545,7 +544,6 @@ namespace Datenbank
 
     public class GruppenLokal
     {
-        [Key]
         public int Id { get; set; }
 
         public string GruppenName { get; set; }
@@ -580,6 +578,7 @@ namespace Datenbank
     {
         [Key]
         public int Id { get; set; }
+
         public String Name { get; set; }
         public float PosX { get; set; }
         public float PosY { get; set; }
@@ -589,7 +588,27 @@ namespace Datenbank
 
     public class FahrzeugMods
     {
+        [Key]
         public int Id { get; set; }
+
         public String Name { get; set; }
+    }
+
+    public class ServerItems
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public String Name { get; set; }
+        public String Image { get; set; }
+    }
+
+    public class SpielerItems
+    {
+        [Key]
+        public int Id { get; set; }
+
+        public int SpielerId { get; set; }
+        public int ItemId { get; set; }
     }
 }

@@ -25,15 +25,14 @@ namespace Haupt
         [Command("test", "Nutze: /test")]
         public void test(Client Player)
         {
-            Player.TriggerEvent("test");
+            
         }
 
+        //Test1 CMD
         [Command("test1", "Nutze: /test")]
         public void test1(Client Player)
         {
-            RandomSpawns rs = new RandomSpawns();
-            rs = Funktionen.RandomSpawnObjektBekommen(Funktionen.RandomSpawnBekommen("Helmut"));
-            Player.SendChatMessage("X: " + rs.PosX + " | Y: " + rs.PosY + " | Z: " + rs.PosZ);
+            
         }
 
         [Command("delallacars", "Nutze: /delallacars")]

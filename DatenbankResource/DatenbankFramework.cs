@@ -42,6 +42,8 @@ namespace Datenbank
         public DbSet<Fahrzeugvermietungen> srp_fahrzeugvermietungen { get; set; }
         public DbSet<RandomSpawns> srp_randomspawns { get; set; }
         public DbSet<FahrzeugMods> srp_fahrzeugmods { get; set; }
+        public DbSet<ServerItems> srp_serveritems { get; set; }
+        public DbSet<SpielerItems> srp_spieleritems { get; set; }
 
     }
 

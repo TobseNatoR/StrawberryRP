@@ -184,6 +184,8 @@ namespace Haupt
         public static List<BankautomatenLokal> ATMListe;
         public static List<FahrzeugvermietungenLokal> FVermietungListe;
         public static List<FahrzeugMods> FModsListe;
+        public static List<ServerItems> ServerItemsListe;
+        public static List<SpielerItems> SpielerItemsListe;
 
         public static void NPCTexteInitialisieren()
         {
@@ -235,6 +237,8 @@ namespace Haupt
             AutohäuserLadenLokal();
             BankautomatenLadenLokal();
             FahrzeugvermietungenLadenLokal();
+            ServerItemsLaden();
+            SpielerItemsLaden();
 
             //Speicherungs Timer
             //Timer.SetTimer(AlleSpielerSpeichern, 30000, 0);
@@ -280,6 +284,8 @@ namespace Haupt
             var Fahrzeugvermietungen = ContextFactory.Instance.srp_fahrzeugvermietungen.Count();
             var RandomSpawns = ContextFactory.Instance.srp_randomspawns.Count();
             var FahrzeugMods = ContextFactory.Instance.srp_fahrzeugmods.Count();
+            var ServerItems = ContextFactory.Instance.srp_serveritems.Count();
+            var SpielerItems = ContextFactory.Instance.srp_spieleritems.Count();
 
             //Gezählte Werte in der Log ausgeben
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
@@ -298,6 +304,8 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Fahrzeugvermietungen + " Fahrzeugvermietungen wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + RandomSpawns + " Randomspawns wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + FahrzeugMods + " Fahrzeugmods wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + ServerItems + " Server Items wurden geladen.");
+            NAPI.Util.ConsoleOutput("[StrawberryRP] " + SpielerItems + " Spieler Items wurden geladen.");
 
             //Spieler auf 0 setzen
             var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
@@ -522,6 +530,16 @@ namespace Haupt
         public static void RandomSpawnsLaden()
         {
             RandomSpawnListe = AlleRandomSpawnsLadenDB();
+        }
+
+        public static void ServerItemsLaden()
+        {
+            ServerItemsListe = AlleServerItemsLadenDB();
+        }
+
+        public static void SpielerItemsLaden()
+        {
+            SpielerItemsListe = AlleSpielerItemsLadenDB();
         }
 
         public static void FahrzeugModsLaden()
@@ -2237,7 +2255,27 @@ namespace Haupt
                     Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
                     return;
                 }
+                //LSPD Eingang
+                /*if (Player.Position.DistanceTo(new Vector3(-1091.67, -808.959, 19.2689)) < 3.0f)
+                {
 
+                    InteriorLaden(Player, "LSPDINT");
+                    Player.Position = new Vector3(610.002, 6.784139, 43.75);
+                    Freeze(Player);
+                    Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
+                    return;
+                }
+                //LSPD Ausgang
+                else if (Player.Position.DistanceTo(new Vector3(334.039, -1564.35, 30.3066)) < 3.0f)
+                {
+                    InteriorLaden(Player, "0");
+                    Player.Position = new Vector3(337.764, -1562.13, 30.298);
+                    Player.Rotation = new Vector3(0.0, 0.0, 309.4669);
+                    Freeze(Player);
+                    Timer.SetTimer(() => Unfreeze(Player), 3000, 1);
+                    return;
+                }
+                */
                 //Schauen ob ein Haus in der nähe ist
                 ImmobilienLokal haus = new ImmobilienLokal();
                 haus = NaheImmobilieBekommen(Player);
@@ -3254,6 +3292,42 @@ namespace Haupt
                 RandomSpawnListe.Add(spawn);
             }
             return RandomSpawnListe;
+        }
+
+        public static List<ServerItems> AlleServerItemsLadenDB()
+        {
+            List<ServerItems> ServerItemsListe = new List<ServerItems>();
+
+            foreach (var Sitems in ContextFactory.Instance.srp_serveritems.Where(x => x.Id > 0).ToList())
+            {
+                ServerItems sitems = new ServerItems();
+
+                sitems.Id = Sitems.Id;
+                sitems.Name = Sitems.Name;
+                sitems.Image = Sitems.Image;
+
+                //Zur lokalen Liste hinzufügen
+                ServerItemsListe.Add(sitems);
+            }
+            return ServerItemsListe;
+        }
+
+        public static List<SpielerItems> AlleSpielerItemsLadenDB()
+        {
+            List<SpielerItems> SpielerItemsListeLokal = new List<SpielerItems>();
+
+            foreach (var SItems in ContextFactory.Instance.srp_spieleritems.Where(x => x.Id > 0).ToList())
+            {
+                SpielerItems sitems = new SpielerItems();
+
+                sitems.Id = SItems.Id;
+                sitems.SpielerId = SItems.SpielerId;
+                sitems.ItemId = SItems.ItemId;
+
+                //Zur lokalen Liste hinzufügen
+                SpielerItemsListeLokal.Add(sitems);
+            }
+            return SpielerItemsListeLokal;
         }
 
         public static List<FahrzeugMods> AlleFahrzeugModsLadenDB()
@@ -6021,6 +6095,7 @@ namespace Haupt
             AccountLokal account = new AccountLokal();
             account = AccountBekommen(Player);
 
+            //Tutorial Check
             if(account.Tutorial == 100)
             {
                 //Spieler hat das Tutorial bereits abgeschlossen
@@ -6029,13 +6104,24 @@ namespace Haupt
                 Player.Dimension = Convert.ToUInt32(account.Dimension);
                 InteriorLaden(Player, account.Interior);
             }
-            else
+            else if(account.Tutorial == 0)
             {
-                //Spieler hat das Tutorial noch nicht abgeschlossen
+                //Spieler hat das Tutorial noch nicht angefangen
                 Player.Position = new Vector3(826.526, -3014.08, 5.90631);
                 Player.Rotation = new Vector3(0.0, 0.0, 355.688);
                 Player.Dimension = Convert.ToUInt32(account.Dimension);
                 InteriorLaden(Player, account.Interior);
+            }
+            else
+            {
+                //Spieler hat das Tutorial bereits angefangen, aber nicht abgeschlossen.
+                Player.Position = new Vector3(826.526, -3014.08, 5.90631);
+                Player.Rotation = new Vector3(0.0, 0.0, 355.688);
+                Player.Dimension = Convert.ToUInt32(account.Dimension);
+                InteriorLaden(Player, account.Interior);
+                if(account.Tutorial == 1) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Gehe zu Helmut und rede mit ihm."); }
+                else if (account.Tutorial == 2) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Suche den Mann im Blumenfeld und rede mit ihm."); }
+                else if (account.Tutorial == 3) { NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Besorge dem Mann im Blumenfeld eine Schere und gib sie ihm."); }
             }
 
             if(account.AdminLevel == 0)
@@ -6086,6 +6172,20 @@ namespace Haupt
             Player.Rotation = new Vector3(0.0, 0.0, 270.343f);
             Player.TriggerEvent("moveSkyCamera", Player, "down");
             Unfreeze(Player);
+        }
+
+        [RemoteEvent("noDLC")]
+        public static void KeineDLCs(Client Player)
+        {
+            Funktionen.LogEintrag(Player, "Keine DLCs vorhanden");
+            NAPI.Notification.SendNotificationToPlayer(Player, "~y~Error~w~: Bitte lade mit unserem Client alle DLCs runter. www.strawberry-rp.de");
+            NAPI.Player.KickPlayer(Player, "DLCs nicht vorhanden.");
+        }
+
+        [RemoteEvent("testdlc")]
+        public static void testdlc(Client Player, String test)
+        {
+            NAPI.Util.ConsoleOutput("TEST: " + test);
         }
 
         [RemoteEvent("GruppierungErstellen")]
