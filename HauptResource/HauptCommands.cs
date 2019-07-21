@@ -1006,7 +1006,7 @@ namespace Haupt
             atm.ATMBlip = NAPI.Blip.CreateBlip(new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ));
             atm.ATMBlip.Name = "ATM";
             atm.ATMBlip.ShortRange = true;
-            atm.ATMBlip.Sprite = 500;
+            atm.ATMBlip.Sprite = 277;
 
             //TextLabel und Marker erstellen
             atm.ATMText = NAPI.TextLabel.CreateTextLabel(ATMText, new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);

@@ -48,8 +48,6 @@ namespace Login
                             Funktionen.SpawnManager(player);
                             player.TriggerEvent("kameraoff");
                         }
-
-                        NAPI.Player.SetPlayerName(player, Account.NickName);
                     }
                     else
                     {
@@ -81,7 +79,7 @@ namespace Login
                         SocialClub = player.SocialClubName,
                         NickName = "Keiner",
                         Passwort = GetMD5Hash(passwort),
-                        AdminLevel = 5,
+                        AdminLevel = 0,
                         Fraktion = 0,
                         FraktionRang = 0,
                         Job = 0,
@@ -165,7 +163,6 @@ namespace Login
                     Account.NickName = nickname; 
 
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~w~Du heißt jetzt " + nickname + "!");
-                    NAPI.Player.SetPlayerName(Player, nickname);
 
                     Player.TriggerEvent("nicknamebrowserschliessen");
                     Player.TriggerEvent("geburtstagbrowseroeffnen");

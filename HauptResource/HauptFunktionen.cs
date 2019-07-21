@@ -43,6 +43,7 @@ namespace Haupt
         public static uint KeyCoolDownZeit = 5000;
         public static uint MenuCoolDownZeit = 2000;
         public static uint ScoreboardCoolDownZeit = 3000;
+        public static uint InteraktionsMenuCoolDownZeit = 1000;
 
         //Marker
         public const int TankstellenMarker = 0;
@@ -519,7 +520,7 @@ namespace Haupt
                 atm.ATMBlip = NAPI.Blip.CreateBlip(new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ));
                 atm.ATMBlip.Name = "ATM";
                 atm.ATMBlip.ShortRange = true;
-                atm.ATMBlip.Sprite = 500;
+                atm.ATMBlip.Sprite = 277;
 
                 //TextLabel und Marker erstellen
                 atm.ATMText = NAPI.TextLabel.CreateTextLabel(ATMText, new Vector3(atm.PositionX, atm.PositionY, atm.PositionZ), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
@@ -2027,10 +2028,7 @@ namespace Haupt
         [RemoteEvent("EnterCheck")]
         public static void EnterCheck(Client Player)
         {
-            //Benötigte Definitionen
-            int Eingeloggt = Player.GetData("Eingeloggt");
-
-            if(Eingeloggt == 0)
+            if(Player.GetData("Eingeloggt") == 0 && Player.GetData("HatAccount") == 1)
             {
                 Player.TriggerEvent("LoginEnterTaste");
             }
@@ -2469,6 +2467,36 @@ namespace Haupt
             }
         }
 
+        [RemoteEvent("InteraktionsMenuZeigen")]
+        public static void InteraktionsMenuZeigen(Client Player)
+        {
+            //Wichtige Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { return; }
+            if (Player.GetData("Interaktionsmenu") == 1) { return; }
+
+            //Cooldown
+            if (Player.GetData("KeyCoolDown") == 1) { return; }
+
+            Player.TriggerEvent("interaktionsmenuoeffnen");
+            Player.SetData("Interaktionsmenu", 1);
+            
+        }
+
+        [RemoteEvent("InteraktionsMenuHiden")]
+        public static void InteraktionsMenuHiden(Client Player)
+        {
+            //Wichtige Abfragen
+            if (Player.GetData("Interaktionsmenu") == 0) { return; }
+            if (Player.GetData("Eingeloggt") == 0) { return; }
+
+            //Cooldown
+            Player.SetData("KeyCoolDown", 1);
+            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.InteraktionsMenuCoolDownZeit, 1);
+
+            Player.TriggerEvent("interaktionsmenuschliessen");
+            Player.SetData("Interaktionsmenu", 0);
+        }
+
         [RemoteEvent("ScoreboardZeigen")]
         public static void ScoreboardZeigen(Client Player)
         {
@@ -2478,8 +2506,6 @@ namespace Haupt
 
             //Cooldown
             if (Player.GetData("KeyCoolDown") == 1) { return; }
-            Player.SetData("KeyCoolDown", 1);
-            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.ScoreboardCoolDownZeit, 1);
 
             Player.TriggerEvent("Scoreboardoeffnen");
             Player.SetData("Scoreboard", 1);
@@ -2508,7 +2534,6 @@ namespace Haupt
             if (Player.GetData("Eingeloggt") == 0) { return; }
 
             //Cooldown
-            if (Player.GetData("KeyCoolDown") == 1) { return; }
             Player.SetData("KeyCoolDown", 1);
             Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.ScoreboardCoolDownZeit, 1);
 
@@ -3649,6 +3674,9 @@ namespace Haupt
             //Daten aus der SQL Datenbank ziehen
             var Account = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Player.SocialClubName).FirstOrDefault();
 
+            //Nickname setzen
+            NAPI.Player.SetPlayerName(Player, Account.NickName);
+
             //Dem Spieler seine ID setzen
             Player.SetData("Id", Account.Id);
 
@@ -3711,11 +3739,13 @@ namespace Haupt
 
             //Dies sind lokale Dinge bitte keine floats etc nutzen, dass buggt per SetData
             Player.SetData("InteriorName", 0);
+            Player.SetData("HatAccount", 0);
             Player.SetData("Eingeloggt", 1);
             Player.SetData("BewegtSichMitFahrzeug", 0);
             Player.SetData("SiehtPerso", 0);
             Player.SetData("IBerry", 0);
             Player.SetData("Scoreboard", 0);
+            Player.SetData("Interaktionsmenu", 0);
             Player.SetData("Freezed", 0);
             Player.SetData("AmTanken", 0);
             Player.SetData("TankenTankstellenId", 0);
@@ -5672,6 +5702,12 @@ namespace Haupt
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Ausgang~g~]", new Vector3(334.039, -1564.35, 30.3066), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Stadthalle - Service~g~]", new Vector3(331.347, -1569.97, 30.3076), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
+            //LSPD
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~LSPD - Eingang~g~]", new Vector3(-1091.67, -808.959, 19.2689), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
+            //Fleeca Bank
+            NAPI.TextLabel.CreateTextLabel("~g~[~w~Fleeca Bank - Service~g~]", new Vector3(148.395, -1040.28, 29.3778), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
+
             //Heiraten
             NAPI.TextLabel.CreateTextLabel("~g~[~w~Kirche - /heiraten~g~]", new Vector3(-329.9244, 6150.168, 32.31319), 12.0f, 0.60f, 4, new Color(255, 255, 255), false, 0);
 
@@ -5741,6 +5777,7 @@ namespace Haupt
             Blip Busfahrer = NAPI.Blip.CreateBlip(new Vector3(403.169, -642.016, 28.5002)); Busfahrer.Name = "Busfahrer"; Busfahrer.ShortRange = true; Busfahrer.Sprite = 513;
             Blip Heiraten = NAPI.Blip.CreateBlip(new Vector3(-329.9244, 6150.168, 32.31319)); Heiraten.Name = "Heiraten"; Heiraten.ShortRange = true; Heiraten.Sprite = 621; Heiraten.Color = 1;
             Blip TUEV = NAPI.Blip.CreateBlip(new Vector3(533.015, -178.646, 54.4207)); TUEV.Name = "TÜV"; TUEV.ShortRange = true; TUEV.Sprite = 544;
+            Blip Fleeca_LS = NAPI.Blip.CreateBlip(new Vector3(148.395, -1040.28, 29.3778)); Fleeca_LS.Name = "Fleeca Bank"; Fleeca_LS.ShortRange = true; Fleeca_LS.Sprite = 106;
         }
 
         public static void MarkersLaden()
@@ -5753,6 +5790,12 @@ namespace Haupt
             NAPI.Marker.CreateMarker(21, new Vector3(337.764, -1562.13, 30.298), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             NAPI.Marker.CreateMarker(21, new Vector3(334.039, -1564.35, 30.3066), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
             NAPI.Marker.CreateMarker(21, new Vector3(331.347, -1569.97, 30.3076), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //LSPD
+            NAPI.Marker.CreateMarker(21, new Vector3(148.395, -1040.28, 29.3778), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
+
+            //Fleeca Bank
+            NAPI.Marker.CreateMarker(21, new Vector3(-1091.67, -808.959, 19.2689), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
 
             //Heiraten
             NAPI.Marker.CreateMarker(21, new Vector3(-329.9244, 6150.168, 32.31319), new Vector3(), new Vector3(), 0.5f, new Color(255, 0, 0, 100), true, 0);
@@ -6086,7 +6129,18 @@ namespace Haupt
             else
             {
                 var Account = ContextFactory.Instance.srp_accounts.Where(x => x.SocialClub == Player.SocialClubName).FirstOrDefault();
+
+                //Spielernamen mit dem der DB prüfen
+                if (Player.Name != Account.NickName)
+                {
+                    Funktionen.LogEintrag(Player, "Falscher Nickname");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Error~w~: Bitte setze im RageMP Client deinen richtigen Nicknamen.");
+                    NAPI.Player.KickPlayer(Player, "Falscher Nickname.");
+                    return;
+                }
+
                 Player.TriggerEvent("HatAccount", 1, Player.SocialClubName, Account.NickName);
+                Player.SetData("HatAccount", 1);
             }
         }
 

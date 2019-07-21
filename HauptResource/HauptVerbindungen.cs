@@ -29,6 +29,11 @@ namespace Haupt
         {
             //Eingeloggt auf 0 für Command Check
             Player.SetData("Eingeloggt", 0);
+            Player.SetData("HatAccount", 0);
+
+            //Chat weg
+            Player.TriggerEvent("Chathiden");
+            Player.SetData("Chat", 0);
 
             //Whitelist Check
             var Check = ContextFactory.Instance.srp_whitelist.Count(x => x.SocialClub == Player.SocialClubName);
@@ -84,12 +89,14 @@ namespace Haupt
 
             //Daten zur Sicherheit zurücksetzen
             //Generelle Daten
+            Player.SetData("HatAccount", 0);
             Player.SetData("InteriorName", 0);
             Player.SetData("Eingeloggt", 1);
             Player.SetData("BewegtSichMitFahrzeug", 0);
             Player.SetData("SiehtPerso", 0);
             Player.SetData("IBerry", 0);
             Player.SetData("Scoreboard", 0);
+            Player.SetData("Interaktionsmenu", 0);
             Player.SetData("Freezed", 0);
             Player.SetData("AmTanken", 0);
             Player.SetData("TankenTankstellenId", 0);
