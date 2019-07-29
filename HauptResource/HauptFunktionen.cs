@@ -2493,8 +2493,15 @@ namespace Haupt
             Player.SetData("KeyCoolDown", 1);
             Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.InteraktionsMenuCoolDownZeit, 1);
 
+            Player.TriggerEvent("interaktionsmenudatenabfragen");
             Player.TriggerEvent("interaktionsmenuschliessen");
             Player.SetData("Interaktionsmenu", 0);
+        }
+
+        [RemoteEvent("InteraktionsMenuDaten")]
+        public static void InteraktionsMenuDaten(Client Player, int id)
+        {
+            Player.SendChatMessage("Test: " + id);
         }
 
         [RemoteEvent("ScoreboardZeigen")]
