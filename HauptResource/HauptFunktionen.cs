@@ -2479,7 +2479,19 @@ namespace Haupt
 
             Player.TriggerEvent("interaktionsmenuoeffnen");
             Player.SetData("Interaktionsmenu", 1);
-            
+
+            AutoLokal auto = new AutoLokal();
+            auto = NaheAutosBekommen(Player);
+
+            if (auto == null)
+            {
+                Player.TriggerEvent("interaktionsmenutyp", 2);
+            }
+            else
+            {
+                Player.TriggerEvent("interaktionsmenutyp", 1);
+            }
+
         }
 
         [RemoteEvent("InteraktionsMenuHiden")]
@@ -2501,7 +2513,61 @@ namespace Haupt
         [RemoteEvent("InteraktionsMenuDaten")]
         public static void InteraktionsMenuDaten(Client Player, int id)
         {
+            //DEBUG
             Player.SendChatMessage("Test: " + id);
+            switch (id)
+            {
+                case 1:
+                    
+                    break;
+                case 2:
+
+                    break;
+                case 3:
+
+                    break;
+                case 4:
+
+                    break;
+                case 5:
+
+                    break;
+                case 6:
+
+                    break;
+                case 7:
+                    InteraktionsMenu7(Player);
+                    break;
+                case 8:
+
+                    break;
+                case 9:
+
+                    break;
+                case 10:
+
+                    break;
+                case 11:
+
+                    break;
+                case 12:
+
+                    break;
+                default:
+
+                    break;
+            }
+        }
+
+        public static void InteraktionsMenu7(Client Player)
+        {
+            AutoLokal auto = new AutoLokal();
+            auto = NaheAutosBekommen(Player);
+
+            if (auto != null)
+            {
+                AutoAnAus(Player, auto.Fahrzeug);
+            }
         }
 
         [RemoteEvent("ScoreboardZeigen")]
@@ -5971,42 +6037,35 @@ namespace Haupt
 
         }
 
-        [RemoteEvent("AutoAnAus")]
-        public void AutoAnAus(Client Player)
+        public static void AutoAnAus(Client Player, Vehicle Fahrzeug)
         {
             //Freezed?
             if(Player.GetData("Freezed") == 1) { return; }
 
-            //Cooldown
-            if (Player.GetData("KeyCoolDown") == 1) { return; }
-            Player.SetData("KeyCoolDown", 1);
-            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.KeyCoolDownZeit, 1);
+            ////Cooldown
+            //if (Player.GetData("KeyCoolDown") == 1) { return; }
+            //Player.SetData("KeyCoolDown", 1);
+            //Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.KeyCoolDownZeit, 1);
 
             //Abfragen ob er in einem Auto ist
-            if (Player.IsInVehicle && NAPI.Player.GetPlayerVehicleSeat(Player) == -1)
+            
+            if (Fahrzeug.EngineStatus == false && Fahrzeuge.TankInhaltBekommen(Fahrzeug) > 0)
             {
-                if (Player.Vehicle.EngineStatus == false && Fahrzeuge.TankInhaltBekommen(Player.Vehicle) > 0)
-                {
-                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Motor wurde gestartet.");
-                    Player.Vehicle.EngineStatus = true;
-                    Fahrzeuge.FahrzeugMotor(Player.Vehicle, 1);
-                    Player.TriggerEvent("Fahrbar");
-                }
-                else if (Player.Vehicle.EngineStatus == true)
-                {
-                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Motor wurde gestoppt.");
-                    Player.Vehicle.EngineStatus = false;
-                    Fahrzeuge.FahrzeugMotor(Player.Vehicle, 0);
-                    Player.TriggerEvent("NichtFahrbar");
-                }
-                else
-                {
-                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Tank ist leer.");
-                }
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Motor wurde gestartet.");
+                Fahrzeug.EngineStatus = true;
+                Fahrzeuge.FahrzeugMotor(Fahrzeug, 1);
+                Player.TriggerEvent("Fahrbar");
+            }
+            else if (Fahrzeug.EngineStatus == true)
+            {
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Motor wurde gestoppt.");
+                Fahrzeug.EngineStatus = false;
+                Fahrzeuge.FahrzeugMotor(Fahrzeug, 0);
+                Player.TriggerEvent("NichtFahrbar");
             }
             else
             {
-                //Wenn er in keinem Wagen ist soll nichts passieren
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der Tank ist leer.");
             }
         }
 
