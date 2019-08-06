@@ -2474,6 +2474,9 @@ namespace Haupt
             if (Player.GetData("Eingeloggt") == 0) { return; }
             if (Player.GetData("Interaktionsmenu") == 1) { return; }
 
+            //Benötigte Variablen
+            Boolean SpielerGefunden = false;
+
             //Cooldown
             if (Player.GetData("KeyCoolDown") == 1) { return; }
 
@@ -2485,7 +2488,24 @@ namespace Haupt
 
             if (auto == null)
             {
-                Player.TriggerEvent("interaktionsmenutyp", 2);
+                foreach (var Spieler in NAPI.Pools.GetAllPlayers())
+                {
+                    if(Spieler.GetData("Eingeloggt") == 1 && Spieler != Player)
+                    {
+                        if (Spieler.Position.DistanceTo(new Vector3(Player.Position.X, Player.Position.Y, Player.Position.Z)) < 2.0f)
+                        {
+                            Player.TriggerEvent("interaktionsmenutyp", 2);
+                            SpielerGefunden = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if(SpielerGefunden == false)
+                {
+                    Player.TriggerEvent("interaktionsmenutyp", 1);
+                    Player.TriggerEvent("interaktionsmenutyp", 2);
+                }
             }
             else
             {
