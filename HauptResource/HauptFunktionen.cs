@@ -2175,26 +2175,23 @@ namespace Haupt
             Player.SetData("FahrzeugPrivatDialog", 0);
         }
 
-        [RemoteEvent("Fahrzeug_Privat_Abschliessen")]
-        public static void FahrzeugPrivatAbschliessen(Client Player, int Status)
+        public static void FahrzeugAufAbschliessen(Client Player, AutoLokal auto)
         {
-            AutoLokal auto = new AutoLokal();
-            auto = NaheEigenesAutoBekommenPrivat(Player);
-
+       
             if (auto != null)
             {
-                if(Status == 1)
+                if(NAPI.Vehicle.GetVehicleLocked(auto.Fahrzeug) == false)
                 {
                     auto.FahrzeugAbgeschlossen = 1;
                     NAPI.Vehicle.SetVehicleLocked(auto.Fahrzeug, true);
-                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dein Fahrzeug abgeschlossen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Fahrzeug abgeschlossen.");
                     auto.FahrzeugGeändert = true;
                 }
                 else
                 {
                     auto.FahrzeugAbgeschlossen = 0;
                     NAPI.Vehicle.SetVehicleLocked(auto.Fahrzeug, false);
-                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dein Fahrzeug aufgeschlossen.");
+                    NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Fahrzeug aufgeschlossen.");
                     auto.FahrzeugGeändert = true;
                 }
             }
@@ -2559,7 +2556,7 @@ namespace Haupt
                     InteraktionsMenu7(Player);
                     break;
                 case 8:
-
+                    InteraktionsMenu8(Player);
                     break;
                 case 9:
 
@@ -2576,6 +2573,17 @@ namespace Haupt
                 default:
 
                     break;
+            }
+        }
+
+        public static void InteraktionsMenu8(Client Player)
+        {
+            AutoLokal auto = new AutoLokal();
+            auto = NaheAutosBekommen(Player);
+
+            if (auto != null)
+            {
+                FahrzeugAufAbschliessen(Player, auto);
             }
         }
 
