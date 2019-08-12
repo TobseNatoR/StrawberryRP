@@ -77,25 +77,29 @@ namespace RAGEMP_TsVoice
 		[RemoteEvent("ChangeVoiceRange")]
 		public void ChangeVoiceRange(Client client)
 		{
+			client.SendNotification("Test " + client.GetSharedData("VOICE_RANGE"));
 			string voiceRange = "Normal";
+			string Lautstärke = null;
 			if (client.HasSharedData("VOICE_RANGE"))
 				voiceRange = client.GetSharedData("VOICE_RANGE");
-
 
 			switch (voiceRange)
 			{
 				case "Normal":
 					voiceRange = "Weit";
+					Lautstärke = "laut";
 					break;
 				case "Weit":
 					voiceRange = "Kurz";
+					Lautstärke = "leise";
 					break;
 				case "Kurz":
 					voiceRange = "Normal";
+					Lautstärke = "normal";
 					break;
 			}
 			client.SetSharedData("VOICE_RANGE", voiceRange);
-			client.SendNotification("Voice Range: " + voiceRange);
+			client.SendNotification("~y~Info~w~: Du sprichst nun " + Lautstärke);
 		}
 
 		public static void Connect(Client client, string characterName)

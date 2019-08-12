@@ -23,7 +23,6 @@
     <None Remove="Migrations\**" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="gtanetwork.api" Version="0.3.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.2.6">
       <PrivateAssets>all</PrivateAssets>
@@ -36,7 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Bootstrapper">
-      <HintPath>..\..\runtime\Bootstrapper.dll</HintPath>
+      <HintPath>C:\Users\Toby\Desktop\Bootstrapper.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
