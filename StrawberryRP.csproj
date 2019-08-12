@@ -11,6 +11,9 @@
     <StartupObject />
     <Win32Resource />
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Remove="internationalization\**" />
     <Compile Remove="Migrations\**" />

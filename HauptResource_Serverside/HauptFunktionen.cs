@@ -10,6 +10,7 @@ using Fahrzeug;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RAGEMP_TsVoice;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
@@ -288,8 +289,9 @@ namespace Haupt
             var ServerItems = ContextFactory.Instance.srp_serveritems.Count();
             var SpielerItems = ContextFactory.Instance.srp_spieleritems.Count();
 
-            //Gezählte Werte in der Log ausgeben
-            NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
+			//Gezählte Werte in der Log ausgeben
+			NAPI.Util.ConsoleOutput("|| ----------------------------- || Strawberry RP wird geladen || ----------------------------- ||");
+			NAPI.Util.ConsoleOutput("[StrawberryRP] " + Accounts + " Accounts wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Log + " Log Einträge wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Fahzeuge + " Fahrzeuge wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Tankstellen + " Tankstellen wurden geladen.");
@@ -307,9 +309,10 @@ namespace Haupt
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + FahrzeugMods + " Fahrzeugmods wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + ServerItems + " Server Items wurden geladen.");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + SpielerItems + " Spieler Items wurden geladen.");
+			NAPI.Util.ConsoleOutput("|| ----------------------------- || Strawberry RP wurde geladen || ----------------------------- ||");
 
-            //Spieler auf 0 setzen
-            var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
+			//Spieler auf 0 setzen
+			var Server = ContextFactory.Instance.srp_server.Where(x => x.Id == 1).FirstOrDefault();
             Server.Online = 0;
             ContextFactory.Instance.SaveChanges();
         }
@@ -2381,7 +2384,24 @@ namespace Haupt
             //Alles was nicht mit Fahrzeugen zu tun hat
             if (!Player.IsInVehicle)
             {
-                TankstelleLokal tanke = new TankstelleLokal();
+				//247 Sachen kaufen
+				SupermarktLokal supermarkt = new SupermarktLokal();
+				supermarkt = NaheSupermarktBekommen(Player);
+
+				if (supermarkt != null)
+				{
+					if (supermarkt.SupermarktBesitzer != 0)
+					{
+						Player.TriggerEvent("247browseroeffnen");
+						foreach (ServerItems sitem in ServerItemsListe)
+						{
+							Player.TriggerEvent("Items_Eintragen", sitem.Id, sitem.Name, sitem.Preis, sitem.Image);
+						}
+						return;
+					}
+				}
+
+				TankstelleLokal tanke = new TankstelleLokal();
                 tanke = NaheTankeBekommen(Player);
 
                 if (tanke != null)
@@ -2419,9 +2439,6 @@ namespace Haupt
                         return;
                     }
                 }
-
-                SupermarktLokal supermarkt = new SupermarktLokal();
-                supermarkt = NaheSupermarktBekommen(Player);
 
                 if (supermarkt != null)
                 {
@@ -3898,8 +3915,11 @@ namespace Haupt
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dich erfolgreich eingeloggt!");
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein letzter Login war am ~r~" + DatumFormatieren(Account.ZuletztOnline));
 
-            //Peds Laden
-            //PedsFürSpielerLaden(Player);
+			//Peds Laden
+			//PedsFürSpielerLaden(Player);
+
+			//VoiceChat
+			Teamspeak.Connect(Player, Player.Name);
         }
 
         public static void ServerSpielerGejoined(int Status)
