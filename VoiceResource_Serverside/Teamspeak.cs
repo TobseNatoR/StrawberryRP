@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using TeamSpeak3QueryApi.Net;
 using TeamSpeak3QueryApi.Net.Specialized;
 using TeamSpeak3QueryApi.Net.Specialized.Responses;
+using Haupt;
 
 namespace RAGEMP_TsVoice
 {
@@ -77,7 +78,6 @@ namespace RAGEMP_TsVoice
 		[RemoteEvent("ChangeVoiceRange")]
 		public void ChangeVoiceRange(Client client)
 		{
-			client.SendNotification("Test " + client.GetSharedData("VOICE_RANGE"));
 			string voiceRange = "Normal";
 			string Lautstärke = null;
 			if (client.HasSharedData("VOICE_RANGE"))
@@ -104,9 +104,9 @@ namespace RAGEMP_TsVoice
 
 		public static void Connect(Client client, string characterName)
 		{
-			client.SetSharedData("VOICE_RANGE", "Normal");
-			client.SetSharedData("TsName", characterName);
-			client.TriggerEvent("ConnectTeamspeak", characterName);
+			//client.SetSharedData("VOICE_RANGE", "Normal");
+			//client.SetSharedData("TsName", characterName);
+			//client.TriggerEvent("ConnectTeamspeak", characterName);
 		}
 
 		private async Task InitTSQuery()
@@ -145,9 +145,11 @@ namespace RAGEMP_TsVoice
 
 		public async Task RefreshSpeaker(FoundChannel channel, Client player, List<Client> players)
 		{
+			
 			if (!tsQuery.Client.IsConnected)
+			{
 				return;
-
+			}
 			try
 			{
 				var clients = await tsQuery.GetClients(GetClientOptions.Voice);

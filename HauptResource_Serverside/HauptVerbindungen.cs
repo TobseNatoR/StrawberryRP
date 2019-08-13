@@ -137,6 +137,9 @@ namespace Haupt
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
 
+			//Voice Disconnect
+			Player.TriggerEvent("DisconnectTeamspeak");
+
             Funktionen.LogEintrag(Player, "Verbindung getrennt");
             NAPI.Util.ConsoleOutput("[StrawberryRP] " + Player.SocialClubName + " hat den Server verlassen.", ConsoleColor.Red);
         }

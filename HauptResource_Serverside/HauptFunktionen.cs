@@ -3448,6 +3448,7 @@ namespace Haupt
 
                 sitems.Id = Sitems.Id;
                 sitems.Name = Sitems.Name;
+				sitems.Preis = Sitems.Preis;
                 sitems.Image = Sitems.Image;
 
                 //Zur lokalen Liste hinzufügen
