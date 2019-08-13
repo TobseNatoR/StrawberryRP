@@ -2396,7 +2396,7 @@ namespace Haupt
 						Player.TriggerEvent("247browseroeffnen");
 						foreach (ServerItems sitem in ServerItemsListe)
 						{
-							Player.TriggerEvent("Items_Eintragen", sitem.Id, sitem.Name, sitem.Preis, sitem.Image);
+							Player.TriggerEvent("Items_Eintragen", sitem.Id, sitem.Name, GeldFormatieren(sitem.Preis), sitem.Image);
 						}
 						return;
 					}

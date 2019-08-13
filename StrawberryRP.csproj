@@ -36,7 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Bootstrapper">
-      <HintPath>C:\Users\Toby\Desktop\Bootstrapper.dll</HintPath>
+      <HintPath>Verweise\Bootstrapper.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
