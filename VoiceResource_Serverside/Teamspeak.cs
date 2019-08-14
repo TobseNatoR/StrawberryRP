@@ -160,19 +160,20 @@ namespace RAGEMP_TsVoice
 
 				if (tsplayer != null)
 				{
-					if (tsplayer.Talk && !player.HasData("IS_SPEAKING"))
+					NAPI.Util.ConsoleOutput("DEBUG 1");
+					if (tsplayer.Talk && player.GetData("IS_SPEAKING") == "0")
 					{
 						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(player.Position) < 5f)
 							.ForEach((client) => client.TriggerEvent("Teamspeak_LipSync", player.Handle.Value, true));
 
-						player.SetData("IS_SPEAKING", true);
+						player.SetData("IS_SPEAKING", "1");
 					}
-					else if (!tsplayer.Talk && player.HasData("IS_SPEAKING"))
+					else if (!tsplayer.Talk && player.GetData("IS_SPEAKING") == "1")
 					{
 						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(player.Position) < 5f)
 							.ForEach((client) => client.TriggerEvent("Teamspeak_LipSync", player.Handle.Value, false));
 
-						player.ResetData("IS_SPEAKING");
+						player.SetData("IS_SPEAKING", "0");
 					}
 				}
 			}
