@@ -2482,12 +2482,61 @@ namespace Haupt
             }
         }
 
-		[RemoteEvent("247ItemKaufen")]
-		public static void 247ItemKaufen(Client Player, int Id)
+		[RemoteEvent("ItemKaufen247")]
+		public static void ItemKaufen247(Client Player, int Id)
 		{
+			//Benötigte Definitionen
+			int SpielerID = Player.GetData("Id");
+			int Anzahl = 0;
+
 			foreach (ServerItems sitem in ServerItemsListe)
 			{
-				Player.TriggerEvent("Items_Eintragen", sitem.Id, sitem.Name, GeldFormatieren(sitem.Preis), sitem.Image);
+				if(sitem.Id == Id)
+				{
+					if (Funktionen.AccountGeldBekommen(Player) < sitem.Preis)
+					{
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast nicht genug Geld.");
+						return;
+					}
+
+					var Check = ContextFactory.Instance.srp_spieleritems.Count(x => x.SpielerId == SpielerID && x.ItemId == Id);
+
+					if(Check > 0)
+					{
+						var dbItem = ContextFactory.Instance.srp_spieleritems.Where(x => x.SpielerId == SpielerID && x.ItemId == Id).FirstOrDefault();
+
+						Anzahl = dbItem.Anzahl;
+						Anzahl += 1;
+						dbItem.Anzahl = Anzahl;
+						
+						//Speichern
+						ContextFactory.Instance.SaveChanges();
+					}
+					else
+					{
+						var current_item = new SpielerItems
+						{
+							SpielerId = SpielerID,
+							Anzahl = 1,
+							ItemId = Id
+						};
+
+						//Query absenden
+						ContextFactory.Instance.srp_spieleritems.Add(current_item);
+						ContextFactory.Instance.SaveChanges();
+
+						SpielerItems current_item_lokal = new SpielerItems();
+
+						current_item_lokal.Id = ContextFactory.Instance.srp_spieleritems.Max(x => x.Id);
+						current_item_lokal.SpielerId = SpielerID;
+						current_item_lokal.Anzahl = 1;
+						current_item_lokal.Id = Id;
+
+						SpielerItemsListe.Add(current_item_lokal);
+					}
+
+					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Item ~r~" + sitem.Name + " ~w~für ~r~" + GeldFormatieren(sitem.Preis) + " ~w~gekauft.");
+				}
 			}
 		}
 

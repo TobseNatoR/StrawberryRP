@@ -104,9 +104,9 @@ namespace RAGEMP_TsVoice
 
 		public static void Connect(Client client, string characterName)
 		{
-			//client.SetSharedData("VOICE_RANGE", "Normal");
-			//client.SetSharedData("TsName", characterName);
-			//client.TriggerEvent("ConnectTeamspeak", characterName);
+			client.SetSharedData("VOICE_RANGE", "Normal");
+			client.SetSharedData("TsName", characterName);
+			client.TriggerEvent("ConnectTeamspeak", characterName);
 		}
 
 		private async Task InitTSQuery()
@@ -152,15 +152,16 @@ namespace RAGEMP_TsVoice
 			}
 			try
 			{
-				var clients = await tsQuery.GetClients(GetClientOptions.Voice);
-				var clientschannel = clients.ToList().FindAll(c => c.ChannelId == channel.Id);
+				//var clients = await tsQuery.GetClients(GetClientOptions.Voice);
+				//var clientschannel = clients.ToList().FindAll(c => c.ChannelId == channel.Id);
+				//var tsplayer = clientschannel.Find(p => p.NickName == name);
 
 				var name = Player.GetSharedData("TsName");
-				var tsplayer = clientschannel.Find(p => p.NickName == name);
-
+				var currentClients = await tsQuery.GetClients(GetClientOptions.Voice);
+				var tsplayer = currentClients.SingleOrDefault(c => c.NickName == name); 
+				
 				if (tsplayer != null)
 				{
-					NAPI.Util.ConsoleOutput("DEBUG 1");
 					if (tsplayer.Talk && Player.GetData("IS_SPEAKING") == 0)
 					{
 						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(Player.Position) < 5f)

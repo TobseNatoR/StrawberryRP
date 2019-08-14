@@ -604,12 +604,13 @@ namespace Datenbank
 		public String Image { get; set; }
     }
 
-    public class SpielerItems
-    {
-        [Key]
-        public int Id { get; set; }
+	public class SpielerItems
+	{
+		[Key]
+		public int Id { get; set; }
 
-        public int SpielerId { get; set; }
+		public int SpielerId { get; set; }
+		public int Anzahl { get; set; }
         public int ItemId { get; set; }
     }
 }
