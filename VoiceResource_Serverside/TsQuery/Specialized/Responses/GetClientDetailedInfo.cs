@@ -72,13 +72,13 @@ namespace TeamSpeak3QueryApi.Net.Specialized.Responses
         [QuerySerialize("client_is_talker")]
         public bool IsTalker;
 
-		[QuerySerialize("connection_connected_time")]
-		private long _connectionTime; //Because it is in ms instead if s defined in Typecaster
-		public TimeSpan ConnectionTime => TimeSpan.FromMilliseconds(_connectionTime);
+		//[QuerySerialize("connection_connected_time")]
+		//private long _connectionTime; //Because it is in ms instead if s defined in Typecaster
+		//public TimeSpan ConnectionTime => TimeSpan.FromMilliseconds(_connectionTime);
 
-		[QuerySerialize("client_idle_time")]
-		private long _idleTime; //Because it is in ms instead if s defined in Typecaster
-		public TimeSpan IdleTime => TimeSpan.FromMilliseconds(_idleTime);
+		//[QuerySerialize("client_idle_time")]
+		//private long _idleTime; //Because it is in ms instead if s defined in Typecaster
+		//public TimeSpan IdleTime => TimeSpan.FromMilliseconds(_idleTime);
 	}
 }
 

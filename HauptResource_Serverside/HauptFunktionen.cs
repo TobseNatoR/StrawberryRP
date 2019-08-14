@@ -3918,7 +3918,6 @@ namespace Haupt
             //Dies sind lokale Dinge bitte keine floats etc nutzen, dass buggt per SetData
             Player.SetData("InteriorName", 0);
             Player.SetData("HatAccount", 0);
-            Player.SetData("Eingeloggt", 1);
             Player.SetData("BewegtSichMitFahrzeug", 0);
             Player.SetData("SiehtPerso", 0);
             Player.SetData("IBerry", 0);
@@ -3983,7 +3982,10 @@ namespace Haupt
 
 			//VoiceChat
 			Teamspeak.Connect(Player, Player.Name);
-        }
+
+			//Nachdem ALLES geladen wurde dem Spieler den Status Eingeloggt auf 1 setzen
+			Player.SetData("Eingeloggt", 1);
+		}
 
         public static void ServerSpielerGejoined(int Status)
         {

@@ -152,6 +152,7 @@ namespace RAGEMP_TsVoice
 			}
 			try
 			{
+				//Alter kram der rumgebuggt hat
 				//var clients = await tsQuery.GetClients(GetClientOptions.Voice);
 				//var clientschannel = clients.ToList().FindAll(c => c.ChannelId == channel.Id);
 				//var tsplayer = clientschannel.Find(p => p.NickName == name);
@@ -176,6 +177,22 @@ namespace RAGEMP_TsVoice
 
 						Player.SetData("IS_SPEAKING", 0);
 					}
+				}
+				else
+				{
+					//DISCO falls man es so will später
+					//if(Player.GetData("Eingeloggt") == 1 && NAPI.Player.IsPlayerConnected(Player))
+					//{
+					//	Player.TriggerEvent("DisconnectTeamspeak");
+					//	Funktionen.SpielerSpeichern(Player);
+
+					//	NAPI.Notification.SendNotificationToPlayer(Player, "~r~Du musst auf unserem Teamspeak sein um den Voice Chat nutzen zu können. IP: ts.strawberry-rp.de");
+
+					//	//Log Eintrag
+					//	Funktionen.LogEintrag(Player, "Nicht auf dem Teamspeak");
+
+					//	NAPI.Player.KickPlayer(Player, "Nicht auf dem Teamspeak");
+					//}
 				}
 			}
 			catch (Exception ex)
