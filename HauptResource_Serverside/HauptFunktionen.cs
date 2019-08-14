@@ -2482,6 +2482,15 @@ namespace Haupt
             }
         }
 
+		[RemoteEvent("247ItemKaufen")]
+		public static void 247ItemKaufen(Client Player, int Id)
+		{
+			foreach (ServerItems sitem in ServerItemsListe)
+			{
+				Player.TriggerEvent("Items_Eintragen", sitem.Id, sitem.Name, GeldFormatieren(sitem.Preis), sitem.Image);
+			}
+		}
+
         [RemoteEvent("InteraktionsMenuZeigen")]
         public static void InteraktionsMenuZeigen(Client Player)
         {
