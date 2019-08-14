@@ -137,6 +137,9 @@ namespace Haupt
             //Dialoge
             Player.SetData("FahrzeugPrivatDialog", 0);
 
+			//Voice
+			Player.SetData("IS_SPEAKING", 0);
+
 			//Voice Disconnect
 			Player.TriggerEvent("DisconnectTeamspeak");
 

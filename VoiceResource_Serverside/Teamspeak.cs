@@ -143,7 +143,7 @@ namespace RAGEMP_TsVoice
 			}
 		}
 
-		public async Task RefreshSpeaker(FoundChannel channel, Client player, List<Client> players)
+		public async Task RefreshSpeaker(FoundChannel channel, Client Player, List<Client> players)
 		{
 			
 			if (!tsQuery.Client.IsConnected)
@@ -155,25 +155,25 @@ namespace RAGEMP_TsVoice
 				var clients = await tsQuery.GetClients(GetClientOptions.Voice);
 				var clientschannel = clients.ToList().FindAll(c => c.ChannelId == channel.Id);
 
-				var name = player.GetSharedData("TsName");
+				var name = Player.GetSharedData("TsName");
 				var tsplayer = clientschannel.Find(p => p.NickName == name);
 
 				if (tsplayer != null)
 				{
 					NAPI.Util.ConsoleOutput("DEBUG 1");
-					if (tsplayer.Talk && player.GetData("IS_SPEAKING") == "0")
+					if (tsplayer.Talk && Player.GetData("IS_SPEAKING") == 0)
 					{
-						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(player.Position) < 5f)
-							.ForEach((client) => client.TriggerEvent("Teamspeak_LipSync", player.Handle.Value, true));
+						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(Player.Position) < 5f)
+							.ForEach((client) => client.TriggerEvent("Teamspeak_LipSync", Player.Handle.Value, true));
 
-						player.SetData("IS_SPEAKING", "1");
+						Player.SetData("IS_SPEAKING", 1);
 					}
-					else if (!tsplayer.Talk && player.GetData("IS_SPEAKING") == "1")
+					else if (!tsplayer.Talk && Player.GetData("IS_SPEAKING") == 1)
 					{
-						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(player.Position) < 5f)
-							.ForEach((client) => client.TriggerEvent("Teamspeak_LipSync", player.Handle.Value, false));
+						players.FindAll(p => p.Exists && p.Position.DistanceTo2D(Player.Position) < 5f)
+							.ForEach((client) => client.TriggerEvent("Teamspeak_LipSync", Player.Handle.Value, false));
 
-						player.SetData("IS_SPEAKING", "0");
+						Player.SetData("IS_SPEAKING", 0);
 					}
 				}
 			}

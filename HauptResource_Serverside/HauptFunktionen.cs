@@ -3904,8 +3904,11 @@ namespace Haupt
             Player.SetData("BusfahrerRoute", 0);
             Player.SetData("BusfahrerRoutePosition", 0);
 
-            //Dialoge
-            Player.SetData("FahrzeugPrivatDialog", 0);
+			//Voice
+			Player.SetData("IS_SPEAKING", 0);
+
+			//Dialoge
+			Player.SetData("FahrzeugPrivatDialog", 0);
 
             //Discord
             Player.TriggerEvent("DiscordStatusSetzen", "Strawberry Roleplay","Spielt als " + Player.Name);
