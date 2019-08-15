@@ -243,17 +243,18 @@ namespace Haupt
             ServerItemsLaden();
             SpielerItemsLaden();
 
-            //Speicherungs Timer
-            //Timer.SetTimer(AlleSpielerSpeichern, 30000, 0);
-            //Timer.SetTimer(FahrzeugeSpeichern, 15000, 0);
-            //Timer.SetTimer(AlleTankstellenSpeichern, 40000, 0);
-            //Timer.SetTimer(AlleSupermärkteSpeichern, 41000, 0);
-            //Timer.SetTimer(AlleImmobilienSpeichern, 42000, 0);
-            //Timer.SetTimer(AlleBotsSpeichern, 10000, 0);
-            //Timer.SetTimer(AlleAutohäuserSpeichern, 43000, 0);
+			//Speicherungs Timer
+			//Timer.SetTimer(AlleSpielerSpeichern, 30000, 0);
+			//Timer.SetTimer(FahrzeugeSpeichern, 15000, 0);
+			//Timer.SetTimer(AlleTankstellenSpeichern, 40000, 0);
+			//Timer.SetTimer(AlleSupermärkteSpeichern, 41000, 0);
+			//Timer.SetTimer(AlleImmobilienSpeichern, 42000, 0);
+			//Timer.SetTimer(AlleBotsSpeichern, 10000, 0);
+			//Timer.SetTimer(AlleAutohäuserSpeichern, 43000, 0);
+			//Timer.SetTimer(SpielerItemsSpeichern, 43000, 0);
 
-            //Update Timer
-            Timer.SetTimer(AlleTankstellenUpdaten, 20000, 0);
+			//Update Timer
+			Timer.SetTimer(AlleTankstellenUpdaten, 20000, 0);
             Timer.SetTimer(AlleSupermärkteUpdaten, 41000, 0);
             Timer.SetTimer(AlleImmobilienUpdaten, 42000, 0);
             Timer.SetTimer(AlleAutohäuserUpdaten, 43000, 0);
@@ -439,7 +440,13 @@ namespace Haupt
             Gruppen.Stop();
             var GruppenMS = Gruppen.ElapsedMilliseconds;
             NAPI.Util.ConsoleOutput("[StrawberryRP] Alle Gruppen gespeichert [" + GruppenMS + "ms]");
-        }
+
+			var SpielerItems = System.Diagnostics.Stopwatch.StartNew();
+			SpielerItemsSpeichern();
+			SpielerItems.Stop();
+			var SpielerItemsMS = SpielerItems.ElapsedMilliseconds;
+			NAPI.Util.ConsoleOutput("[StrawberryRP] Alle Spieler Items gespeichert [" + SpielerItemsMS + "ms]");
+		}
 
         public static void SupermärkteLadenLokal()
         {
@@ -813,7 +820,21 @@ namespace Haupt
             return Supermarkt;
         }
 
-        public static AutohausLokal NaheAutohausBekommen(Client Player, float distance = 2.0f)
+		public static SpielerItems SpielerItemBekommen(Client Player, int Id)
+		{
+			SpielerItems sitem = null;
+			foreach (SpielerItems spieleritemlocal in SpielerItemsListe)
+			{
+				if(spieleritemlocal.ItemId == Id && spieleritemlocal.SpielerId == Player.GetData("Id"))
+				{
+					sitem = spieleritemlocal;
+					break;
+				}
+			}
+			return sitem;
+		}
+
+		public static AutohausLokal NaheAutohausBekommen(Client Player, float distance = 2.0f)
         {
             AutohausLokal Autohaus = null;
             foreach (AutohausLokal autohauslocal in AutohausListe)
@@ -1162,6 +1183,19 @@ namespace Haupt
             }
             return Tutorial;
         }
+
+		public static Boolean HatSpielerItem(Client Player, int Id)
+		{
+			foreach (SpielerItems sitem in SpielerItemsListe)
+			{
+				if(sitem.SpielerId == Player.GetData("Id") && sitem.ItemId == Id && sitem.Anzahl >= 1)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
 
         public static String AccountVerheiratetBekommen(Client Player)
         {
@@ -2499,41 +2533,7 @@ namespace Haupt
 						return;
 					}
 
-					var Check = ContextFactory.Instance.srp_spieleritems.Count(x => x.SpielerId == SpielerID && x.ItemId == Id);
-
-					if(Check > 0)
-					{
-						var dbItem = ContextFactory.Instance.srp_spieleritems.Where(x => x.SpielerId == SpielerID && x.ItemId == Id).FirstOrDefault();
-
-						Anzahl = dbItem.Anzahl;
-						Anzahl += 1;
-						dbItem.Anzahl = Anzahl;
-						
-						//Speichern
-						ContextFactory.Instance.SaveChanges();
-					}
-					else
-					{
-						var current_item = new SpielerItems
-						{
-							SpielerId = SpielerID,
-							Anzahl = 1,
-							ItemId = Id
-						};
-
-						//Query absenden
-						ContextFactory.Instance.srp_spieleritems.Add(current_item);
-						ContextFactory.Instance.SaveChanges();
-
-						SpielerItems current_item_lokal = new SpielerItems();
-
-						current_item_lokal.Id = ContextFactory.Instance.srp_spieleritems.Max(x => x.Id);
-						current_item_lokal.SpielerId = SpielerID;
-						current_item_lokal.Anzahl = 1;
-						current_item_lokal.Id = Id;
-
-						SpielerItemsListe.Add(current_item_lokal);
-					}
+					SpielerItemSetzen(Player, Id, 1);
 
 					//Dem Supermarkt das Geld in die Kasse geben
 					SupermarktLokal supermarkt = new SupermarktLokal();
@@ -2547,6 +2547,45 @@ namespace Haupt
 
 					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Item ~r~" + sitem.Name + " ~w~für ~r~" + GeldFormatieren(sitem.Preis) + " ~w~gekauft.");
 				}
+			}
+		}
+
+		public static void SpielerItemSetzen(Client Player, int Id, int Anzahl)
+		{
+			if (HatSpielerItem(Player, Id))
+			{
+				SpielerItems sitemlocal = new SpielerItems();
+				sitemlocal = SpielerItemBekommen(Player, Id);
+
+				Anzahl = sitemlocal.Anzahl;
+				Anzahl += Anzahl;
+				sitemlocal.Anzahl = Anzahl;
+
+				sitemlocal.ItemGeändert = true;
+			}
+			else
+			{
+				var current_item = new SpielerItems
+				{
+					SpielerId = Player.GetData("Id"),
+					Anzahl = 1,
+					ItemId = Id
+				};
+
+				//Query absenden
+				ContextFactory.Instance.srp_spieleritems.Add(current_item);
+				ContextFactory.Instance.SaveChanges();
+
+				SpielerItems current_item_lokal = new SpielerItems();
+
+				current_item_lokal.Id = ContextFactory.Instance.srp_spieleritems.Max(x => x.Id);
+				current_item_lokal.SpielerId = Player.GetData("Id");
+				current_item_lokal.Anzahl = 1;
+				current_item_lokal.ItemId = Id;
+
+				current_item_lokal.ItemGeändert = false;
+
+				SpielerItemsListe.Add(current_item_lokal);
 			}
 		}
 
@@ -3535,7 +3574,10 @@ namespace Haupt
 
                 sitems.Id = SItems.Id;
                 sitems.SpielerId = SItems.SpielerId;
+				sitems.Anzahl = SItems.Anzahl;
                 sitems.ItemId = SItems.ItemId;
+
+				sitems.ItemGeändert = false;
 
                 //Zur lokalen Liste hinzufügen
                 SpielerItemsListeLokal.Add(sitems);
@@ -5471,7 +5513,29 @@ namespace Haupt
             }
         }
 
-        public static void FahrzeugSpeichern(Vehicle Fahrzeuge)
+		public static void SpielerItemsSpeichern()
+		{
+			foreach(SpielerItems sitem in SpielerItemsListe)
+			{
+				if (sitem.ItemGeändert == true)
+				{
+					//Fahrzeug aus der DB greifen
+					var sitemDB = ContextFactory.Instance.srp_spieleritems.Where(x => x.Id == sitem.Id).FirstOrDefault();
+
+					sitemDB.SpielerId = sitem.SpielerId;
+					sitemDB.Anzahl = sitem.Anzahl;
+					sitemDB.ItemId = sitem.ItemId;
+
+					//Query absenden
+					ContextFactory.Instance.SaveChanges();
+
+					//Damit er nicht dauerthaft gespeichert wird
+					sitem.ItemGeändert = false;
+				}
+			}
+		}
+
+		public static void FahrzeugSpeichern(Vehicle Fahrzeuge)
         {
             if(Fahrzeuge.GetData("Id") == 0) { return; }
 
@@ -6764,22 +6828,29 @@ namespace Haupt
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 25 Sekunden zuzuhören.");
                 }
             }
-            //Wieder beim Mann im Blumenfeld mit der Schere
-            //else if (Player.Position.DistanceTo(new Vector3(1331.05, -2458.33, 48.4316)) < 5.0f)
-            //{
-            //    if (AccountTutorialBekommen(Player) == 3)
-            //    {
-            //        Player.TriggerEvent("npcpopupoeffnen", "Alter Mann im Blumenfeld", GlobaleSachen.MannImBlumenfeldNPCText);
-            //        Freeze(Player);
-            //        Timer.SetTimer(() => NPCPopupSchliessen(Player), 25000, 1);
-            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Suche nun einen 24/7 auf.");
-            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Werfe einen Blick auf die Karte.");
-            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Merke dir wo der alte Mann ist, damit du ihn wiederfindest.");
-            //        AccountTutorialSetzen(Player, 3);
-            //        NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 25 Sekunden zuzuhören.");
-            //    }
-            //}
-        }
+			else if (Player.Position.DistanceTo(new Vector3(1331.05, -2458.33, 48.4316)) < 5.0f)
+			{
+				if (AccountTutorialBekommen(Player) == 3)
+				{
+					if(HatSpielerItem(Player, 1))
+					{
+						Player.TriggerEvent("npcpopupoeffnen", "Alter Mann im Blumenfeld", GlobaleSachen.MannImBlumenfeldNPCText1);
+						Freeze(Player);
+						Timer.SetTimer(() => NPCPopupSchliessen(Player), 15000, 1);
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Abgeschlossen.");
+						AccountGeldSetzen(Player, 1, 250);
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Einige Felder benötigen unterschiedliche Werkzeuge um von ihnen etwas abbauen zu können.");
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Merke dir wo der alte Mann ist, damit du ihn wiederfindest.");
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Sprich mit anderen Bewohnern dieser Stadt und du wirst mehr erfahren.");
+						AccountTutorialSetzen(Player, 100);
+					}
+					else
+					{
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast keine Schere.");
+					}
+				}
+			}
+		}
 
         public static String DatumFormatieren(DateTime Datum)
         {

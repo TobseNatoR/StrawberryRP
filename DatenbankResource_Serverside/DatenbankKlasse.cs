@@ -612,5 +612,7 @@ namespace Datenbank
 		public int SpielerId { get; set; }
 		public int Anzahl { get; set; }
         public int ItemId { get; set; }
+
+		public Boolean ItemGeändert { get; set; }
     }
 }
