@@ -39,7 +39,7 @@ namespace Haupt
         public const int StartGeld = 0;
 
         //Tutorial
-        public const int TutorialGeld = 500;
+        public const int TutorialGeld = 250;
 
         //Cooldown
         public static uint KeyCoolDownZeit = 5000;
@@ -106,7 +106,11 @@ namespace Haupt
         public static String EinreiseNPCText;
         public static String HelmutNPCText;
         public static String MannImBlumenfeldNPCText;
-    }
+		public static String MannImBlumenfeldNPCText1;
+
+		//Wetter Nacht
+		public static Boolean Nacht;
+	}
 
     public class AdminBefehle
     {
@@ -213,7 +217,13 @@ namespace Haupt
             "Meine Frau Brunhilde feiert heute ihren 99. Geburtstag und ich brauche ein paar frische Blumen…<br>" +
             "Bei meinem ersten Versuch ist mir Tollpatsch die Schere kaputt gegangen und mein Rücken will auch nicht mehr so wirklich… " +
             "Könntest du bitte im nächsten 24/7 eine neue Schere holen und mir diese schönen Blumen abschneiden? Ich bezahle dich natürlich auch dafür!";
-        }
+
+			//MannImBlumenfeldNPC1
+			GlobaleSachen.MannImBlumenfeldNPCText1 = "Vielen Dank!!<br>" +
+			"Du hast mir echt den Ar*** gerettet!<br>" +
+			"Ich habe ein bisschen Geld an der Seite, welches ich dir gerne für deine Bemühungen geben möchte. " +
+			"Pass gut auf dich auf und vielleicht kann man ja mal einen Kaffee trinken wenn man sich sieht.";
+		}
 
         public static void AllesStarten()
         {
@@ -1673,6 +1683,23 @@ namespace Haupt
 
             //Uhrzeit setzen
             NAPI.World.SetTime(Zeit.Hour, Zeit.Minute, 0);
+
+			if(Zeit.Hour == 21 && Zeit.Minute == 0)
+			{
+				if(!GlobaleSachen.Nacht)
+				{
+					GlobaleSachen.Nacht = true;
+					WetterAendern();
+				}
+			}
+			else if(Zeit.Hour == 7 && Zeit.Minute == 0)
+			{
+				if(GlobaleSachen.Nacht)
+				{
+					GlobaleSachen.Nacht = false;
+					WetterAendern();
+				}
+			}
         }
 
         public static void HeiratenSound()
@@ -1789,12 +1816,19 @@ namespace Haupt
             int Monat = int.Parse(MonatString);
             Random random = new Random();
             String Wetter = null;
+			int Random;
+
+			if(GlobaleSachen.Nacht)
+			{
+				Random = 1;
+			}
+			else
+			{
+				Random = random.Next(1, 5);
+			}
 
             //Zeit Abfragen
             var Zeit = DateTime.Now;
-
-            //Random Funktion
-            int Random = random.Next(1, 5);
 
             switch (Monat)
             {
@@ -1849,7 +1883,7 @@ namespace Haupt
                     break;
                 case 8:
                     if (Random == 1) { GlobaleSachen.ServerWetter = 0; }
-                    if (Random == 2) { GlobaleSachen.ServerWetter = 0; }
+                    if (Random == 2) { GlobaleSachen.ServerWetter = 2; }
                     if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
                     if (Random == 4) { GlobaleSachen.ServerWetter = 1; }
                     if (Random == 5) { GlobaleSachen.ServerWetter = 0; }
@@ -1857,9 +1891,9 @@ namespace Haupt
                 case 9:
                     if (Random == 1) { GlobaleSachen.ServerWetter = 2; }
                     if (Random == 2) { GlobaleSachen.ServerWetter = 1; }
-                    if (Random == 3) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 3) { GlobaleSachen.ServerWetter = 6; }
                     if (Random == 4) { GlobaleSachen.ServerWetter = 2; }
-                    if (Random == 5) { GlobaleSachen.ServerWetter = 1; }
+                    if (Random == 5) { GlobaleSachen.ServerWetter = 6; }
                     break;
                 case 10:
                     if (Random == 1) { GlobaleSachen.ServerWetter = 2; }
@@ -2007,7 +2041,7 @@ namespace Haupt
             switch (AdminLevel)
             {
                 case 0:
-                    AdminLevelName = "SPieler";
+                    AdminLevelName = "Spieler";
                     break;
                 case 1:
                     AdminLevelName = "Supporter";
@@ -2519,10 +2553,6 @@ namespace Haupt
 		[RemoteEvent("ItemKaufen247")]
 		public static void ItemKaufen247(Client Player, int Id)
 		{
-			//Benötigte Definitionen
-			int SpielerID = Player.GetData("Id");
-			int Anzahl = 0;
-
 			foreach (ServerItems sitem in ServerItemsListe)
 			{
 				if(sitem.Id == Id)
@@ -2533,7 +2563,7 @@ namespace Haupt
 						return;
 					}
 
-					SpielerItemSetzen(Player, Id, 1);
+					SpielerItemSetzen(Player, Id, 1, 2);
 
 					//Dem Supermarkt das Geld in die Kasse geben
 					SupermarktLokal supermarkt = new SupermarktLokal();
@@ -2544,49 +2574,90 @@ namespace Haupt
 
 					//Dem Spieler das Geld abziehen
 					Funktionen.AccountGeldSetzen(Player, 2, sitem.Preis);
-
-					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Item ~r~" + sitem.Name + " ~w~für ~r~" + GeldFormatieren(sitem.Preis) + " ~w~gekauft.");
 				}
 			}
 		}
 
-		public static void SpielerItemSetzen(Client Player, int Id, int Anzahl)
+		public static void SpielerItemSetzen(Client Player, int Id, int Anzahl, int Wie)
 		{
 			if (HatSpielerItem(Player, Id))
 			{
 				SpielerItems sitemlocal = new SpielerItems();
 				sitemlocal = SpielerItemBekommen(Player, Id);
 
-				Anzahl = sitemlocal.Anzahl;
-				Anzahl += Anzahl;
-				sitemlocal.Anzahl = Anzahl;
+				if(Wie == 2)
+				{
+					Anzahl = sitemlocal.Anzahl;
+					Anzahl += Anzahl;
+					sitemlocal.Anzahl = Anzahl;
 
-				sitemlocal.ItemGeändert = true;
+					sitemlocal.ItemGeändert = true;
+
+					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~g~+~r~ " + Anzahl + "~w~x ~r~" + ServerItemNameBekommen(Id));
+				}
+				else
+				{
+					if(sitemlocal.Anzahl >= Anzahl)
+					{
+						Anzahl = sitemlocal.Anzahl;
+						Anzahl -= Anzahl;
+						sitemlocal.Anzahl = Anzahl;
+
+						sitemlocal.ItemGeändert = true;
+
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~r~- " + Anzahl + "~w~x ~r~" + ServerItemNameBekommen(Id));
+					}
+					else
+					{
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: So oft hast du das Item nicht mehr.");
+					}
+				}
 			}
 			else
 			{
-				var current_item = new SpielerItems
+				if(Wie == 2)
 				{
-					SpielerId = Player.GetData("Id"),
-					Anzahl = 1,
-					ItemId = Id
-				};
+					var current_item = new SpielerItems
+					{
+						SpielerId = Player.GetData("Id"),
+						Anzahl = Anzahl,
+						ItemId = Id
+					};
 
-				//Query absenden
-				ContextFactory.Instance.srp_spieleritems.Add(current_item);
-				ContextFactory.Instance.SaveChanges();
+					//Query absenden
+					ContextFactory.Instance.srp_spieleritems.Add(current_item);
+					ContextFactory.Instance.SaveChanges();
 
-				SpielerItems current_item_lokal = new SpielerItems();
+					SpielerItems current_item_lokal = new SpielerItems();
 
-				current_item_lokal.Id = ContextFactory.Instance.srp_spieleritems.Max(x => x.Id);
-				current_item_lokal.SpielerId = Player.GetData("Id");
-				current_item_lokal.Anzahl = 1;
-				current_item_lokal.ItemId = Id;
+					current_item_lokal.Id = ContextFactory.Instance.srp_spieleritems.Max(x => x.Id);
+					current_item_lokal.SpielerId = Player.GetData("Id");
+					current_item_lokal.Anzahl = Anzahl;
+					current_item_lokal.ItemId = Id;
 
-				current_item_lokal.ItemGeändert = false;
+					current_item_lokal.ItemGeändert = false;
 
-				SpielerItemsListe.Add(current_item_lokal);
+					SpielerItemsListe.Add(current_item_lokal);
+
+					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~g~+~r~ " + Anzahl + "~w~x ~r~" + ServerItemNameBekommen(Id));
+				}
 			}
+		}
+
+		public static String ServerItemNameBekommen(int Id)
+		{
+			String name = null;
+
+			foreach (ServerItems sitem in ServerItemsListe)
+			{
+				if(sitem.Id == Id)
+				{
+					name = sitem.Name;
+					break;
+				}
+			}
+
+			return name;
 		}
 
         [RemoteEvent("InteraktionsMenuZeigen")]
@@ -6828,6 +6899,7 @@ namespace Haupt
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 25 Sekunden zuzuhören.");
                 }
             }
+			//Mann im Blumenfeld wo man dann die Schere abgeben wird
 			else if (Player.Position.DistanceTo(new Vector3(1331.05, -2458.33, 48.4316)) < 5.0f)
 			{
 				if (AccountTutorialBekommen(Player) == 3)
@@ -6838,11 +6910,13 @@ namespace Haupt
 						Freeze(Player);
 						Timer.SetTimer(() => NPCPopupSchliessen(Player), 15000, 1);
 						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Abgeschlossen.");
-						AccountGeldSetzen(Player, 1, 250);
+						AccountGeldSetzen(Player, 1, GlobaleSachen.TutorialGeld);
 						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Einige Felder benötigen unterschiedliche Werkzeuge um von ihnen etwas abbauen zu können.");
 						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Merke dir wo der alte Mann ist, damit du ihn wiederfindest.");
 						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Tipp~w~: Sprich mit anderen Bewohnern dieser Stadt und du wirst mehr erfahren.");
 						AccountTutorialSetzen(Player, 100);
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 15 Sekunden zuzuhören.");
+						SpielerItemSetzen(Player, 1, 1, 1);
 					}
 					else
 					{
