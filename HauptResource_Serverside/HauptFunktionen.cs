@@ -1308,12 +1308,12 @@ namespace Haupt
             if (Wie == 1)
             {
                 account.Geld += Geld;
-                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Geld: + " + GeldFormatieren(Geld));
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Geld: ~g~+~w~ " + GeldFormatieren(Geld));
             }
             else
             {
-                account.Geld += Geld;
-                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Geld: - " + GeldFormatieren(Geld));
+                account.Geld -= Geld;
+                NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Geld: ~r~-~w~ " + GeldFormatieren(Geld));
             }
 
             account.AccountGeändert = true;
@@ -2534,6 +2534,16 @@ namespace Haupt
 
 						SpielerItemsListe.Add(current_item_lokal);
 					}
+
+					//Dem Supermarkt das Geld in die Kasse geben
+					SupermarktLokal supermarkt = new SupermarktLokal();
+					supermarkt = NaheSupermarktBekommen(Player);
+
+					supermarkt.SupermarktGeld += sitem.Preis;
+					supermarkt.SupermarktGeändert = true;
+
+					//Dem Spieler das Geld abziehen
+					Funktionen.AccountGeldSetzen(Player, 2, sitem.Preis);
 
 					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast das Item ~r~" + sitem.Name + " ~w~für ~r~" + GeldFormatieren(sitem.Preis) + " ~w~gekauft.");
 				}
