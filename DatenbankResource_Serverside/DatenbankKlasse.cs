@@ -613,6 +613,7 @@ namespace Datenbank
 		public int Anzahl { get; set; }
         public int ItemId { get; set; }
 
+		[NotMapped]
 		public Boolean ItemGeändert { get; set; }
     }
 }

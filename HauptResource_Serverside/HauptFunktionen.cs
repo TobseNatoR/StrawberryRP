@@ -1203,7 +1203,6 @@ namespace Haupt
 					return true;
 				}
 			}
-
 			return false;
 		}
 
@@ -2580,6 +2579,9 @@ namespace Haupt
 
 		public static void SpielerItemSetzen(Client Player, int Id, int Anzahl, int Wie)
 		{
+			//Benötigte Definitionen
+			int Gesamt = 0;
+
 			if (HatSpielerItem(Player, Id))
 			{
 				SpielerItems sitemlocal = new SpielerItems();
@@ -2587,25 +2589,25 @@ namespace Haupt
 
 				if(Wie == 2)
 				{
-					Anzahl = sitemlocal.Anzahl;
-					Anzahl += Anzahl;
-					sitemlocal.Anzahl = Anzahl;
+					Gesamt = sitemlocal.Anzahl;
+					Gesamt += Anzahl;
+					sitemlocal.Anzahl = Gesamt;
 
 					sitemlocal.ItemGeändert = true;
 
-					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~g~+~r~ " + Anzahl + "~w~x ~r~" + ServerItemNameBekommen(Id));
+					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~g~+ " + Anzahl + "x ~r~" + ServerItemNameBekommen(Id));
 				}
 				else
 				{
 					if(sitemlocal.Anzahl >= Anzahl)
 					{
-						Anzahl = sitemlocal.Anzahl;
-						Anzahl -= Anzahl;
-						sitemlocal.Anzahl = Anzahl;
+						Gesamt = sitemlocal.Anzahl;
+						Gesamt -= Anzahl;
+						sitemlocal.Anzahl = Gesamt;
 
 						sitemlocal.ItemGeändert = true;
 
-						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~r~- " + Anzahl + "~w~x ~r~" + ServerItemNameBekommen(Id));
+						NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~r~-~w~ " + Anzahl + "x ~r~" + ServerItemNameBekommen(Id));
 					}
 					else
 					{
@@ -2639,7 +2641,7 @@ namespace Haupt
 
 					SpielerItemsListe.Add(current_item_lokal);
 
-					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~g~+~r~ " + Anzahl + "~w~x ~r~" + ServerItemNameBekommen(Id));
+					NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: ~g~+~w~ " + Anzahl + "x ~r~" + ServerItemNameBekommen(Id));
 				}
 			}
 		}
@@ -4025,12 +4027,12 @@ namespace Haupt
 
             //Kleidung laden
             Player.TriggerEvent("KleidungZuJava", 1, Account.Component1Drawable);
-            Player.TriggerEvent("KleidungZuJava", 3, Account.Component3Drawable);
+			Player.TriggerEvent("KleidungZuJava", 3, Account.Component3Drawable);
             Player.TriggerEvent("KleidungZuJava", 4, Account.Component4Drawable);
             Player.TriggerEvent("KleidungZuJava", 6, Account.Component6Drawable);
             Player.TriggerEvent("KleidungZuJava", 7, Account.Component7Drawable);
-            Player.TriggerEvent("KleidungZuJava", 8, Account.Component8Drawable);
-            Player.TriggerEvent("KleidungZuJava", 11, Account.Component11Drawable);
+			Player.TriggerEvent("KleidungZuJava", 8, Account.Component8Drawable);
+			Player.TriggerEvent("KleidungZuJava", 11, Account.Component11Drawable);
 
             //Zur Liste adden
             AccountListe.Add(account);
@@ -4099,6 +4101,7 @@ namespace Haupt
             //Nachrichten
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast dich erfolgreich eingeloggt!");
             NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Dein letzter Login war am ~r~" + DatumFormatieren(Account.ZuletztOnline));
+
 
 			//Peds Laden
 			//PedsFürSpielerLaden(Player);
@@ -6898,13 +6901,10 @@ namespace Haupt
                     AccountTutorialSetzen(Player, 3);
                     NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Der alte Mann bittet dich, ihm 25 Sekunden zuzuhören.");
                 }
-            }
-			//Mann im Blumenfeld wo man dann die Schere abgeben wird
-			else if (Player.Position.DistanceTo(new Vector3(1331.05, -2458.33, 48.4316)) < 5.0f)
-			{
-				if (AccountTutorialBekommen(Player) == 3)
+				//Wenn er die Schere hat
+				else if (AccountTutorialBekommen(Player) == 3)
 				{
-					if(HatSpielerItem(Player, 1))
+					if (HatSpielerItem(Player, 1))
 					{
 						Player.TriggerEvent("npcpopupoeffnen", "Alter Mann im Blumenfeld", GlobaleSachen.MannImBlumenfeldNPCText1);
 						Freeze(Player);

@@ -25,8 +25,10 @@ namespace Haupt
         [Command("test", "Nutze: /test")]
         public void test(Client Player)
         {
-            
-        }
+			NAPI.Player.SetPlayerClothes(Player, 11, 15, 0);
+			NAPI.Player.SetPlayerClothes(Player, 3, 15, 0);
+			NAPI.Player.SetPlayerClothes(Player, 8, 15, 0);
+		}
 
         //Test1 CMD
         [Command("test1", "Nutze: /test")]
