@@ -2438,6 +2438,39 @@ namespace Haupt
             }
         }
 
+        [RemoteEvent("ICheck")]
+        public static void ICheck(Client Player)
+        {
+            //Benötigte Definitionen
+            string itemname = null;
+
+            //Cooldown
+            if (Player.GetData("KeyCoolDown") == 1) { return; }
+            Player.SetData("KeyCoolDown", 1);
+            Timer.SetTimer(() => KeyCoolDown(Player), GlobaleSachen.KeyCoolDownZeit, 1);
+
+            //Wichtige Abfragen
+            if (Player.GetData("Eingeloggt") == 0) { return; }
+
+            //Inventar
+            Player.TriggerEvent("inventaroeffnen");
+
+            foreach (SpielerItems spieleritemlocal in SpielerItemsListe)
+            {
+                if (spieleritemlocal.SpielerId == Player.GetData("Id"))
+                {
+                    foreach (ServerItems serveritem in ServerItemsListe)
+                    {
+                        if (serveritem.Id == spieleritemlocal.ItemId)
+                        {
+                            itemname = spieleritemlocal.Anzahl + "x " + serveritem.Name;
+                            Player.TriggerEvent("InventarDaten", spieleritemlocal.Id, itemname, serveritem.Image);
+                        }
+                    }
+                }
+            }
+        }
+
         [RemoteEvent("KCheck")]
         public static void KCheck(Client Player)
         {
