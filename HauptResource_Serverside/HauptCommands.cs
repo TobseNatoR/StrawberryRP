@@ -2053,9 +2053,6 @@ namespace Haupt
                 }
             }
 
-            //Dem Spieler das Admin Level setzen
-            Funktionen.AccountFraktionSetzen(Spieler1, Fraktion);
-
             var Check = ContextFactory.Instance.srp_fraktionen.Count(x => x.Id == Fraktion);
 
             if(Check != 0)
@@ -2065,6 +2062,9 @@ namespace Haupt
                 //Beiden eine Nachricht senden
                 NAPI.Notification.SendNotificationToPlayer(Player, "~y~Info~w~: Du hast " + Spieler1.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
                 NAPI.Notification.SendNotificationToPlayer(Spieler1, "~y~Info~w~: Du wurdest von " + Player.Name + " in die Fraktion " + fraki.FraktionName + " gesetzt.");
+
+                //Dem Spieler die Fraktion setzen
+                Funktionen.AccountFraktionSetzen(Spieler1, Fraktion);
 
                 //Log eintrag
                 Funktionen.LogEintrag(Player, Spieler1.Name + " in Fraktion " + fraki.FraktionName + " gesetzt.");
